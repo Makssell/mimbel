@@ -9,6 +9,7 @@ export default function Home() {
         <Link href="/site1" className={styles.link}>Site 1</Link>
         <Link href="/site2" className={styles.link}>Site 2</Link>
         <Link href="/site3" className={styles.link}>Site 3</Link>
+        <Link href="/addFlag" className={styles.link}>addFlag</Link>
       </div>
     </div>
   );

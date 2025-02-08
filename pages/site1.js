@@ -24,7 +24,7 @@ const Site1 = () => {
     return (
         <div>
             <h1>Site 1</h1>
-            <p>Welcome to Site 1!</p>
+            <p>Welcome to Site XXX!</p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px' }}>
                 {flags.map(flag => (
