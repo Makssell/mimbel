@@ -1,25 +1,15 @@
-// pages/index.js
 import Link from 'next/link';
-import styles from './index.module.css'; // Import a CSS module for styling
+import styles from '../styles/index.module.css';
 
-
-const Home = () => {
+export default function Home() {
   return (
     <div className={styles.container}>
       <h1>Main Page</h1>
       <div className={styles.linksContainer}>
-        <Link href="/site1">
-          <a className={styles.link}>Site 1</a>
-        </Link>
-        <Link href="/site2">
-          <a className={styles.link}>Site 2</a>
-        </Link>
-        <Link href="/site3">
-          <a className={styles.link}>Site 3</a>
-        </Link>
+        <Link href="/site1" className={styles.link}>Site 1</Link>
+        <Link href="/site2" className={styles.link}>Site 2</Link>
+        <Link href="/site3" className={styles.link}>Site 3</Link>
       </div>
     </div>
   );
-};
-
-export default Home;
+}

@@ -1,0 +1,66 @@
+.root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-image: url("https://images.pexels.com/photos/388415/pexels-photo-388415.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1");
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  font-family: "Poppins", sans-serif;
+}
+
+.container {
+  text-align: center;
+  min-width: 400px;
+  max-width: 400px;
+  background-color: #2c2f33;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #7289da;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+  font-size: 16px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+  background-color: #4e5d94;
+}
+
+button:active {
+  transform: scale(0.9);
+}
+
+#monkeyList {
+  list-style-type: none;
+  padding: 0;
+}
+
+#monkeyList li {
+  margin-bottom: 5px;
+  background-color: #586677;
+  padding: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+#monkeyList li:hover {
+  background-color: #4a5664;
+}
+
+#upgradeDisplay {
+  display: none;
+  margin-top: 20px;
+}
