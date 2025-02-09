@@ -1,54 +1,80 @@
-import { createClient } from '@supabase/supabase-js';
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
+
 const Site3 = () => {
+  const [flags, setFlags] = useState([]);
+  const [continents, setContinents] = useState([]);
+  const [selectedContinent, setSelectedContinent] = useState(null); // Selected continent filter
+  const [includeTerritories, setIncludeTerritories] = useState(true); // Toggle for territories
 
+  // Fetch continents
+  useEffect(() => {
+    const fetchContinents = async () => {
+      const { data, error } = await supabase.from("continents").select("*");
+      if (error) console.error("Error fetching continents:", error);
+      else setContinents(data);
+    };
+    fetchContinents();
+  }, []);
 
-
-  // Initialize Supabase client
-  const supabase = createClient('https://jcucxwulsqjpvlzbpyep.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjdWN4d3Vsc3FqcHZsemJweWVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkwMzI0MTEsImV4cCI6MjA1NDYwODQxMX0.1VaopQWCnjelWIG3S8nP6i_PMtHrAIaRnjt-LinhR54');
-  
-  // Function to fetch flag data with filtering options
-  async function fetchFlags(continent = null, showTerritories = true) {
-    try {
-      // Start building the query
+  // Fetch flags based on selected filters
+  useEffect(() => {
+    const fetchFlags = async () => {
       let query = supabase
-        .from('flags')
-        .select('id, name, continents, image_url, territory');
-  
-      // Apply continent filter if provided (using @> for arrays)
-      if (continent) {
-        query = query.contains('continents', [continent]);
+        .from("flags")
+        .select("id, name, image_url, territory, country_continent!inner(continent_id)");
+
+      if (selectedContinent) {
+        query = query.eq("country_continent.continent_id", selectedContinent);
       }
-  
-      // Apply territory filter based on the showTerritories boolean
-      if (showTerritories !== undefined) {
-        query = query.eq('territory', showTerritories);
+
+      if (!includeTerritories) {
+        query = query.eq("territory", false); // Exclude territories
       }
-  
-      // Execute the query and handle the response
+
       const { data, error } = await query;
-  
-      if (error) {
-        throw new Error(error.message);
-      }
-  
-      // Save the flag data (you can process this further or store it in state)
-      console.log('Flag Data:', data);
-      return data;
-    } catch (error) {
-      // Handle any errors
-      console.error('Error fetching flags:', error);
-      return null;
-    }
-  }
-  
-  // Example usage
-  fetchFlags('Africa', false).then((flags) => {
-    if (flags) {
-      console.log('Fetched flags:', flags);
-    } else {
-      console.log('No flags found or error occurred');
-    }
-  });
-  
+      if (error) console.error("Error fetching flags:", error);
+      else setFlags(data);
+    };
+    fetchFlags();
+  }, [selectedContinent, includeTerritories]);
+
+  return (
+    <div>
+      <h1>Flags</h1>
+
+      {/* Dropdown for Continent Selection */}
+      <select onChange={(e) => setSelectedContinent(e.target.value || null)} defaultValue="">
+        <option value="">All Continents</option>
+        {continents.map((continent) => (
+          <option key={continent.id} value={continent.id}>
+            {continent.name}
+          </option>
+        ))}
+      </select>
+
+      {/* Toggle Switch for Territories */}
+      <label style={{ display: "flex", alignItems: "center", marginLeft: "10px" }}>
+        <input
+          type="checkbox"
+          checked={includeTerritories}
+          onChange={() => setIncludeTerritories(!includeTerritories)}
+          style={{ marginRight: "5px" }}
+        />
+        Include Territories
+      </label>
+
+      {/* Display Flags */}
+      <div style={{ display: "flex", flexWrap: "wrap", marginTop: "10px" }}>
+        {flags.map((flag) => (
+          <div key={flag.id} style={{ margin: "10px", textAlign: "center" }}>
+            <img src={flag.image_url} alt={flag.name} width="100" />
+            <p>{flag.name}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
+
 export default Site3;
