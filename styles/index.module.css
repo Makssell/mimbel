@@ -1,7 +1,7 @@
 /* styles/index.module.css */
 .container {
   text-align: center;
-  padding: 20px;
+  padding: 40px;
 }
 
 .linksContainer {
@@ -12,7 +12,8 @@
 
 .link {
   display: inline-block;
-  padding: 15px 30px;
+  padding: 25px 50px;
+  width: 80%;
   margin: 10px;
   background-color: #3498db; /* Rectangle background color */
   color: white;
