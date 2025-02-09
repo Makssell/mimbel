@@ -1,78 +1,52 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { useState } from "react";
+import styles from "../styles/site3.module.css";
+
+const monkeys = [
+  "Dart Monkey", "Tack Shooter", "Sniper Monkey", "Ninja Monkey", "Boomerang Monkey",
+  "Bomb Shooter", "Ice Monkey", "Glue Gunner", "Monkey Buccaneer", "Monkey Sub",
+  "Monkey Ace", "Heli Pilot", "Mortar Monkey", "Dartling Gunner", "Wizard Monkey",
+  "Super Monkey", "Alchemist", "Druid", "Banana Farm", "Spike Factory",
+  "Monkey Village", "Engineer Monkey"
+];
 
 const Site3 = () => {
-  const [flags, setFlags] = useState([]);
-  const [continents, setContinents] = useState([]);
-  const [selectedContinent, setSelectedContinent] = useState(null); // Selected continent filter
-  const [includeTerritories, setIncludeTerritories] = useState(true); // Toggle for territories
+  const [rolledMonkeys, setRolledMonkeys] = useState([]);
+  const [upgradeDisplay, setUpgradeDisplay] = useState("");
 
-  // Fetch continents
-  useEffect(() => {
-    const fetchContinents = async () => {
-      const { data, error } = await supabase.from("continents").select("*");
-      if (error) console.error("Error fetching continents:", error);
-      else setContinents(data);
-    };
-    fetchContinents();
-  }, []);
+  const rollMonkey = () => {
+    const selectedMonkey = monkeys[Math.floor(Math.random() * monkeys.length)];
+    setRolledMonkeys((prev) => [...prev, selectedMonkey]);
+  };
 
-  // Fetch flags based on selected filters
-  useEffect(() => {
-    const fetchFlags = async () => {
-      let query = supabase
-        .from("flags")
-        .select("id, name, image_url, territory, country_continent!inner(continent_id)");
+  const rollUpgrade = (selectedMonkey) => {
+    if (rolledMonkeys.length > 0) {
+      const upgradeChoice = Math.floor(Math.random() * 3) + 1;
+      setUpgradeDisplay(`You rolled: ${upgradeChoice} for ${selectedMonkey}`);
+    } else {
+      alert("Please roll a monkey first.");
+    }
+  };
 
-      if (selectedContinent) {
-        query = query.eq("country_continent.continent_id", selectedContinent);
-      }
-
-      if (!includeTerritories) {
-        query = query.eq("territory", false); // Exclude territories
-      }
-
-      const { data, error } = await query;
-      if (error) console.error("Error fetching flags:", error);
-      else setFlags(data);
-    };
-    fetchFlags();
-  }, [selectedContinent, includeTerritories]);
+  const rollRandomUpgrade = () => {
+    if (rolledMonkeys.length > 0) {
+      const selectedMonkey = rolledMonkeys[Math.floor(Math.random() * rolledMonkeys.length)];
+      rollUpgrade(selectedMonkey);
+    } else {
+      alert("Please roll a monkey first.");
+    }
+  };
 
   return (
-    <div>
-      <h1>Flags</h1>
-
-      {/* Dropdown for Continent Selection */}
-      <select onChange={(e) => setSelectedContinent(e.target.value || null)} defaultValue="">
-        <option value="">All Continents</option>
-        {continents.map((continent) => (
-          <option key={continent.id} value={continent.id}>
-            {continent.name}
-          </option>
+    <div className={styles.container}>
+      <h1 className={styles.heading}>Monkey Roller</h1>
+      <button onClick={rollMonkey} className={styles.button}>Roll Monkey</button>
+      <button onClick={rollRandomUpgrade} className={styles.button}>Roll Upgrade</button>
+      <ul className={styles.monkeyList}>
+        {rolledMonkeys.map((monkey, index) => (
+          <li key={index}>{monkey}</li>
         ))}
-      </select>
-
-      {/* Toggle Switch for Territories */}
-      <label style={{ display: "flex", alignItems: "center", marginLeft: "10px" }}>
-        <input
-          type="checkbox"
-          checked={includeTerritories}
-          onChange={() => setIncludeTerritories(!includeTerritories)}
-          style={{ marginRight: "5px" }}
-        />
-        Include Territories
-      </label>
-
-      {/* Display Flags */}
-      <div style={{ display: "flex", flexWrap: "wrap", marginTop: "10px" }}>
-        {flags.map((flag) => (
-          <div key={flag.id} style={{ margin: "10px", textAlign: "center" }}>
-            <img src={flag.image_url} alt={flag.name} width="100" />
-            <p>{flag.name}</p>
-          </div>
-        ))}
-      </div>
+      </ul>
+      {upgradeDisplay && <div className={styles.upgradeDisplay}>{upgradeDisplay}</div>}
     </div>
   );
 };

@@ -1,66 +1,91 @@
-.root {
+/* General Page Styling */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+/* Title */
+.title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Filters Section */
+.filters {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  margin: 0;
-  background-image: url("https://images.pexels.com/photos/388415/pexels-photo-388415.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1");
-  background-size: cover;
-  background-position: center;
-  background-blend-mode: multiply;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: #ffffff;
-  font-family: "Poppins", sans-serif;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
-.container {
-  text-align: center;
-  min-width: 400px;
-  max-width: 400px;
-  background-color: #2c2f33;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-button {
-  padding: 10px 20px;
-  background-color: #7289da;
-  color: #ffffff;
-  border: none;
+/* Dropdown Styling */
+.dropdown {
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
   border-radius: 5px;
+  background: #f8f8f8;
   cursor: pointer;
-  margin: 5px;
-  font-size: 16px;
-  transition: background-color 0.3s, transform 0.2s;
+  transition: 0.3s;
 }
 
-button:hover {
-  background-color: #4e5d94;
+.dropdown:hover {
+  background: #e8e8e8;
 }
 
-button:active {
-  transform: scale(0.9);
+/* Checkbox Toggle */
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 1rem;
 }
 
-#monkeyList {
-  list-style-type: none;
-  padding: 0;
+.checkboxLabel input {
+  margin-right: 5px;
+  cursor: pointer;
 }
 
-#monkeyList li {
-  margin-bottom: 5px;
-  background-color: #586677;
+/* Flags Grid */
+.flagsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+  justify-content: center;
+}
+
+.flagCard {
+  background: white;
   padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.flagCard {
+  transition: transform 0.3s ease-in-out;
+}
+
+.flagCard img {
+  transition: transform 0.3s ease-in-out; /* Smooth scaling effect */
+}
+
+.flagCard:hover img {
+  transform: scale(1.2); /* Only scales the image */
+}
+
+.flagCard img {
+  width: 100%;
   border-radius: 5px;
-  transition: background-color 0.3s;
 }
 
-#monkeyList li:hover {
-  background-color: #4a5664;
-}
-
-#upgradeDisplay {
-  display: none;
-  margin-top: 20px;
+.flagCard p {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  font-weight: bold;
 }

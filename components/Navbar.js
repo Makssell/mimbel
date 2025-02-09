@@ -1,23 +1,29 @@
-import Link from 'next/link';
-import styles from '../styles/Navbar.module.css'; // Import the CSS module
+import { useState } from "react";
+import Link from "next/link";
+import styles from "../styles/Navbar.module.css";
 
-const Navbar = () => (
-  <nav className={styles.navbar}>
-    <ul className={styles.navList}>
-      <li className={styles.navItem}>
-        <Link href="/" className={styles.navLink}>Home</Link>
-      </li>
-      <li className={styles.navItem}>
-        <Link href="/site1" className={styles.navLink}>Site 1</Link>
-      </li>
-      <li className={styles.navItem}>
-        <Link href="/site2" className={styles.navLink}>Site 2</Link>
-      </li>
-      <li className={styles.navItem}>
-        <Link href="/site3" className={styles.navLink}>Site 3</Link>
-      </li>
-    </ul>
-  </nav>
-);
+const Navbar = () => {
+  const [menuOpen, setMenuOpen] = useState(false); // State to toggle the menu visibility
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  return (
+    <nav className={styles.navbar}>
+      <div className={styles.hamburger} onClick={toggleMenu}>
+        <span className={styles.bar}></span>
+        <span className={styles.bar}></span>
+        <span className={styles.bar}></span>
+      </div>
+      <ul className={`${styles.menu} ${menuOpen ? styles.open : ""}`}>
+        <li><Link href="/">Home</Link></li>
+        <li><Link href="/site1">Flaguesser</Link></li>
+        <li><Link href="/site2">Flags</Link></li>
+        <li><Link href="/site3">Monkeyroller</Link></li>
+      </ul>
+    </nav>
+  );
+};
 
 export default Navbar;
