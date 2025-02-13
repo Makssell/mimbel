@@ -1,30 +1,49 @@
 /* styles/index.module.css */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap"); /* Importing Poppins font */
+
 .container {
   text-align: center;
-  padding: 40px;
+  padding: 50px;
+  background-color: #000000;
+  border-radius: 10px;
 }
 
 .linksContainer {
   display: flex;
-  justify-content: space-around; /* Distribute the links evenly */
+  flex-wrap: wrap;
+  justify-content: center;
   margin-top: 20px;
 }
 
 .link {
   display: inline-block;
-  padding: 25px 50px;
-  width: 80%;
-  margin: 10px;
-  background-color: #3498db; /* Rectangle background color */
+  padding: 40px 40px;
+  width: 250px;
+  margin: 15px;
+  background: rgba(255, 255, 255, 0.1);
   color: white;
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 600;
   text-align: center;
   text-decoration: none;
-  border-radius: 5px; /* Slightly rounded corners */
-  transition: background-color 0.3s ease;
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-family: "Poppins", sans-serif; /* Apply the custom font */
 }
 
 .link:hover {
-  background-color: #2980b9; /* Darker shade on hover */
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .link {
+    width: 100%;
+    padding: 15px 30px;
+    font-size: 16px;
+  }
 }

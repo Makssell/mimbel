@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "../styles/site3.module.css";
 
 const monkeys = [
@@ -12,6 +12,23 @@ const monkeys = [
 const Site3 = () => {
   const [rolledMonkeys, setRolledMonkeys] = useState([]);
   const [upgradeDisplay, setUpgradeDisplay] = useState("");
+
+  // Load saved monkeys from localStorage on mount
+  useEffect(() => {
+    const savedMonkeys = JSON.parse(localStorage.getItem("rolledMonkeys"));
+    if (savedMonkeys) {
+      setRolledMonkeys(savedMonkeys);
+    }
+  }, []);
+
+  // Save rolled monkeys to localStorage whenever they change
+  useEffect(() => {
+    if (rolledMonkeys.length > 0) {
+      localStorage.setItem("rolledMonkeys", JSON.stringify(rolledMonkeys));
+    } else {
+      localStorage.removeItem("rolledMonkeys");
+    }
+  }, [rolledMonkeys]);
 
   const rollMonkey = () => {
     const selectedMonkey = monkeys[Math.floor(Math.random() * monkeys.length)];
@@ -36,11 +53,18 @@ const Site3 = () => {
     }
   };
 
+  const resetRolls = () => {
+    setRolledMonkeys([]);
+    setUpgradeDisplay("");
+    localStorage.removeItem("rolledMonkeys");
+  };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.heading}>Monkey Roller</h1>
       <button onClick={rollMonkey} className={styles.button}>Roll Monkey</button>
       <button onClick={rollRandomUpgrade} className={styles.button}>Roll Upgrade</button>
+      <button onClick={resetRolls} className={styles.button}>Reset Rolls</button>
       <ul className={styles.monkeyList}>
         {rolledMonkeys.map((monkey, index) => (
           <li key={index}>{monkey}</li>

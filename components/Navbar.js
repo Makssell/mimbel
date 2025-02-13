@@ -21,6 +21,7 @@ const Navbar = () => {
         <li><Link href="/site1">Flaguesser</Link></li>
         <li><Link href="/site2">Flags</Link></li>
         <li><Link href="/site3">Monkeyroller</Link></li>
+        <li><Link href="/site4">Dev</Link></li>
       </ul>
     </nav>
   );
