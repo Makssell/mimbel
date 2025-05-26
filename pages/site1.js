@@ -13,12 +13,14 @@ const Site1 = () => {
   const [includeTerritories, setIncludeTerritories] = useState(false); 
   const [health, setHealth] = useState(3); 
   const [gameStarted, setGameStarted] = useState(false); 
-  const [buttonsDisabled, setButtonsDisabled] = useState(false); // New state
-  const [buttonStyles, setButtonStyles] = useState({});  // New state to store button styles
-
+  const [buttonsDisabled, setButtonsDisabled] = useState(false);
+  const [buttonStyles, setButtonStyles] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     const fetchFlags = async () => {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from("flags")
         .select(`
@@ -36,10 +38,12 @@ const Site1 = () => {
 
       if (error) {
         console.error("Error fetching flags:", error);
+        setMessage("Error loading flags. Please try again.");
       } else {
         setFlags(data);
         setFilteredFlags(data); 
       }
+      setIsLoading(false);
     };
 
     fetchFlags();
@@ -70,7 +74,7 @@ const Site1 = () => {
     if (!gameStarted) {
       setScore(0);
       setHealth(3);
-      setMessage("");  // Reset message when starting the game
+      setMessage("");
       setGameStarted(true);
     }
   
@@ -79,8 +83,8 @@ const Site1 = () => {
       return;
     }
   
-    // Reset the message when a new flag is loaded
     setMessage("");
+    setImageLoaded(false);
   
     const randomFlag = filteredFlags[Math.floor(Math.random() * filteredFlags.length)];
     setCurrentFlag(randomFlag);
@@ -95,23 +99,23 @@ const Site1 = () => {
   };
 
   const giveUp = () => {
-    setMessage(`You gave up! Final score: ${score}`);
+    setMessage(`Game Over! Final score: ${score}`);
     setGameStarted(false);
   };
 
   const checkAnswer = (selectedCountry) => {
     if (selectedCountry === currentFlag.name) {
       setScore(score + 1);
-      setMessage("Correct!");
-      setButtonsDisabled(true);  // Disable buttons after answer
+      setMessage("Correct! 🎉");
+      setButtonsDisabled(true);
       setButtonStyles({ 
-        [selectedCountry]: 'correct' // Style selected button as correct
+        [selectedCountry]: styles.correctButton
       });
       setTimeout(() => {
-        startGame();  // Load next flag
-        setButtonStyles({});  // Reset button styles for next round
-        setButtonsDisabled(false);  // Re-enable buttons
-      }, 1000);
+        startGame();
+        setButtonStyles({});
+        setButtonsDisabled(false);
+      }, 1500);
     } else {
       setMessage("Incorrect! Try again.");
       if (health > 1) {
@@ -122,25 +126,42 @@ const Site1 = () => {
         setGameStarted(false); 
       }
       setButtonStyles({
-        [selectedCountry]: 'incorrect' // Style selected button as incorrect
+        [selectedCountry]: styles.incorrectButton
       });
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loadingSpinner}></div>
+        <p>Loading flags...</p>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
-      {/* Show title only if the game is not started */}
       {!gameStarted && (
-        <h1 className={styles.title}>Guess the Flag</h1>
+        <div className={styles.startScreen}>
+          <h1 className={styles.title}>Guess the Flag</h1>
+          <p className={styles.instructions}>
+            Test your knowledge of world flags! Select a continent and start guessing.
+            You have 3 lives - use them wisely!
+          </p>
+        </div>
       )}
   
       <div className={styles.scoreAndHealth}>
         <p className={styles.score}>Score: {score}</p>
         <div className={styles.health}>
-          <h3>Health:</h3>
+          <h3>Lives:</h3>
           <div>
             {Array.from({ length: 3 }).map((_, index) => (
-              <span key={index} style={{ color: health > index ? "red" : "gray" }}>
+              <span 
+                key={index} 
+                className={`${styles.heart} ${health > index ? styles.activeHeart : styles.inactiveHeart}`}
+              >
                 ♥
               </span>
             ))}
@@ -177,7 +198,7 @@ const Site1 = () => {
       )}
   
       <button
-        className={styles.button}
+        className={`${styles.button} ${styles.mainButton}`}
         onClick={gameStarted ? giveUp : startGame}
       >
         {gameStarted ? "Give Up" : "Start Game"}
@@ -186,11 +207,16 @@ const Site1 = () => {
       {currentFlag && gameStarted && (
         <div className={styles.flagContainer}>
           <h3>Which country does this flag belong to?</h3>
-          <img
-            src={currentFlag.image_url}
-            alt={currentFlag.name}
-            width="300"
-          />
+          <div className={styles.flagWrapper}>
+            {!imageLoaded && <div className={styles.flagLoading}></div>}
+            <img
+              src={currentFlag.image_url}
+              alt={currentFlag.name}
+              width="300"
+              onLoad={() => setImageLoaded(true)}
+              className={`${styles.flagImage} ${imageLoaded ? styles.flagLoaded : ''}`}
+            />
+          </div>
         </div>
       )}
   
@@ -201,7 +227,7 @@ const Site1 = () => {
               <button
                 key={index}
                 onClick={() => checkAnswer(country)}
-                className={`${styles.button} ${styles.guessButton}`}
+                className={`${styles.button} ${styles.guessButton} ${buttonStyles[country] || ''}`}
                 disabled={buttonsDisabled}
               >
                 {country}
@@ -213,7 +239,7 @@ const Site1 = () => {
               <button
                 key={index}
                 onClick={() => checkAnswer(country)}
-                className={`${styles.button} ${styles.guessButton}`}
+                className={`${styles.button} ${styles.guessButton} ${buttonStyles[country] || ''}`}
                 disabled={buttonsDisabled}
               >
                 {country}
@@ -238,8 +264,6 @@ const Site1 = () => {
       )}
     </div>
   );
-  
-  
 };
 
 export default Site1;
