@@ -5,9 +5,10 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 20px;
-  background-color: #f2f2f2;
-  font-family: "Inter", "Roboto", "Manrope", sans-serif;
+  background-color: #f0f0f0;
+  font-family: "Poppins", sans-serif;
+  padding: 0;
+  margin: 0;
 }
 
 /* Start screen */
@@ -20,8 +21,8 @@
 .title {
   font-size: 32px;
   font-weight: 700;
-  margin-bottom: 40px;
   color: #000000;
+  margin-bottom: 20px;
 }
 
 .menuContainer {
@@ -101,27 +102,32 @@
 
 /* Game info (score and health) */
 .gameInfo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #0e0e0e;
+  color: white;
+  padding: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 20px;
-  padding: 16px;
-  background-color: #0e0e0e;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
 }
 
 .score {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
-  color: #ffffff;
 }
 
 .health {
   display: flex;
   gap: 5px;
+}
+
+.health span {
+  color: #ff4c4c;
+  font-size: 20px;
 }
 
 .heart {
@@ -139,23 +145,20 @@
 
 /* Flag container */
 .flagContainer {
-  margin: 20px 0;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  position: relative;
-  min-height: 200px;
+  width: 100%;
+  height: 40vh;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  margin: 60px 0 0 0;
+  background-color: white;
 }
 
 .flagImage {
-  width: 300px;
-  height: 200px;
+  max-height: 100%;
+  max-width: 100%;
   object-fit: contain;
-  border-radius: 8px;
+  transition: transform 0.1s ease;
 }
 
 /* Buttons */
@@ -185,60 +188,59 @@
 .optionsContainer {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
+  gap: 0;
   width: 100%;
-  max-width: 600px;
-  margin-top: 20px;
+  padding: 0;
+  margin: 0;
 }
 
 .guessButton {
-  background-color: #0e0e0e;
-  color: #ffffff;
-  font-size: 18px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px;
+  margin: 0;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  font-size: 16px;
   font-weight: 500;
-  padding: 16px;
-  width: 100%;
-  min-height: 80px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
-.guessButton:hover:not(:disabled) {
-  background-color: #1e90ff;
+.guessButton:hover {
   transform: scale(1.05);
+  z-index: 1;
 }
 
-.guessButton:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.correctButton {
-  background-color: #00c49a !important;
-  animation: correctFlash 0.3s ease;
-}
-
-.incorrectButton {
-  background-color: #ff4c4c !important;
-  animation: incorrectShake 0.3s ease;
-}
-
-/* Message */
-.message {
-  margin-top: 20px;
-  font-size: 20px;
-  font-weight: 500;
-  padding: 16px 30px;
-  border-radius: 8px;
-  animation: fadeIn 0.3s ease;
+.guessButton:active {
+  transform: scale(0.95);
 }
 
 .correct {
-  color: #00c49a;
-  background-color: rgba(0, 196, 154, 0.1);
+  background-color: #00c49a;
+  color: white;
 }
 
 .incorrect {
-  color: #ff4c4c;
-  background-color: rgba(255, 76, 76, 0.1);
+  background-color: #ff4c4c;
+  color: white;
+}
+
+.message {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #0e0e0e;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
 }
 
 .gameOver {
@@ -249,149 +251,52 @@
 
 /* Loading spinner */
 .loadingSpinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #f2f2f2;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
   border-top: 4px solid #1e90ff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 @keyframes spin {
   0% {
-    transform: translate(-50%, -50%) rotate(0deg);
+    transform: rotate(0deg);
   }
   100% {
-    transform: translate(-50%, -50%) rotate(360deg);
+    transform: rotate(360deg);
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes correctFlash {
-  0% {
-    background-color: #00c49a;
-  }
-  50% {
-    background-color: #00c49a;
-    transform: scale(1.05);
-  }
-  100% {
-    background-color: #00c49a;
-  }
-}
-
-@keyframes incorrectShake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-5px);
-  }
-  75% {
-    transform: translateX(5px);
-  }
-}
-
-/* Mobile responsiveness */
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 750px) {
   .container {
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
   }
 
   .title {
     font-size: 24px;
-    margin: 20px 0;
-  }
-
-  .menuContainer {
-    border-radius: 0;
-    padding: 15px;
-  }
-
-  .continentGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .settingsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  /* Game UI for mobile */
-  .gameInfo {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    margin: 0;
-    border-radius: 0;
-    padding: 12px 20px;
-    z-index: 100;
-    background-color: #0e0e0e;
+    margin: 10px 0;
   }
 
   .flagContainer {
-    margin: 60px 0 0 0;
-    padding: 0;
-    border-radius: 0;
-    min-height: 40vh;
-    background-color: #ffffff;
-  }
-
-  .flagImage {
-    width: 100%;
     height: 40vh;
-    object-fit: contain;
+    margin: 50px 0 0 0;
   }
 
   .optionsContainer {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1px;
-    margin: 0;
+    width: 100%;
     padding: 0;
-    background-color: #0e0e0e;
-    flex: 1;
   }
 
   .guessButton {
-    font-size: 16px;
-    padding: 0;
-    min-height: 0;
+    padding: 12px;
+    font-size: 14px;
     height: 100%;
-    border-radius: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    word-break: break-word;
   }
 
   .message {
-    font-size: 18px;
-    padding: 12px 20px;
-    margin: 10px;
-    text-align: center;
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
+    padding: 10px;
+    font-size: 16px;
   }
 }
