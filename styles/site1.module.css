@@ -278,6 +278,33 @@
     margin: 10px 0;
   }
 
+  .menuContainer {
+    width: 100%;
+    border-radius: 0;
+    padding: 15px;
+    box-shadow: none;
+  }
+
+  .continentGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .continentButton {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .settingsGrid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .settingOption {
+    font-size: 16px;
+  }
+
   .flagContainer {
     height: 40vh;
     margin: 50px 0 0 0;
@@ -298,5 +325,11 @@
   .message {
     padding: 10px;
     font-size: 16px;
+  }
+
+  .mainButton {
+    font-size: 20px;
+    padding: 12px 30px;
+    margin: 15px 0;
   }
 }
