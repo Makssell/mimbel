@@ -18,6 +18,7 @@ const Site1 = () => {
   const [includeTerritories, setIncludeTerritories] = useState(false);
   const [infiniteMode, setInfiniteMode] = useState(false);
   const [usedFlags, setUsedFlags] = useState([]);
+  const [isFlagLoading, setIsFlagLoading] = useState(true);
 
   useEffect(() => {
     const fetchFlags = async () => {
@@ -92,6 +93,7 @@ const Site1 = () => {
     }
   
     setMessage("");
+    setIsFlagLoading(true);
     let availableFlags = infiniteMode ? filteredFlags : filteredFlags.filter(flag => !usedFlags.includes(flag.id));
     const randomFlag = availableFlags[Math.floor(Math.random() * availableFlags.length)];
     setCurrentFlag(randomFlag);
@@ -249,10 +251,13 @@ const Site1 = () => {
   
           {currentFlag && (
             <div className={styles.flagContainer}>
+              {isFlagLoading && <div className={styles.loadingSpinner}></div>}
               <img
                 src={currentFlag.image_url}
                 alt={currentFlag.name}
                 className={styles.flagImage}
+                onLoad={() => setIsFlagLoading(false)}
+                style={{ display: isFlagLoading ? 'none' : 'block' }}
               />
             </div>
           )}

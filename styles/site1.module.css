@@ -6,7 +6,8 @@
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: #f2f2f2;
+  font-family: "Inter", "Roboto", "Manrope", sans-serif;
 }
 
 /* Start screen */
@@ -17,16 +18,17 @@
 }
 
 .title {
-  font-size: 4rem;
+  font-size: 32px;
+  font-weight: 700;
   margin-bottom: 40px;
-  color: #2c3e50;
+  color: #000000;
 }
 
 .menuContainer {
-  background-color: white;
-  border-radius: 20px;
+  background-color: #0e0e0e;
+  border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .continentSection,
@@ -36,8 +38,9 @@
 
 .continentSection h2,
 .settingsSection h2 {
-  color: #2c3e50;
-  font-size: 1.8rem;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 700;
   margin-bottom: 20px;
 }
 
@@ -49,25 +52,25 @@
 }
 
 .continentButton {
-  background-color: #f8f9fa;
-  border: 2px solid #e9ecef;
-  border-radius: 10px;
-  padding: 15px;
-  font-size: 1.2rem;
-  color: #2c3e50;
+  background-color: #1e90ff;
+  border: none;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #ffffff;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .continentButton:hover {
-  background-color: #e9ecef;
-  transform: translateY(-2px);
+  background-color: #ffc107;
+  transform: scale(1.05);
 }
 
 .selectedContinent {
-  background-color: #3498db;
-  color: white;
-  border-color: #3498db;
+  background-color: #ffc107;
+  color: #000000;
 }
 
 .settingsGrid {
@@ -75,16 +78,17 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
   padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 10px;
+  background-color: #1e90ff;
+  border-radius: 8px;
 }
 
 .settingOption {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.2rem;
-  color: #2c3e50;
+  font-size: 18px;
+  font-weight: 500;
+  color: #ffffff;
   cursor: pointer;
 }
 
@@ -92,6 +96,7 @@
   width: 20px;
   height: 20px;
   cursor: pointer;
+  accent-color: #ffc107;
 }
 
 /* Game info (score and health) */
@@ -102,16 +107,16 @@
   width: 100%;
   max-width: 400px;
   margin-bottom: 20px;
-  padding: 10px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  background-color: #0e0e0e;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .score {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #2c3e50;
+  font-size: 20px;
+  font-weight: 500;
+  color: #ffffff;
 }
 
 .health {
@@ -120,25 +125,25 @@
 }
 
 .heart {
-  font-size: 2rem;
+  font-size: 24px;
   transition: all 0.3s ease;
 }
 
 .activeHeart {
-  color: #e74c3c;
+  color: #ff4c4c;
 }
 
 .inactiveHeart {
-  color: #bdc3c7;
+  color: #666666;
 }
 
 /* Flag container */
 .flagContainer {
   margin: 20px 0;
   padding: 20px;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .flagImage {
@@ -151,23 +156,23 @@
 /* Buttons */
 .button {
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .mainButton {
-  background-color: #3498db;
-  color: white;
-  font-size: 2rem;
-  padding: 20px 40px;
+  background-color: #1e90ff;
+  color: #ffffff;
+  font-size: 24px;
+  padding: 16px 40px;
   margin: 20px 0;
   width: 100%;
 }
 
 .mainButton:hover {
-  background-color: #2980b9;
+  background-color: #ffc107;
   transform: scale(1.05);
 }
 
@@ -182,17 +187,18 @@
 }
 
 .guessButton {
-  background-color: #34495e;
-  color: white;
-  font-size: 1.5rem;
-  padding: 20px;
+  background-color: #0e0e0e;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 16px;
   width: 100%;
   min-height: 80px;
 }
 
 .guessButton:hover:not(:disabled) {
-  background-color: #2c3e50;
-  transform: scale(1.02);
+  background-color: #1e90ff;
+  transform: scale(1.05);
 }
 
 .guessButton:disabled {
@@ -201,44 +207,47 @@
 }
 
 .correctButton {
-  background-color: #2ecc71 !important;
+  background-color: #00c49a !important;
+  animation: correctFlash 0.3s ease;
 }
 
 .incorrectButton {
-  background-color: #e74c3c !important;
+  background-color: #ff4c4c !important;
+  animation: incorrectShake 0.3s ease;
 }
 
 /* Message */
 .message {
   margin-top: 20px;
-  font-size: 1.5rem;
-  padding: 15px 30px;
-  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 500;
+  padding: 16px 30px;
+  border-radius: 8px;
   animation: fadeIn 0.3s ease;
 }
 
 .correct {
-  color: #2ecc71;
-  background-color: rgba(46, 204, 113, 0.1);
+  color: #00c49a;
+  background-color: rgba(0, 196, 154, 0.1);
 }
 
 .incorrect {
-  color: #e74c3c;
-  background-color: rgba(231, 76, 60, 0.1);
+  color: #ff4c4c;
+  background-color: rgba(255, 76, 76, 0.1);
 }
 
 .gameOver {
-  color: #e74c3c;
-  background-color: rgba(231, 76, 60, 0.1);
-  font-weight: bold;
+  color: #ff4c4c;
+  background-color: rgba(255, 76, 76, 0.1);
+  font-weight: 700;
 }
 
 /* Loading spinner */
 .loadingSpinner {
   width: 50px;
   height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+  border: 4px solid #f2f2f2;
+  border-top: 4px solid #1e90ff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -263,10 +272,36 @@
   }
 }
 
+@keyframes correctFlash {
+  0% {
+    background-color: #00c49a;
+  }
+  50% {
+    background-color: #00c49a;
+    transform: scale(1.05);
+  }
+  100% {
+    background-color: #00c49a;
+  }
+}
+
+@keyframes incorrectShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
 /* Mobile responsiveness */
 @media screen and (max-width: 600px) {
   .title {
-    font-size: 3rem;
+    font-size: 24px;
   }
 
   .menuContainer {
@@ -291,12 +326,12 @@
   }
 
   .guessButton {
-    font-size: 1.2rem;
-    padding: 15px;
+    font-size: 16px;
+    padding: 12px;
   }
 
   .message {
-    font-size: 1.2rem;
-    padding: 10px 20px;
+    font-size: 18px;
+    padding: 12px 20px;
   }
 }
