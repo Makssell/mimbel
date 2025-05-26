@@ -14,6 +14,10 @@ const Site1 = () => {
   const [buttonsDisabled, setButtonsDisabled] = useState(false);
   const [buttonStyles, setButtonStyles] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedContinent, setSelectedContinent] = useState("world");
+  const [includeTerritories, setIncludeTerritories] = useState(false);
+  const [infiniteMode, setInfiniteMode] = useState(false);
+  const [usedFlags, setUsedFlags] = useState([]);
 
   useEffect(() => {
     const fetchFlags = async () => {
@@ -23,7 +27,14 @@ const Site1 = () => {
         .select(`
           id,
           name,
-          image_url
+          territory,
+          image_url,
+          country_continent(
+            continent_id
+          ),
+          continents(
+            name
+          )
         `);
 
       if (error) {
@@ -39,22 +50,53 @@ const Site1 = () => {
     fetchFlags();
   }, []);
 
+  useEffect(() => {
+    const applyFilters = () => {
+      let filtered = flags;
+
+      if (selectedContinent !== "world") {
+        filtered = filtered.filter((flag) => {
+          const continentIds = flag.country_continent.map((cc) => cc.continent_id);
+          return continentIds.includes(Number(selectedContinent));
+        });
+      }
+
+      if (!includeTerritories) {
+        filtered = filtered.filter((flag) => !flag.territory);
+      }
+
+      setFilteredFlags(filtered);
+    };
+
+    applyFilters();
+  }, [selectedContinent, includeTerritories, flags]);
+
   const startGame = () => {
     if (!gameStarted) {
       setScore(0);
       setHealth(3);
       setMessage("");
       setGameStarted(true);
+      setUsedFlags([]);
     }
   
     if (filteredFlags.length === 0) {
-      setMessage("No flags available.");
+      setMessage("No flags available for selected filters.");
+      return;
+    }
+
+    if (!infiniteMode && usedFlags.length >= filteredFlags.length) {
+      setMessage(`Game Over! You've seen all flags! Final score: ${score}`);
+      setGameStarted(false);
       return;
     }
   
     setMessage("");
-    const randomFlag = filteredFlags[Math.floor(Math.random() * filteredFlags.length)];
+    let availableFlags = infiniteMode ? filteredFlags : filteredFlags.filter(flag => !usedFlags.includes(flag.id));
+    const randomFlag = availableFlags[Math.floor(Math.random() * availableFlags.length)];
     setCurrentFlag(randomFlag);
+    setUsedFlags([...usedFlags, randomFlag.id]);
+    
     const correctCountry = randomFlag.name;
     let incorrectCountries = filteredFlags.filter((flag) => flag.name !== correctCountry);
     incorrectCountries = incorrectCountries.sort(() => Math.random() - 0.5).slice(0, 3);
@@ -105,12 +147,87 @@ const Site1 = () => {
       {!gameStarted && (
         <div className={styles.startScreen}>
           <h1 className={styles.title}>Flag Guesser</h1>
-          <button
-            className={`${styles.button} ${styles.mainButton}`}
-            onClick={startGame}
-          >
-            Start Game
-          </button>
+          
+          <div className={styles.menuContainer}>
+            <div className={styles.continentSection}>
+              <h2>Select Region</h2>
+              <div className={styles.continentGrid}>
+                <button
+                  className={`${styles.continentButton} ${selectedContinent === "world" ? styles.selectedContinent : ""}`}
+                  onClick={() => setSelectedContinent("world")}
+                >
+                  World
+                </button>
+                <button
+                  className={`${styles.continentButton} ${selectedContinent === "1" ? styles.selectedContinent : ""}`}
+                  onClick={() => setSelectedContinent("1")}
+                >
+                  Africa
+                </button>
+                <button
+                  className={`${styles.continentButton} ${selectedContinent === "2" ? styles.selectedContinent : ""}`}
+                  onClick={() => setSelectedContinent("2")}
+                >
+                  Asia
+                </button>
+                <button
+                  className={`${styles.continentButton} ${selectedContinent === "3" ? styles.selectedContinent : ""}`}
+                  onClick={() => setSelectedContinent("3")}
+                >
+                  Europe
+                </button>
+                <button
+                  className={`${styles.continentButton} ${selectedContinent === "4" ? styles.selectedContinent : ""}`}
+                  onClick={() => setSelectedContinent("4")}
+                >
+                  North America
+                </button>
+                <button
+                  className={`${styles.continentButton} ${selectedContinent === "5" ? styles.selectedContinent : ""}`}
+                  onClick={() => setSelectedContinent("5")}
+                >
+                  South America
+                </button>
+                <button
+                  className={`${styles.continentButton} ${selectedContinent === "6" ? styles.selectedContinent : ""}`}
+                  onClick={() => setSelectedContinent("6")}
+                >
+                  Oceania
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.settingsSection}>
+              <h2>Game Settings</h2>
+              <div className={styles.settingsGrid}>
+                <label className={styles.settingOption}>
+                  <input
+                    type="checkbox"
+                    checked={includeTerritories}
+                    onChange={() => setIncludeTerritories(!includeTerritories)}
+                    className={styles.checkbox}
+                  />
+                  Include Territories
+                </label>
+                <label className={styles.settingOption}>
+                  <input
+                    type="checkbox"
+                    checked={infiniteMode}
+                    onChange={() => setInfiniteMode(!infiniteMode)}
+                    className={styles.checkbox}
+                  />
+                  Infinite Mode
+                </label>
+              </div>
+            </div>
+
+            <button
+              className={`${styles.button} ${styles.mainButton}`}
+              onClick={startGame}
+            >
+              Start Game
+            </button>
+          </div>
         </div>
       )}
   

@@ -12,12 +12,86 @@
 /* Start screen */
 .startScreen {
   text-align: center;
+  width: 100%;
+  max-width: 800px;
 }
 
 .title {
   font-size: 4rem;
   margin-bottom: 40px;
   color: #2c3e50;
+}
+
+.menuContainer {
+  background-color: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.continentSection,
+.settingsSection {
+  margin-bottom: 30px;
+}
+
+.continentSection h2,
+.settingsSection h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.continentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.continentButton {
+  background-color: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 1.2rem;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.continentButton:hover {
+  background-color: #e9ecef;
+  transform: translateY(-2px);
+}
+
+.selectedContinent {
+  background-color: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+.settingsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+}
+
+.settingOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.2rem;
+  color: #2c3e50;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
 }
 
 /* Game info (score and health) */
@@ -89,6 +163,7 @@
   font-size: 2rem;
   padding: 20px 40px;
   margin: 20px 0;
+  width: 100%;
 }
 
 .mainButton:hover {
@@ -192,6 +267,18 @@
 @media screen and (max-width: 600px) {
   .title {
     font-size: 3rem;
+  }
+
+  .menuContainer {
+    padding: 15px;
+  }
+
+  .continentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .settingsGrid {
+    grid-template-columns: 1fr;
   }
 
   .flagImage {
