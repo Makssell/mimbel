@@ -5,7 +5,6 @@ import Navbar from '../components/Navbar'; // Import your common Navbar (optiona
 function MyApp({ Component, pageProps }) {
   return (
     <div>
-      <Navbar /> {/* Add the Navbar to all pages */}
       <Component {...pageProps} /> {/* This renders the specific page component */}
     </div>
   );

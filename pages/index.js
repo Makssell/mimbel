@@ -8,7 +8,6 @@ export default function Home() {
         <Link href="/site1" className={styles.link}>1</Link>
         <Link href="/site2" className={styles.link}>2</Link>
         <Link href="/site3" className={styles.link}>3</Link>
-        <Link href="/site4" className={styles.link}>DEV</Link>
       </div>
     </div>
   );
