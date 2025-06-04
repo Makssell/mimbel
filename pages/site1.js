@@ -19,6 +19,8 @@ const Site1 = () => {
   const [infiniteMode, setInfiniteMode] = useState(false);
   const [usedFlags, setUsedFlags] = useState([]);
   const [isFlagLoading, setIsFlagLoading] = useState(true);
+  const [startScreenStep, setStartScreenStep] = useState(1);
+  const [scoreAnimation, setScoreAnimation] = useState(false);
 
   useEffect(() => {
     const fetchFlags = async () => {
@@ -112,12 +114,14 @@ const Site1 = () => {
   const checkAnswer = (selectedCountry) => {
     if (selectedCountry === currentFlag.name) {
       setScore(score + 1);
+      setScoreAnimation(true);
       setMessage("Correct!");
       setButtonsDisabled(true);
       setButtonStyles({ 
         [selectedCountry]: styles.correctButton
       });
       setTimeout(() => {
+        setScoreAnimation(false);
         startGame();
         setButtonStyles({});
         setButtonsDisabled(false);
@@ -148,87 +152,109 @@ const Site1 = () => {
     <div className={styles.container}>
       {!gameStarted && (
         <div className={styles.startScreen}>
-          <h1 className={styles.title}>Flag Guesser</h1>
-          
           <div className={styles.menuContainer}>
-            <div className={styles.continentSection}>
-              <h2>Select Region</h2>
-              <div className={styles.continentGrid}>
-                <button
-                  className={`${styles.continentButton} ${selectedContinent === "world" ? styles.selectedContinent : ""}`}
-                  onClick={() => setSelectedContinent("world")}
-                >
-                  World
-                </button>
-                <button
-                  className={`${styles.continentButton} ${selectedContinent === "1" ? styles.selectedContinent : ""}`}
-                  onClick={() => setSelectedContinent("1")}
-                >
-                  Africa
-                </button>
-                <button
-                  className={`${styles.continentButton} ${selectedContinent === "2" ? styles.selectedContinent : ""}`}
-                  onClick={() => setSelectedContinent("2")}
-                >
-                  Asia
-                </button>
-                <button
-                  className={`${styles.continentButton} ${selectedContinent === "3" ? styles.selectedContinent : ""}`}
-                  onClick={() => setSelectedContinent("3")}
-                >
-                  Europe
-                </button>
-                <button
-                  className={`${styles.continentButton} ${selectedContinent === "4" ? styles.selectedContinent : ""}`}
-                  onClick={() => setSelectedContinent("4")}
-                >
-                  North America
-                </button>
-                <button
-                  className={`${styles.continentButton} ${selectedContinent === "5" ? styles.selectedContinent : ""}`}
-                  onClick={() => setSelectedContinent("5")}
-                >
-                  South America
-                </button>
-                <button
-                  className={`${styles.continentButton} ${selectedContinent === "6" ? styles.selectedContinent : ""}`}
-                  onClick={() => setSelectedContinent("6")}
-                >
-                  Oceania
-                </button>
+            {startScreenStep === 1 ? (
+              <div className={styles.continentSection}>
+              
+                <div className={styles.continentGrid}>
+                  <button
+                    className={`${styles.continentButton} ${selectedContinent === "world" ? styles.selectedContinent : ""}`}
+                    onClick={() => {
+                      setSelectedContinent("world");
+                      setStartScreenStep(2);
+                    }}
+                  >
+                    World
+                  </button>
+                  <button
+                    className={`${styles.continentButton} ${selectedContinent === "1" ? styles.selectedContinent : ""}`}
+                    onClick={() => {
+                      setSelectedContinent("1");
+                      setStartScreenStep(2);
+                    }}
+                  >
+                    Africa
+                  </button>
+                  <button
+                    className={`${styles.continentButton} ${selectedContinent === "2" ? styles.selectedContinent : ""}`}
+                    onClick={() => {
+                      setSelectedContinent("2");
+                      setStartScreenStep(2);
+                    }}
+                  >
+                    Asia
+                  </button>
+                  <button
+                    className={`${styles.continentButton} ${selectedContinent === "3" ? styles.selectedContinent : ""}`}
+                    onClick={() => {
+                      setSelectedContinent("3");
+                      setStartScreenStep(2);
+                    }}
+                  >
+                    Europe
+                  </button>
+                  <button
+                    className={`${styles.continentButton} ${selectedContinent === "4" ? styles.selectedContinent : ""}`}
+                    onClick={() => {
+                      setSelectedContinent("4");
+                      setStartScreenStep(2);
+                    }}
+                  >
+                    North America
+                  </button>
+                  <button
+                    className={`${styles.continentButton} ${selectedContinent === "5" ? styles.selectedContinent : ""}`}
+                    onClick={() => {
+                      setSelectedContinent("5");
+                      setStartScreenStep(2);
+                    }}
+                  >
+                    South America
+                  </button>
+                  <button
+                    className={`${styles.continentButton} ${selectedContinent === "6" ? styles.selectedContinent : ""}`}
+                    onClick={() => {
+                      setSelectedContinent("6");
+                      setStartScreenStep(2);
+                    }}
+                  >
+                    Oceania
+                  </button>
+                </div>
               </div>
-            </div>
-
-            <div className={styles.settingsSection}>
-              <h2>Game Settings</h2>
-              <div className={styles.settingsGrid}>
-                <label className={styles.settingOption}>
-                  <input
-                    type="checkbox"
-                    checked={includeTerritories}
-                    onChange={() => setIncludeTerritories(!includeTerritories)}
-                    className={styles.checkbox}
-                  />
-                  Include Territories
-                </label>
-                <label className={styles.settingOption}>
-                  <input
-                    type="checkbox"
-                    checked={infiniteMode}
-                    onChange={() => setInfiniteMode(!infiniteMode)}
-                    className={styles.checkbox}
-                  />
-                  Infinite Mode
-                </label>
+            ) : (
+              <div className={styles.settingsSection}>
+                
+                <div className={styles.settingsGrid}>
+                  <div 
+                    className={`${styles.settingOption} ${includeTerritories ? styles.settingOptionActive : ''}`}
+                    onClick={() => setIncludeTerritories(!includeTerritories)}
+                  >
+                    <span>Include Territories</span>
+                  </div>
+                  <div 
+                    className={`${styles.settingOption} ${infiniteMode ? styles.settingOptionActive : ''}`}
+                    onClick={() => setInfiniteMode(!infiniteMode)}
+                  >
+                    <span>Infinite Mode</span>
+                  </div>
+                </div>
+                <div className={styles.settingsButtons}>
+                  <button
+                    className={`${styles.button} ${styles.secondaryButton}`}
+                    onClick={() => setStartScreenStep(1)}
+                  >
+                    Back
+                  </button>
+                  <button
+                    className={`${styles.button} ${styles.mainButton}`}
+                    onClick={startGame}
+                  >
+                    Start Game
+                  </button>
+                </div>
               </div>
-            </div>
-
-            <button
-              className={`${styles.button} ${styles.mainButton}`}
-              onClick={startGame}
-            >
-              Start Game
-            </button>
+            )}
           </div>
         </div>
       )}
@@ -236,14 +262,20 @@ const Site1 = () => {
       {gameStarted && (
         <>
           <div className={styles.gameInfo}>
-            <div className={styles.score}>Score: {score}</div>
+            <div className={styles.score}>
+              <span className={styles.scoreLabel}>Score:</span>
+              <span className={`${styles.scoreValue} ${scoreAnimation ? styles.increase : ''}`}>
+                {score}
+              </span>
+            </div>
             <div className={styles.health}>
               {Array.from({ length: 3 }).map((_, index) => (
                 <span 
                   key={index} 
                   className={`${styles.heart} ${health > index ? styles.activeHeart : styles.inactiveHeart}`}
+                  title={`${health > index ? 'Active' : 'Lost'} shield`}
                 >
-                  ♥
+                  ⚔
                 </span>
               ))}
             </div>

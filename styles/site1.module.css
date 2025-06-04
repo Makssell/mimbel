@@ -1,14 +1,35 @@
 /* Overall container */
 .container {
+  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  background-color: #f0f0f0;
-  font-family: "Poppins", sans-serif;
-  padding: 0;
-  margin: 0;
+  padding: 2rem;
+  background: linear-gradient(
+    135deg,
+    var(--background-dark) 0%,
+    var(--background-light) 100%
+  );
+  position: relative;
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+}
+
+.container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(108, 92, 231, 0.1) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
 }
 
 /* Start screen */
@@ -16,20 +37,26 @@
   text-align: center;
   width: 100%;
   max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
 .title {
   font-size: 32px;
   font-weight: 700;
-  color: #000000;
+  color: var(--text-primary);
   margin-bottom: 20px;
 }
 
 .menuContainer {
-  background-color: #0e0e0e;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 30px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+  backdrop-filter: blur(10px);
 }
 
 .continentSection,
@@ -47,57 +74,235 @@
 
 .continentGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
   margin-bottom: 20px;
+  padding: 10px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .continentButton {
-  background-color: #1e90ff;
-  border: none;
-  border-radius: 8px;
-  padding: 16px;
-  font-size: 18px;
-  font-weight: 500;
-  color: #ffffff;
+  background: rgba(21, 21, 21, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 180px;
+  backdrop-filter: blur(10px);
 }
 
 .continentButton:hover {
-  background-color: #ffc107;
-  transform: scale(1.05);
+  transform: translateY(-5px);
+  border-color: var(--accent-color);
+  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.2);
 }
 
 .selectedContinent {
-  background-color: #ffc107;
-  color: #000000;
+  border-color: var(--accent-color);
+  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.2);
+}
+
+.settingsSection {
+  margin-bottom: 30px;
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.settingsSection h2 {
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  text-align: center;
+  background: linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .settingsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
-  padding: 20px;
-  background-color: #1e90ff;
-  border-radius: 8px;
+  padding: 25px;
+  background: rgba(21, 21, 21, 0.7);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 25px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  flex: 1;
+}
+
+.settingsGrid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.5),
+    rgba(108, 92, 231, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
 }
 
 .settingOption {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
   font-size: 18px;
   font-weight: 500;
   color: #ffffff;
   cursor: pointer;
+  padding: 20px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: rgba(21, 21, 21, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
 }
 
-.checkbox {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  accent-color: #ffc107;
+.settingOption::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.3),
+    rgba(108, 92, 231, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.settingOptionActive {
+  background: rgba(108, 92, 231, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.2);
+}
+
+.settingOptionActive::before {
+  opacity: 1;
+}
+
+.settingOption:hover {
+  background: rgba(108, 92, 231, 0.1);
+  transform: translateY(-2px);
+}
+
+.settingOption:active {
+  transform: translateY(0);
+}
+
+.settingsButtons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 25px;
+  width: 100%;
+}
+
+.secondaryButton {
+  background: rgba(21, 21, 21, 0.7);
+  color: var(--text-primary);
+  font-size: 18px;
+  padding: 12px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.secondaryButton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.3),
+    rgba(108, 92, 231, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.secondaryButton:hover {
+  transform: translateY(-2px);
+  border-color: rgba(108, 92, 231, 0.3);
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.2);
+}
+
+.mainButton {
+  background: rgba(108, 92, 231, 0.2);
+  color: var(--text-primary);
+  font-size: 18px;
+  padding: 12px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  min-width: 150px;
+  border: 1px solid rgba(108, 92, 231, 0.3);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mainButton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.5),
+    rgba(108, 92, 231, 0.2)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.mainButton:hover {
+  transform: translateY(-2px);
+  background: rgba(108, 92, 231, 0.3);
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3);
 }
 
 /* Game info (score and health) */
@@ -106,59 +311,208 @@
   top: 0;
   left: 0;
   width: 100%;
-  background-color: #0e0e0e;
-  color: white;
-  padding: 10px;
+  background: rgba(21, 21, 21, 0.85);
+  color: var(--text-primary);
+  padding: 12px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  height: 65px;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.gameInfo::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(108, 92, 231, 0.3) 50%,
+    transparent 100%
+  );
 }
 
 .score {
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: rgba(108, 92, 231, 0.1);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(108, 92, 231, 0.2);
+  transition: all 0.3s ease;
+}
+
+.score::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.5),
+    rgba(108, 92, 231, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.scoreLabel {
+  opacity: 0.7;
+  margin-right: 6px;
+  font-size: 0.9em;
+  background: linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.scoreValue {
+  background: linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: inline-block;
+}
+
+.scoreValue.increase {
+  animation: scoreGlow 0.5s ease-out;
+}
+
+@keyframes scoreGlow {
+  0% {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(108, 92, 231, 0.5);
+  }
+  100% {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .health {
   display: flex;
-  gap: 5px;
+  gap: 12px;
+  align-items: center;
+  position: relative;
 }
 
 .health span {
-  color: #ff4c4c;
-  font-size: 20px;
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .heart {
-  font-size: 24px;
-  transition: all 0.3s ease;
+  font-size: 20px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  display: inline-block;
+  transform: rotate(-45deg);
+}
+
+.heart::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(108, 92, 231, 0.1);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .activeHeart {
-  color: #ff4c4c;
+  color: #6c5ce7;
+  animation: floatShield 2s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
+}
+
+.activeHeart::before {
+  opacity: 1;
+  animation: pulseShield 2s ease-in-out infinite;
+  background: rgba(108, 92, 231, 0.15);
 }
 
 .inactiveHeart {
-  color: #666666;
+  color: rgba(102, 102, 102, 0.2);
+  transform: rotate(-45deg) scale(0.9);
+  filter: blur(0.5px);
+}
+
+.inactiveHeart::before {
+  background: rgba(102, 102, 102, 0.1);
+}
+
+@keyframes floatShield {
+  0%,
+  100% {
+    transform: rotate(-45deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-45deg) translateY(-3px);
+  }
+}
+
+@keyframes pulseShield {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.2;
+  }
 }
 
 /* Flag container */
 .flagContainer {
   width: 100%;
-  height: 40vh;
+  height: calc(50vh - 65px);
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 60px 0 0 0;
-  background-color: white;
+  margin-top: 65px;
+  background: rgba(21, 21, 21, 0.7);
+  padding: 20px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .flagImage {
   max-height: 100%;
   max-width: 100%;
   object-fit: contain;
-  transition: transform 0.1s ease;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.flagImage:hover {
+  transform: scale(1.02);
 }
 
 /* Buttons */
@@ -170,64 +524,69 @@
   font-weight: 700;
 }
 
-.mainButton {
-  background-color: #1e90ff;
-  color: #ffffff;
-  font-size: 24px;
-  padding: 16px 40px;
-  margin: 20px 0;
-  width: 100%;
-}
-
-.mainButton:hover {
-  background-color: #ffc107;
-  transform: scale(1.05);
-}
-
 /* Options container */
 .optionsContainer {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 20px;
   width: 100%;
-  padding: 0;
-  margin: 0;
+  height: calc(50vh - 20px);
+  padding: 20px;
+  background: rgba(21, 21, 21, 0.7);
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .guessButton {
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 15px;
+  background: rgba(21, 21, 21, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0;
   margin: 0;
   cursor: pointer;
-  transition: all 0.1s ease;
-  font-size: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: clamp(18px, 2.5vw, 24px);
   font-weight: 500;
+  width: 100%;
   height: 100%;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  word-wrap: break-word;
+  overflow: hidden;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
 }
 
 .guessButton:hover {
-  transform: scale(1.05);
-  z-index: 1;
+  transform: translateY(-5px);
+  border-color: var(--accent-color);
+  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.2);
 }
 
 .guessButton:active {
-  transform: scale(0.95);
+  transform: translateY(1px);
 }
 
-.correct {
-  background-color: #00c49a;
-  color: white;
+.correctButton {
+  background: linear-gradient(145deg, #00c49a 0%, #00a884 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 6px 20px rgba(0, 196, 154, 0.3) !important;
 }
 
-.incorrect {
-  background-color: #ff4c4c;
-  color: white;
+.incorrectButton {
+  background: linear-gradient(145deg, #ff4c4c 0%, #ff3333 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 6px 20px rgba(255, 76, 76, 0.3) !important;
 }
 
 .message {
@@ -235,28 +594,60 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  background-color: #0e0e0e;
-  color: white;
+  background: rgba(21, 21, 21, 0.7);
+  color: var(--text-primary);
   padding: 15px;
   text-align: center;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 20px;
+  font-weight: 600;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s ease-out;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 .gameOver {
   color: #ff4c4c;
-  background-color: rgba(255, 76, 76, 0.1);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 76, 76, 0.1) 0%,
+    rgba(255, 51, 51, 0.1) 100%
+  );
   font-weight: 700;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 76, 76, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 76, 76, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 76, 76, 0);
+  }
 }
 
 /* Loading spinner */
 .loadingSpinner {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #1e90ff;
+  border-top: 4px solid #4361ee;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+  margin: 20px auto;
 }
 
 @keyframes spin {
@@ -271,55 +662,141 @@
 @media screen and (max-width: 750px) {
   .container {
     padding: 0;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
   }
 
   .title {
-    font-size: 24px;
-    margin: 10px 0;
+    font-size: 28px;
+    margin-bottom: 15px;
   }
 
   .menuContainer {
-    width: 100%;
-    border-radius: 0;
     padding: 15px;
-    box-shadow: none;
+    border-radius: 0;
+    width: 100%;
   }
 
   .continentGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+    padding: 5px;
+    width: 100%;
   }
 
   .continentButton {
-    padding: 12px;
-    font-size: 16px;
+    min-height: 140px;
+    font-size: 18px;
+  }
+
+  .settingsSection {
+    min-height: calc(100vh - 200px);
+    margin-bottom: 0;
   }
 
   .settingsGrid {
-    grid-template-columns: 1fr;
+    padding: 20px;
     gap: 15px;
-    padding: 15px;
+    margin-bottom: 0;
   }
 
   .settingOption {
     font-size: 16px;
+    padding: 16px;
+    min-height: 60px;
+  }
+
+  .settingsButtons {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(21, 21, 21, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 15px;
+    margin: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 100;
+  }
+
+  .mainButton,
+  .secondaryButton {
+    width: 100%;
+    font-size: 16px;
+    padding: 14px 20px;
+    min-height: 48px;
+  }
+
+  .heart {
+    font-size: 20px;
+  }
+
+  .gameInfo {
+    padding: 8px 20px;
+    height: 55px;
+  }
+
+  .score {
+    font-size: 16px;
+    padding: 4px 10px;
   }
 
   .flagContainer {
-    height: 40vh;
-    margin: 50px 0 0 0;
+    height: calc(50vh - 50px);
+    margin-top: 50px;
+    padding: 10px;
   }
 
   .optionsContainer {
-    grid-template-columns: repeat(2, 1fr);
-    width: 100%;
-    padding: 0;
+    padding: 10px;
+    gap: 10px;
   }
 
   .guessButton {
+    font-size: clamp(20px, 3vw, 24px);
+  }
+
+  .message {
     padding: 12px;
-    font-size: 14px;
-    height: 100%;
+    font-size: 18px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .title {
+    font-size: 24px;
+  }
+
+  .continentGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 5px;
+  }
+
+  .continentButton {
+    min-height: 120px;
+    font-size: 16px;
+  }
+
+  .gameInfo {
+    padding: 8px 12px;
+    height: 45px;
+  }
+
+  .flagContainer {
+    height: calc(50vh - 45px);
+    margin-top: 45px;
+    padding: 8px;
+  }
+
+  .optionsContainer {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .guessButton {
+    font-size: clamp(18px, 4vw, 24px);
   }
 
   .message {
@@ -327,9 +804,11 @@
     font-size: 16px;
   }
 
-  .mainButton {
+  .score {
+    font-size: 16px;
+  }
+
+  .heart {
     font-size: 20px;
-    padding: 12px 30px;
-    margin: 15px 0;
   }
 }
