@@ -21,6 +21,13 @@ const Site1 = () => {
   const [isFlagLoading, setIsFlagLoading] = useState(true);
   const [startScreenStep, setStartScreenStep] = useState(1);
   const [scoreAnimation, setScoreAnimation] = useState(false);
+  
+  // New state variables for end screen
+  const [showEndScreen, setShowEndScreen] = useState(false);
+  const [gameStartTime, setGameStartTime] = useState(null);
+  const [totalAttempts, setTotalAttempts] = useState(0);
+  const [endState, setEndState] = useState(null);
+  const [gameStats, setGameStats] = useState({});
 
   useEffect(() => {
     const fetchFlags = async () => {
@@ -74,6 +81,25 @@ const Site1 = () => {
     applyFilters();
   }, [selectedContinent, includeTerritories, flags]);
 
+  // Function to end infinite mode game
+  const endInfiniteMode = () => {
+    const gameEndTime = new Date().getTime();
+    const timeElapsed = gameEndTime - gameStartTime;
+    const finalAttempts = totalAttempts;
+    const accuracy = finalAttempts > 0 ? ((score / finalAttempts) * 100).toFixed(1) : 0;
+    
+    setGameStats({
+      score: score,
+      totalAttempts: finalAttempts,
+      accuracy: accuracy,
+      timeElapsed: timeElapsed,
+      endState: "infiniteMode"
+    });
+    setEndState("infiniteMode");
+    setGameStarted(false);
+    setShowEndScreen(true);
+  };
+
   const startGame = () => {
     if (!gameStarted) {
       setScore(0);
@@ -81,6 +107,10 @@ const Site1 = () => {
       setMessage("");
       setGameStarted(true);
       setUsedFlags([]);
+      setGameStartTime(new Date().getTime());
+      setTotalAttempts(0);
+      setShowEndScreen(false);
+      setEndState(null);
     }
   
     if (filteredFlags.length === 0) {
@@ -89,8 +119,19 @@ const Site1 = () => {
     }
 
     if (!infiniteMode && usedFlags.length >= filteredFlags.length) {
-      setMessage(`Game Over! You've seen all flags! Final score: ${score}`);
+      const gameEndTime = new Date().getTime();
+      const timeElapsed = gameEndTime - gameStartTime;
+      setGameStats({
+        score: score,
+        totalAttempts: totalAttempts,
+        accuracy: totalAttempts > 0 ? ((score / totalAttempts) * 100).toFixed(1) : 0,
+        timeElapsed: timeElapsed,
+        remainingFlags: 0,
+        endState: "allCompleted"
+      });
+      setEndState("allCompleted");
       setGameStarted(false);
+      setShowEndScreen(true);
       return;
     }
   
@@ -112,6 +153,8 @@ const Site1 = () => {
   };
 
   const checkAnswer = (selectedCountry) => {
+    setTotalAttempts(prev => prev + 1);
+    
     if (selectedCountry === currentFlag.name) {
       setScore(score + 1);
       setScoreAnimation(true);
@@ -129,14 +172,32 @@ const Site1 = () => {
     } else {
       if (health > 1) {
         setHealth(health - 1);
+        setMessage("Incorrect! Try again.");
+        setButtonStyles({
+          [selectedCountry]: styles.incorrectButton
+        });
+        setTimeout(() => {
+          setButtonStyles({});
+        }, 1000);
       } else {
-        setMessage(`Game Over! Score: ${score}`);
+        // Game Over - Ran out of hearts
+        const gameEndTime = new Date().getTime();
+        const timeElapsed = gameEndTime - gameStartTime;
+        const finalAttempts = totalAttempts + 1;
+        const accuracy = finalAttempts > 0 ? ((score / finalAttempts) * 100).toFixed(1) : 0;
+        
+        setGameStats({
+          score: score,
+          totalAttempts: finalAttempts,
+          accuracy: accuracy,
+          timeElapsed: timeElapsed,
+          endState: "ranOutOfHearts"
+        });
+        setEndState("ranOutOfHearts");
         setHealth(0);
         setGameStarted(false);
+        setShowEndScreen(true);
       }
-      setButtonStyles({
-        [selectedCountry]: styles.incorrectButton
-      });
     }
   };
 
@@ -273,12 +334,21 @@ const Site1 = () => {
                 <span 
                   key={index} 
                   className={`${styles.heart} ${health > index ? styles.activeHeart : styles.inactiveHeart}`}
-                  title={`${health > index ? 'Active' : 'Lost'} shield`}
+                  title={`${health > index ? 'Active' : 'Lost'} life`}
                 >
-                  ⚔
+                  🌍
                 </span>
               ))}
             </div>
+            {infiniteMode && (
+              <button
+                className={`${styles.button} ${styles.endGameButton}`}
+                onClick={endInfiniteMode}
+                title="End Game"
+              >
+                🏁 End
+              </button>
+            )}
           </div>
   
           {currentFlag && (
@@ -319,6 +389,145 @@ const Site1 = () => {
             </p>
           )}
         </>
+      )}
+  
+      {showEndScreen && (
+        <div className={styles.endScreen}>
+          <div className={styles.endScreenContent}>
+            <div className={styles.endScreenHeader}>
+              {endState === "ranOutOfHearts" && (
+                <>
+                  <div className={`${styles.endStateIcon} ${styles.gameOverIcon}`}>💀</div>
+                  <h2 className={styles.endStateTitle}>Game Over!</h2>
+                  <p className={styles.endStateSubtitle}>You ran out of hearts!</p>
+                </>
+              )}
+              {endState === "allCompleted" && (
+                <>
+                  <div className={`${styles.endStateIcon} ${styles.completedIcon}`}>🏆</div>
+                  <h2 className={styles.endStateTitle}>All Done!</h2>
+                  <p className={styles.endStateSubtitle}>You've completed all flags!</p>
+                </>
+              )}
+              {endState === "infiniteMode" && (
+                <>
+                  <div className={`${styles.endStateIcon} ${styles.infiniteIcon}`}>♾️</div>
+                  <h2 className={styles.endStateTitle}>Run Complete!</h2>
+                  <p className={styles.endStateSubtitle}>Great job on your infinite run!</p>
+                </>
+              )}
+            </div>
+
+            <div className={styles.gameSettings}>
+              <h3>Game Settings</h3>
+              <div className={styles.settingsInfo}>
+                <div className={styles.settingItem}>
+                  <span className={styles.settingLabel}>Region:</span>
+                  <span className={styles.settingValue}>
+                    {selectedContinent === "world" ? "World" :
+                     selectedContinent === "1" ? "Africa" :
+                     selectedContinent === "2" ? "Asia" :
+                     selectedContinent === "3" ? "Europe" :
+                     selectedContinent === "4" ? "North America" :
+                     selectedContinent === "5" ? "South America" :
+                     selectedContinent === "6" ? "Oceania" : "Unknown"}
+                  </span>
+                </div>
+                <div className={styles.settingItem}>
+                  <span className={styles.settingLabel}>Territories:</span>
+                  <span className={styles.settingValue}>
+                    {includeTerritories ? "Included" : "Excluded"}
+                  </span>
+                </div>
+                <div className={styles.settingItem}>
+                  <span className={styles.settingLabel}>Mode:</span>
+                  <span className={styles.settingValue}>
+                    {infiniteMode ? "Infinite" : "Standard"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.gameStats}>
+              <h3>Statistics</h3>
+              <div className={styles.statsGrid}>
+                <div className={styles.statCard}>
+                  <div className={styles.statIcon}>🎯</div>
+                  <div className={styles.statContent}>
+                    <span className={styles.statLabel}>Total Score</span>
+                    <span className={styles.statValue}>{gameStats.score}</span>
+                  </div>
+                </div>
+                <div className={styles.statCard}>
+                  <div className={styles.statIcon}>📊</div>
+                  <div className={styles.statContent}>
+                    <span className={styles.statLabel}>Accuracy</span>
+                    <span className={styles.statValue}>{gameStats.accuracy}%</span>
+                  </div>
+                </div>
+                <div className={styles.statCard}>
+                  <div className={styles.statIcon}>🎲</div>
+                  <div className={styles.statContent}>
+                    <span className={styles.statLabel}>Total Attempts</span>
+                    <span className={styles.statValue}>{gameStats.totalAttempts}</span>
+                  </div>
+                </div>
+                <div className={styles.statCard}>
+                  <div className={styles.statIcon}>⏱️</div>
+                  <div className={styles.statContent}>
+                    <span className={styles.statLabel}>Time Elapsed</span>
+                    <span className={styles.statValue}>
+                      {Math.floor(gameStats.timeElapsed / 1000)}s
+                    </span>
+                  </div>
+                </div>
+                {endState === "allCompleted" && (
+                  <div className={styles.statCard}>
+                    <div className={styles.statIcon}>🏁</div>
+                    <div className={styles.statContent}>
+                      <span className={styles.statLabel}>Completion Time</span>
+                      <span className={styles.statValue}>
+                        {Math.floor(gameStats.timeElapsed / 1000)}s
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {!infiniteMode && endState === "ranOutOfHearts" && (
+                  <div className={styles.statCard}>
+                    <div className={styles.statIcon}>🚩</div>
+                    <div className={styles.statContent}>
+                      <span className={styles.statLabel}>Remaining Flags</span>
+                      <span className={styles.statValue}>
+                        {filteredFlags.length - usedFlags.length}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className={styles.endScreenActions}>
+              <button
+                className={`${styles.button} ${styles.secondaryButton}`}
+                onClick={() => {
+                  setShowEndScreen(false);
+                  setStartScreenStep(1);
+                }}
+              >
+                New Game
+              </button>
+              <button
+                className={`${styles.button} ${styles.mainButton}`}
+                onClick={() => {
+                  setShowEndScreen(false);
+                  startGame();
+                }}
+              >
+                Play Again
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
