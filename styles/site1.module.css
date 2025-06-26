@@ -663,7 +663,7 @@
     padding: 0;
     height: auto;
     min-height: 100vh;
-    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .title {
@@ -687,6 +687,8 @@
   .continentButton {
     min-height: 140px;
     font-size: 18px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .settingsSection {
@@ -704,6 +706,8 @@
     font-size: 16px;
     padding: 16px;
     min-height: 60px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .settingsButtons {
@@ -725,6 +729,8 @@
     font-size: 16px;
     padding: 14px 20px;
     min-height: 48px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .heart {
@@ -734,6 +740,7 @@
   .gameInfo {
     padding: 8px 20px;
     height: 55px;
+    gap: 10px;
   }
 
   .score {
@@ -745,6 +752,7 @@
     font-size: 12px;
     padding: 6px 12px;
     min-width: 60px;
+    min-height: 44px;
   }
 
   .flagContainer {
@@ -760,11 +768,89 @@
 
   .guessButton {
     font-size: clamp(20px, 3vw, 24px);
+    min-height: 44px;
+    padding: 12px 8px;
   }
 
   .message {
     padding: 12px;
     font-size: 18px;
+  }
+
+  /* Improve touch scrolling */
+  .endScreenContent {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Better button touch feedback */
+  .continentButton:active,
+  .settingOption:active,
+  .guessButton:active,
+  .mainButton:active,
+  .secondaryButton:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+
+  /* Improve text readability on small screens */
+  .settingLabel,
+  .statLabel {
+    font-size: 13px;
+  }
+
+  .settingValue,
+  .statValue {
+    font-size: 15px;
+  }
+
+  /* Better spacing for very small screens */
+  .health {
+    gap: 8px;
+  }
+
+  .health span {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Better game layout on mobile */
+  .flagContainer {
+    /* Ensure flag is properly sized on mobile */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .flagImage {
+    /* Better flag sizing on mobile */
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+  }
+
+  /* Improve options layout on mobile */
+  .optionsContainer {
+    /* Better grid layout for mobile */
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+  }
+
+  /* Better message positioning on mobile */
+  .message {
+    /* Ensure message doesn't overlap with content */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+  }
+
+  /* Improve loading spinner on mobile */
+  .loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
   }
 }
 
@@ -782,11 +868,14 @@
   .continentButton {
     min-height: 120px;
     font-size: 16px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .gameInfo {
     padding: 8px 12px;
     height: 45px;
+    gap: 8px;
   }
 
   .score {
@@ -797,6 +886,7 @@
     font-size: 11px;
     padding: 4px 8px;
     min-width: 50px;
+    min-height: 44px;
   }
 
   .heart {
@@ -816,11 +906,69 @@
 
   .guessButton {
     font-size: clamp(18px, 4vw, 24px);
+    min-height: 44px;
+    padding: 10px 6px;
   }
 
   .message {
     padding: 10px;
     font-size: 16px;
+  }
+
+  /* Even better touch targets for very small screens */
+  .continentButton,
+  .settingOption,
+  .guessButton,
+  .mainButton,
+  .secondaryButton {
+    min-height: 48px;
+  }
+
+  /* Improve text readability */
+  .settingLabel,
+  .statLabel {
+    font-size: 12px;
+  }
+
+  .settingValue,
+  .statValue {
+    font-size: 14px;
+  }
+
+  /* Better health display on very small screens */
+  .health {
+    gap: 6px;
+  }
+
+  .health span {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Even better mobile optimizations */
+  .flagImage {
+    max-width: 85%;
+    max-height: 85%;
+  }
+
+  /* Single column options for very small screens */
+  .optionsContainer {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .guessButton {
+    /* Better text wrapping on very small screens */
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  /* Smaller loading spinner for very small screens */
+  .loadingSpinner {
+    width: 35px;
+    height: 35px;
+    border-width: 2px;
   }
 }
 
@@ -1156,6 +1304,8 @@
 
   .statCard {
     padding: 15px;
+    /* Ensure minimum touch target size */
+    min-height: 44px;
   }
 
   .statIcon {
@@ -1174,6 +1324,9 @@
   .endScreenActions .button {
     width: 100%;
     min-width: auto;
+    /* Ensure minimum touch target size */
+    min-height: 44px;
+    padding: 14px 20px;
   }
 }
 
@@ -1197,6 +1350,8 @@
 
   .statCard {
     padding: 12px;
+    /* Ensure minimum touch target size */
+    min-height: 44px;
   }
 
   .statIcon {
@@ -1205,6 +1360,12 @@
 
   .statValue {
     font-size: 18px;
+  }
+
+  .endScreenActions .button {
+    /* Ensure minimum touch target size */
+    min-height: 44px;
+    padding: 12px 16px;
   }
 }
 
@@ -1242,4 +1403,25 @@
   background: rgba(255, 76, 76, 0.3);
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(255, 76, 76, 0.3);
+}
+
+/* Landscape orientation optimizations */
+@media screen and (max-width: 750px) and (orientation: landscape) {
+  .container {
+    /* Better landscape layout */
+    padding: 10px;
+  }
+
+  .flagContainer {
+    height: 40vh;
+    margin-top: 60px;
+  }
+
+  .optionsContainer {
+    height: 40vh;
+  }
+
+  .gameInfo {
+    height: 50px;
+  }
 }
