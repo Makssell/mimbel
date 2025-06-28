@@ -54,152 +54,115 @@
 
 .menuContainer {
   border-radius: 16px;
-
+  padding: 30px;
   backdrop-filter: blur(10px);
 }
 
-/* Game Type Section */
-.gameTypeSection {
+.continentSection,
+.settingsSection {
   margin-bottom: 30px;
+  width: 100%;
+  max-width: 1200px;
+  position: relative;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.gameTypeSection h2 {
+.continentSection h2,
+.settingsSection h2 {
   color: #ffffff;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  text-align: center;
+  background: linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.gameTypeGrid {
+.continentGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
-  margin-bottom: 20px;
-  padding: 10px;
-  max-width: 800px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-bottom: 30px;
+  padding: 20px;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
 }
 
-.gameTypeButton,
-.continentButton,
-.settingOption {
-  background: rgba(21, 21, 21, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 40px 30px;
+.continentButton {
+  background: rgba(21, 21, 21, 0.8);
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 0;
   font-size: 22px;
   font-weight: 600;
   color: var(--text-primary);
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   aspect-ratio: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  min-height: 120px;
+  min-height: 200px;
   backdrop-filter: blur(10px);
   position: relative;
-  overflow: hidden;
-  width: 340px;
+  outline: none;
+  user-select: none;
 }
 
-.gameTypeButton::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 20px;
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    rgba(108, 92, 231, 0.3),
-    rgba(108, 92, 231, 0.1)
-  );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: all 0.3s ease;
-}
-
-.gameTypeButton:hover {
-  transform: translateY(-8px);
+.continentButton:hover {
+  transform: translateY(-5px);
   border-color: var(--accent-color);
-  box-shadow: 0 12px 20px rgba(108, 92, 231, 0.2);
-}
-
-.gameTypeButton:hover::before {
-  opacity: 1;
-}
-
-.gameTypeButton:hover .settingIcon {
-  transform: scale(1.1);
-}
-
-.selectedGameType {
-  border-color: var(--accent-color);
-  box-shadow: 0 12px 20px rgba(108, 92, 231, 0.2);
+  box-shadow: 0 12px 40px rgba(108, 92, 231, 0.25);
   background: rgba(108, 92, 231, 0.1);
 }
 
-.selectedGameType::before {
-  opacity: 1;
-}
-
-.selectedGameType .settingIcon {
-  animation: settingGlow 2s ease-in-out infinite;
-}
-
-.gameTypeDesc,
-.settingDescription {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 400;
-  margin-top: 10px;
-  text-align: center;
-}
-
-/* Settings Section */
-.settingsSection {
-  margin-bottom: 30px;
+.selectedContinent {
+  border-color: var(--accent-color);
+  box-shadow: 0 12px 40px rgba(108, 92, 231, 0.3);
+  background: rgba(108, 92, 231, 0.2);
 }
 
 .settingsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
-  margin-bottom: 20px;
-  padding: 10px;
-  max-width: 800px;
+  gap: 32px;
+  margin-bottom: 30px;
+  padding: 20px;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
 }
 
 .settingOption {
-  background: rgba(21, 21, 21, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 40px 30px;
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  font-size: 22px;
+  font-weight: 500;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 40px 30px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  background: rgba(21, 21, 21, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
   text-align: center;
   min-height: 120px;
   backdrop-filter: blur(10px);
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 1;
-  width: 340px;
 }
 
 .settingOption::before {
@@ -220,197 +183,59 @@
   transition: all 0.3s ease;
 }
 
-.settingOption:hover {
-  transform: translateY(-8px);
-  border-color: var(--accent-color);
-  box-shadow: 0 12px 20px rgba(108, 92, 231, 0.2);
-}
-
-.settingOption:hover::before {
-  opacity: 1;
-}
-
 .settingOptionActive {
+  background: rgba(108, 92, 231, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.2);
   border-color: var(--accent-color);
-  box-shadow: 0 12px 20px rgba(108, 92, 231, 0.2);
-  background: rgba(108, 92, 231, 0.1);
 }
 
 .settingOptionActive::before {
   opacity: 1;
 }
 
-.settingOptionActive::after {
-  content: "✓";
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  width: 24px;
-  height: 24px;
-  background: var(--accent-color);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: bold;
-  color: white;
-  animation: checkmarkAppear 0.3s ease-out;
+.settingOption:hover {
+  background: rgba(108, 92, 231, 0.1);
+  transform: translateY(-3px);
+  border-color: rgba(108, 92, 231, 0.3);
 }
 
-@keyframes checkmarkAppear {
-  0% {
-    transform: scale(0) rotate(-180deg);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-}
-
-.settingIcon {
-  font-size: 2.5rem;
-  margin-bottom: 15px;
-  display: block;
-  transition: all 0.3s ease;
-}
-
-.settingOption:hover .settingIcon {
-  transform: scale(1.1);
-}
-
-.settingOptionActive .settingIcon {
-  animation: settingGlow 2s ease-in-out infinite;
-}
-
-@keyframes settingGlow {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 5px rgba(108, 92, 231, 0.3));
-  }
-  50% {
-    filter: drop-shadow(0 0 15px rgba(108, 92, 231, 0.6));
-  }
-}
-
-.settingLabel {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 8px;
+.settingOption:active {
+  transform: translateY(0);
 }
 
 .settingsButtons {
   display: flex;
-  gap: 20px;
+  gap: 32px;
   justify-content: center;
   margin-top: 30px;
-}
-
-.continentSection {
-  margin-bottom: 30px;
-}
-
-.continentSection h2 {
-  color: #ffffff;
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 20px;
-}
-
-.continentGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
-  padding: 10px;
-  max-width: 650px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.continentButton {
-  background: rgba(21, 21, 21, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 20px 10px;
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  aspect-ratio: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 80px;
-  backdrop-filter: blur(10px);
-  position: relative;
-  overflow: hidden;
-  width: 140px;
-}
-
-.continentButton::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 20px;
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    rgba(108, 92, 231, 0.3),
-    rgba(108, 92, 231, 0.1)
-  );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: all 0.3s ease;
-}
-
-.continentButton:hover {
-  transform: translateY(-5px);
-  border-color: var(--accent-color);
-  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.2);
-}
-
-.continentButton:hover::before {
-  opacity: 1;
-}
-
-.selectedContinent {
-  border-color: var(--accent-color);
-  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.2);
-  background: rgba(108, 92, 231, 0.1);
-}
-
-.selectedContinent::before {
-  opacity: 1;
+  width: 100%;
+  max-width: 1200px;
 }
 
 .secondaryButton {
   background: rgba(21, 21, 21, 0.7);
   color: var(--text-primary);
-  font-size: 18px;
-  padding: 12px 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-size: 20px;
+  padding: 16px 40px;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .secondaryButton::before {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 1px;
   background: linear-gradient(
     135deg,
@@ -423,31 +248,34 @@
 }
 
 .secondaryButton:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: rgba(108, 92, 231, 0.3);
-  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.2);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.2);
 }
 
 .mainButton {
   background: rgba(108, 92, 231, 0.2);
   color: var(--text-primary);
-  font-size: 18px;
-  padding: 12px 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  min-width: 150px;
+  font-size: 20px;
+  padding: 16px 40px;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  min-width: 180px;
   border: 1px solid rgba(108, 92, 231, 0.3);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .mainButton::before {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 1px;
   background: linear-gradient(
     135deg,
@@ -460,9 +288,9 @@
 }
 
 .mainButton:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   background: rgba(108, 92, 231, 0.3);
-  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.3);
 }
 
 /* Game info (score and health) */
@@ -473,13 +301,13 @@
   width: 100%;
   background: rgba(21, 21, 21, 0.85);
   color: var(--text-primary);
-  padding: 12px 30px;
+  padding: 8px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   z-index: 1000;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  height: 65px;
+  height: 45px;
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.3s ease;
@@ -501,7 +329,7 @@
 }
 
 .score {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.5px;
   position: relative;
@@ -734,27 +562,23 @@
   transform: translateY(1px);
 }
 
+/* Flag button specific styles for country-to-flag mode */
 .flagGuessButton {
   background: rgba(21, 21, 21, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  padding: 0;
+  padding: 10px;
   margin: 0;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: clamp(18px, 2.5vw, 24px);
-  font-weight: 500;
   width: 100%;
   height: 100%;
   min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  word-wrap: break-word;
   overflow: hidden;
-  color: var(--text-primary);
   box-sizing: border-box;
   backdrop-filter: blur(10px);
   position: relative;
@@ -770,11 +594,16 @@
   transform: translateY(1px);
 }
 
+.flagGuessButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .flagGuessButton img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: 4px;
   transition: all 0.3s ease;
 }
 
@@ -783,16 +612,26 @@
 }
 
 .flagLoadingSpinner {
-  width: 30px;
-  height: 30px;
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top: 3px solid #6c5ce7;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(108, 92, 231, 0.2);
+  border-top: 3px solid rgba(108, 92, 231, 0.8);
+  border-radius: 50%;
+  animation: flagSpin 1s linear infinite;
+  z-index: 2;
+}
+
+@keyframes flagSpin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 .correctButton {
@@ -879,36 +718,13 @@
   }
 }
 
-/* Country text animation for country-to-flag mode */
-.countryText {
-  font-size: 3rem;
-  font-weight: 700;
-  color: #ffffff;
-  text-align: center;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 20px;
-  animation: countryTextAppear 0.6s ease-out;
-}
-
-@keyframes countryTextAppear {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
 @media screen and (max-width: 750px) {
   .container {
     padding: 0;
-    height: auto;
-    min-height: 100vh;
-    overflow-y: auto;
+    height: 100dvh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+    display: block;
   }
 
   .title {
@@ -922,30 +738,6 @@
     width: 100%;
   }
 
-  .gameTypeGrid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 10px;
-    width: 100%;
-    max-width: 400px;
-  }
-
-  .gameTypeButton,
-  .continentButton,
-  .settingOption {
-    font-size: 18px;
-    padding: 25px 20px;
-    border-radius: 16px;
-    min-height: 100px;
-    width: 100%;
-  }
-
-  .gameTypeDesc,
-  .settingDescription {
-    font-size: 14px;
-    margin-top: 8px;
-  }
-
   .continentGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -954,71 +746,36 @@
   }
 
   .continentButton {
-    min-height: 120px;
+    min-height: 140px;
     font-size: 18px;
-    width: 100%;
-  }
-
-  .continentSection {
-    min-height: calc(100vh - 200px);
-    margin-bottom: 0;
-  }
-
-  .settingsSection {
-    min-height: calc(100vh - 200px);
-    margin-bottom: 0;
   }
 
   .settingsGrid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 5px;
+    width: 100%;
     margin-bottom: 0;
-    max-width: 400px;
   }
 
   .settingOption {
-    min-height: 100px;
-    padding: 25px 20px;
     font-size: 18px;
-  }
-
-  .settingIcon {
-    font-size: 2rem;
-    margin-bottom: 12px;
-  }
-
-  .settingLabel {
-    font-size: 16px;
-    margin-bottom: 6px;
-  }
-
-  .settingOptionActive::after {
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    top: 12px;
-    right: 12px;
+    padding: 20px;
+    min-height: 140px;
   }
 
   .settingsButtons {
-    position: sticky;
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
+    width: 100vw;
+    z-index: 1000;
     background: rgba(21, 21, 21, 0.95);
     backdrop-filter: blur(10px);
     padding: 15px;
     margin: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    z-index: 100;
-  }
-
-  .mainButton,
-  .secondaryButton {
-    width: 100%;
-    font-size: 16px;
-    padding: 14px 20px;
-    min-height: 48px;
   }
 
   .heart {
@@ -1061,35 +818,33 @@
     font-size: 18px;
   }
 
-  .skipButton {
-    font-size: 16px;
-    padding: 10px 20px;
+  .gameTypeGrid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .gameTypeButton {
+    min-height: 140px;
+    font-size: 1.1rem;
+    padding: 28px 10px;
+    gap: 12px;
+  }
+  .gameTypeDesc {
+    font-size: 1rem;
+    margin-top: 8px;
   }
 }
 
 @media screen and (max-width: 480px) {
+  .container {
+    padding: 0;
+    height: 100dvh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+    display: block;
+  }
+
   .title {
     font-size: 24px;
-  }
-
-  .gameTypeGrid {
-    gap: 15px;
-    padding: 8px;
-  }
-
-  .gameTypeButton,
-  .continentButton,
-  .settingOption {
-    font-size: 18px;
-    padding: 25px 20px;
-    border-radius: 16px;
-    min-height: 100px;
-  }
-
-  .gameTypeDesc,
-  .settingDescription {
-    font-size: 14px;
-    margin-top: 8px;
   }
 
   .continentGrid {
@@ -1100,21 +855,24 @@
 
   .continentButton {
     min-height: 120px;
-    font-size: 18px;
+    font-size: 16px;
   }
 
-  .continentSection {
-    min-height: calc(100vh - 200px);
-    margin-bottom: 0;
+  .settingsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 5px;
+  }
+
+  .settingOption {
+    font-size: 18px;
+    padding: 20px;
+    min-height: 140px;
   }
 
   .gameInfo {
     padding: 8px 12px;
     height: 45px;
-  }
-
-  .score {
-    font-size: 16px;
   }
 
   .endGameButton {
@@ -1146,11 +904,6 @@
     padding: 10px;
     font-size: 16px;
   }
-
-  .skipButton {
-    font-size: 16px;
-    padding: 10px 20px;
-  }
 }
 
 /* End Screen */
@@ -1158,8 +911,9 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
+  min-height: unset;
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(10px);
   display: flex;
@@ -1167,6 +921,7 @@
   justify-content: center;
   z-index: 2000;
   animation: fadeIn 0.3s ease-out;
+  overflow-y: hidden;
 }
 
 @keyframes fadeIn {
@@ -1184,12 +939,30 @@
   padding: 40px;
   max-width: 800px;
   width: 90%;
-  max-height: 90vh;
+  max-height: 100vh;
   overflow-y: auto;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px);
   position: relative;
+  margin: 0;
+}
+
+.endScreenContent::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.3),
+    rgba(108, 92, 231, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .endScreenHeader {
@@ -1303,13 +1076,13 @@
   backdrop-filter: blur(5px);
 }
 
-.endScreenSettingLabel {
+.settingLabel {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.7);
   font-weight: 500;
 }
 
-.endScreenSettingValue {
+.settingValue {
   font-size: 14px;
   color: #ffffff;
   font-weight: 600;
@@ -1435,9 +1208,8 @@
 /* Responsive design for end screen */
 @media screen and (max-width: 768px) {
   .endScreenContent {
-    padding: 30px 20px;
-    width: 95%;
-    max-height: 95vh;
+    padding: 30px 10px;
+    width: 98%;
   }
 
   .endStateIcon {
@@ -1492,7 +1264,7 @@
 
 @media screen and (max-width: 480px) {
   .endScreenContent {
-    padding: 25px 15px;
+    padding: 18px 2px;
   }
 
   .endStateIcon {
@@ -1557,95 +1329,151 @@
   box-shadow: 0 4px 15px rgba(255, 76, 76, 0.3);
 }
 
-.gameTypeButton {
-  padding: 40px 30px;
-  font-size: 22px;
-}
-
-.gameTypeGrid,
-.settingsGrid {
-  max-width: 800px;
-  gap: 30px;
-}
-
-.continentLabel {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: block;
-}
-
-.continentButton:hover .continentLabel {
-  transform: scale(1.1);
-}
-
-/* Skip button for failed flag loads */
-.skipButton {
-  background: rgba(255, 193, 7, 0.2);
-  color: #ffffff;
-  font-size: 18px;
-  padding: 12px 24px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 193, 7, 0.3);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  font-weight: 600;
+.gameTypeSection {
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 40px auto;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  grid-column: 1 / -1;
-  margin-top: 10px;
 }
 
-.skipButton::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 193, 7, 0.5),
-    rgba(255, 193, 7, 0.2)
-  );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
+.gameTypeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  width: 100%;
+  margin-top: 32px;
 }
 
-.skipButton:hover {
-  background: rgba(255, 193, 7, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
-}
-
-.skipButton:active {
-  transform: translateY(0);
-}
-
-/* Flag error placeholder styling */
-.flagErrorPlaceholder {
+.gameTypeButton {
+  background: rgba(21, 21, 21, 0.8);
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 60px 40px;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  width: 100%;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 280px;
+  position: relative;
+  outline: none;
+  gap: 20px;
+  user-select: none;
+  backdrop-filter: blur(10px);
+}
+
+.gameTypeButton:hover,
+.gameTypeButton:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 12px 40px rgba(108, 92, 231, 0.25);
+  background: rgba(108, 92, 231, 0.15);
+  color: #fff;
+  transform: translateY(-4px);
+}
+
+.selectedGameType {
+  border-color: var(--accent-color);
+  box-shadow: 0 12px 40px rgba(108, 92, 231, 0.3);
+  background: rgba(108, 92, 231, 0.2);
+  color: #fff;
+}
+
+.gameTypeDesc {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+  margin-top: 12px;
   text-align: center;
-  gap: 8px;
 }
 
-.flagErrorPlaceholder span:first-child {
-  font-size: 24px;
-  opacity: 0.8;
+/* Desktop-specific enhancements */
+@media screen and (min-width: 1024px) {
+  .gameTypeSection {
+    max-width: 1400px;
+    margin-bottom: 50px;
+  }
+
+  .gameTypeGrid {
+    gap: 60px;
+    margin-top: 40px;
+  }
+
+  .gameTypeButton {
+    padding: 80px 50px;
+    font-size: 2.2rem;
+    min-height: 320px;
+    gap: 24px;
+  }
+
+  .gameTypeDesc {
+    font-size: 1.4rem;
+    margin-top: 16px;
+  }
 }
 
-.flagErrorText {
-  font-size: 12px;
-  font-weight: 500;
-  opacity: 0.7;
+@media screen and (max-width: 750px) {
+  .gameTypeGrid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .gameTypeButton {
+    min-height: 140px;
+    font-size: 1.1rem;
+    padding: 28px 10px;
+    gap: 12px;
+  }
+  .gameTypeDesc {
+    font-size: 1rem;
+    margin-top: 8px;
+  }
+}
+
+/* Desktop-specific enhancements for settings */
+@media screen and (min-width: 1024px) {
+  .settingsSection {
+    max-width: 1000px;
+    margin-bottom: 40px;
+  }
+
+  .settingsSection h2 {
+    font-size: 32px;
+    margin-bottom: 35px;
+  }
+
+  .settingsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+    padding: 40px;
+    margin-bottom: 35px;
+  }
+
+  .settingOption {
+    font-size: 24px;
+    padding: 50px 40px;
+    min-height: 140px;
+  }
+
+  .settingsButtons {
+    gap: 40px;
+    margin-top: 35px;
+  }
+
+  .secondaryButton {
+    font-size: 22px;
+    padding: 18px 45px;
+    min-width: 90px;
+  }
+
+  .mainButton {
+    font-size: 22px;
+    padding: 18px 45px;
+    min-width: 200px;
+  }
 }

@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-        const response = await fetch(`https://jcucxwulsqjpvlzbpyep.supabase.co/rest/v1/flags${query}`, {
+        const response = await fetch(`https://jcucxwulsqjpvlzbpyep.supabase.co/rest/v1/flags`, {
             headers: {
               'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
               'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -27,6 +27,7 @@ export default async function handler(req, res) {
       res.status(200).json(data);
     } catch (error) {
       // Handle error
+      console.error('Error fetching flags from Supabase:', error);
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.status(400).json({ error: error.message });
     }
