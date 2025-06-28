@@ -181,7 +181,13 @@ const Site1 = () => {
       return;
     }
 
-    if (!infiniteMode && usedFlags.length >= filteredFlags.length) {
+    setMessage("");
+    setIsFlagLoading(true);
+    let availableFlags = infiniteMode ? filteredFlags : filteredFlags.filter(flag => !usedFlags.includes(flag.id));
+    
+    // Check if we have enough available flags
+    if (availableFlags.length === 0) {
+      // No more flags available - game is actually complete
       const gameEndTime = new Date().getTime();
       const timeElapsed = gameEndTime - gameStartTime;
       setGameStats({
@@ -198,10 +204,7 @@ const Site1 = () => {
       setShowEndScreen(true);
       return;
     }
-  
-    setMessage("");
-    setIsFlagLoading(true);
-    let availableFlags = infiniteMode ? filteredFlags : filteredFlags.filter(flag => !usedFlags.includes(flag.id));
+    
     const randomFlag = availableFlags[Math.floor(Math.random() * availableFlags.length)];
     setCurrentFlag(randomFlag);
     setUsedFlags([...usedFlags, randomFlag.id]);
