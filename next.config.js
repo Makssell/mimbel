@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb', // Reasonable limit for compressed images
-    },
+  // Remove invalid api configuration
+  // API body parser limits should be configured in individual API routes
+  output: 'standalone', // This helps with Vercel deployment
+  experimental: {
+    // Enable any experimental features if needed
   },
 }
 

@@ -2,12 +2,6 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/site1": "pages/site1.js",
   "/admin": "pages/admin.js",
-  "/api/admin/upload": "pages/api/admin/upload.js",
-  "/": "pages/index.js",
-  "/api/regional-countries": "pages/api/regional-countries.js",
-  "/api/division-types": "pages/api/division-types.js",
-  "/api/regional-flags": "pages/api/regional-flags.js",
-  "/api/admin/regional-flags": "pages/api/admin/regional-flags.js"
+  "/site1": "pages/site1.js"
 }
