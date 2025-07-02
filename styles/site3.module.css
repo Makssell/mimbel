@@ -58,3 +58,68 @@
   border-radius: 5px;
   color: #2d6a2f;
 }
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 750px) {
+  .container {
+    width: 90%;
+    margin: 20px auto 0;
+    padding: 15px;
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
+
+  .heading {
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
+
+  .button {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    margin: 8px;
+  }
+
+  .monkeyList li {
+    font-size: 1.1rem;
+    padding: 12px;
+  }
+
+  .upgradeDisplay {
+    font-size: 1.1rem;
+    padding: 12px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .container {
+    width: 95%;
+    margin: 10px auto 0;
+    padding: 10px;
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
+
+  .heading {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+  }
+
+  .button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    margin: 6px;
+  }
+
+  .monkeyList li {
+    font-size: 1rem;
+    padding: 10px;
+  }
+
+  .upgradeDisplay {
+    font-size: 1rem;
+    padding: 10px;
+  }
+}
