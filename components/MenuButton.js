@@ -11,9 +11,18 @@ const MenuButton = ({
   type = 'default' // 'mode', 'gameType', 'continent', 'setting'
 }) => {
   const getButtonClass = () => {
-    const baseClass = styles.menuButton;
-    const selectedClass = isSelected ? styles.selectedGameType : '';
-    return `${baseClass} ${selectedClass}`.trim();
+    let baseClass;
+    
+    // Use settingOption class for setting type buttons to get proper mobile styling
+    if (type === 'setting') {
+      baseClass = styles.settingOption;
+      const selectedClass = isSelected ? styles.settingOptionActive : '';
+      return `${baseClass} ${selectedClass}`.trim();
+    } else {
+      baseClass = styles.menuButton;
+      const selectedClass = isSelected ? styles.selectedGameType : '';
+      return `${baseClass} ${selectedClass}`.trim();
+    }
   };
 
   // Unified icon, label, and description classes for all button types

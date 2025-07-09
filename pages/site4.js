@@ -98,7 +98,8 @@ const Site4 = () => {
     });
   
     if (selectedCountry === currentFlag.name) {
-      setScore(score + 1);
+      const newScore = score + 1;
+      setScore(newScore);
       setMessage("Correct!");
       setButtonsDisabled(true);
       setTimeout(() => {

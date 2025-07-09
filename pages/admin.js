@@ -111,9 +111,7 @@ const AdminPage = () => {
   });
   const [newRegionalFlag, setNewRegionalFlag] = useState({
     name: '',
-    image_url: '',
-    abbreviation: '',
-    code: ''
+    image_url: ''
   });
 
   // JWT token for API requests
@@ -869,7 +867,8 @@ const AdminPage = () => {
           'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({
-          ...newRegionalFlag,
+          name: newRegionalFlag.name,
+          image_url: newRegionalFlag.image_url,
           country_id: selectedCountry.id,
           division_type_id: selectedDivisionType.id
         })
@@ -881,7 +880,7 @@ const AdminPage = () => {
       }
 
       setMessage('Regional flag added successfully!');
-      setNewRegionalFlag({ name: '', image_url: '', abbreviation: '', code: '' });
+      setNewRegionalFlag({ name: '', image_url: '' });
       setShowAddRegionalFlagForm(false);
       fetchRegionalFlags(selectedDivisionType.id);
     } catch (error) {
@@ -912,9 +911,7 @@ const AdminPage = () => {
         body: JSON.stringify({
           id: editingRegionalFlag.id,
           name: editingRegionalFlag.name,
-          image_url: editingRegionalFlag.image_url,
-          abbreviation: editingRegionalFlag.abbreviation,
-          code: editingRegionalFlag.code
+          image_url: editingRegionalFlag.image_url
         })
       });
 
@@ -989,7 +986,7 @@ const AdminPage = () => {
     setEditingRegionalFlag(null);
     setNewRegionalCountry({ name: '', flag_image_url: '', is_active: true });
     setNewDivisionType({ type_name: '', is_active: true });
-    setNewRegionalFlag({ name: '', image_url: '', abbreviation: '', code: '' });
+    setNewRegionalFlag({ name: '', image_url: '' });
   };
 
   if (!isAuthenticated) {
@@ -1769,22 +1766,6 @@ const AdminPage = () => {
                   )}
                 </div>
               </div>
-              <div className={styles.formRow}>
-                <input
-                  type="text"
-                  placeholder="Abbreviation (optional, e.g., CA, TX)"
-                  value={newRegionalFlag.abbreviation}
-                  onChange={(e) => setNewRegionalFlag({ ...newRegionalFlag, abbreviation: e.target.value })}
-                  className={styles.input}
-                />
-                <input
-                  type="text"
-                  placeholder="Code (optional, e.g., US-CA, US-TX)"
-                  value={newRegionalFlag.code}
-                  onChange={(e) => setNewRegionalFlag({ ...newRegionalFlag, code: e.target.value })}
-                  className={styles.input}
-                />
-              </div>
               <button onClick={handleAddRegionalFlag} className={styles.button} disabled={loading}>
                 {loading ? 'Adding...' : 'Add Regional Flag'}
               </button>
@@ -1836,20 +1817,6 @@ const AdminPage = () => {
                             </div>
                           )}
                         </div>
-                        <input
-                          type="text"
-                          placeholder="Abbreviation"
-                          value={editingRegionalFlag.abbreviation || ''}
-                          onChange={(e) => setEditingRegionalFlag({ ...editingRegionalFlag, abbreviation: e.target.value })}
-                          className={styles.input}
-                        />
-                        <input
-                          type="text"
-                          placeholder="Code"
-                          value={editingRegionalFlag.code || ''}
-                          onChange={(e) => setEditingRegionalFlag({ ...editingRegionalFlag, code: e.target.value })}
-                          className={styles.input}
-                        />
                         <div className={styles.editActions}>
                           <button onClick={handleSaveRegionalFlag} className={styles.button} disabled={loading}>
                             {loading ? 'Saving...' : 'Save'}
@@ -1870,8 +1837,6 @@ const AdminPage = () => {
                         </div>
                         <div className={styles.flagInfo}>
                           <h3>{regionalFlag.name}</h3>
-                          {regionalFlag.abbreviation && <p>Abbr: {regionalFlag.abbreviation}</p>}
-                          {regionalFlag.code && <p>Code: {regionalFlag.code}</p>}
                         </div>
                         <div className={styles.flagActions}>
                           <button onClick={() => handleEditRegionalFlag(regionalFlag)} className={styles.editButton}>

@@ -22,6 +22,7 @@ const Site1 = () => {
   const [selectedContinent, setSelectedContinent] = useState("world");
   const [includeTerritories, setIncludeTerritories] = useState(false);
   const [infiniteMode, setInfiniteMode] = useState(false);
+  const [timeAttackMode, setTimeAttackMode] = useState(false);
   const [usedFlags, setUsedFlags] = useState([]);
   const [isFlagLoading, setIsFlagLoading] = useState(true);
   const [startScreenStep, setStartScreenStep] = useState(1);
@@ -37,6 +38,12 @@ const Site1 = () => {
   const [totalAttempts, setTotalAttempts] = useState(0);
   const [endState, setEndState] = useState(null);
   const [gameStats, setGameStats] = useState({});
+
+  // Time Attack mode state variables
+  const [timeRemaining, setTimeRemaining] = useState(60);
+  const [timerStarted, setTimerStarted] = useState(false);
+  const [firstGuessMade, setFirstGuessMade] = useState(false);
+  const timerRef = useRef(null);
 
   // New state for minimal menu flow
   const [menuStep, setMenuStep] = useState(0); // 0: Mode Selection, 1: GameType, 2: Continent, 3: Settings
@@ -143,6 +150,17 @@ const Site1 = () => {
     }
   };
 
+  const handleProgressStepClick = (stepId) => {
+    const steps = getProgressSteps();
+    const stepIndex = steps.findIndex(step => step.id === stepId);
+    const currentIndex = getCurrentStepIndex();
+    
+    // Only allow jumping to completed steps or the current step
+    if (stepIndex <= currentIndex) {
+      setMenuStep(stepId);
+    }
+  };
+
   // Progress Bar Component
   const ProgressBar = () => {
     const steps = getProgressSteps();
@@ -172,6 +190,7 @@ const Site1 = () => {
             const isCurrent = step.id === menuStep;
             const isCompleted = completedSteps.includes(step.id);
             const isFuture = index > currentIndex;
+            const isTappable = index <= currentIndex; // Can tap current and completed steps
             
             return (
               <div key={step.id} className={styles.progressStepWrapper}>
@@ -180,7 +199,11 @@ const Site1 = () => {
                     isCurrent ? styles.currentStep :
                     isCompleted ? styles.completedStep :
                     styles.futureStep
-                  }`}
+                  } ${isTappable ? styles.tappableStep : ''}`}
+                  onClick={isTappable ? () => handleProgressStepClick(step.id) : undefined}
+                  role={isTappable ? "button" : undefined}
+                  tabIndex={isTappable ? 0 : undefined}
+                  aria-label={isTappable ? `Go to ${step.name} step` : undefined}
                 />
                 {index < steps.length - 1 && (
                   <div className={`${styles.progressLine} ${
@@ -398,6 +421,52 @@ const Site1 = () => {
     }
   }, [flagOptions, gameType, regionalGameType, gameMode, currentFlag, isFlagLoading]); // Include all relevant dependencies
 
+  // Time Attack mode timer countdown effect
+  useEffect(() => {
+    if (timeAttackMode && timerStarted && timeRemaining > 0) {
+      timerRef.current = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            // Timer reached 0, end the game
+            console.log('Time Attack: Timer reached 0, ending game');
+            
+            // Clear the timer first
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+            }
+            
+            // Add a brief flash effect before ending
+            setMessage("⏰ Time's up!");
+            
+            // Use setTimeout to ensure state updates are processed before ending game
+            setTimeout(() => {
+              endTimeAttackGame();
+            }, 500);
+            
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
+      };
+    }
+  }, [timeAttackMode, timerStarted, timeRemaining]);
+
+  // Cleanup timer when component unmounts or game ends
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
   // Function to end infinite mode game
   const endInfiniteMode = () => {
     const gameEndTime = new Date().getTime();
@@ -421,33 +490,112 @@ const Site1 = () => {
     setShowEndScreen(true);
   };
 
-  const startGame = async () => {
-    if (!gameStarted) {
-      setScore(0);
-      setHealth(3);
+  // Function to end Time Attack game
+  const endTimeAttackGame = () => {
+    console.log('Time Attack: Ending game with final score:', score);
+    
+    // Clear the timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
+    // Disable buttons to prevent further interaction
+    setButtonsDisabled(true);
+    
+    // Calculate final statistics
+    const gameEndTime = new Date().getTime();
+    const timeElapsed = gameEndTime - gameStartTime;
+    const finalAttempts = totalAttempts;
+    const accuracy = finalAttempts > 0 ? ((score / finalAttempts) * 100).toFixed(1) : 0;
+    
+    // Create a more engaging final message
+    const finalMessage = score > 0 
+      ? `⏰ Time's up! Great job! You got ${score} correct answer${score === 1 ? '' : 's'} in 60 seconds!`
+      : `⏰ Time's up! Keep practicing - you'll get better!`;
+    
+    setMessage(finalMessage);
+    
+    // Add a brief pause to let the user see the final score
+    setTimeout(() => {
+      setGameStats({
+        score: score,
+        totalAttempts: finalAttempts,
+        accuracy: accuracy,
+        timeElapsed: timeElapsed,
+        endState: "timeAttack",
+        gameType: gameMode === "regional" ? regionalGameType : gameType,
+        gameSettings: buildGameSettings(),
+        totalFlags: getTotalFlagsCount(),
+        remainingFlags: getRemainingFlagsCount()
+      });
+      setEndState("timeAttack");
+      setGameStarted(false);
+      setShowEndScreen(true);
+      setTimerStarted(false);
+      setFirstGuessMade(false);
+      setButtonsDisabled(false);
       setMessage("");
-      setGameStarted(true);
-      setUsedFlags([]);
-      setGameStartTime(new Date().getTime());
-      setTotalAttempts(0);
-      setShowEndScreen(false);
-      setEndState(null);
-      // Clear flag loading and error states when starting a new game
-      setFlagLoadingStates({});
-      setFlagErrorStates({});
-      // Clear any existing timeouts
-      Object.values(flagLoadTimeouts.current).forEach(timeout => clearTimeout(timeout));
-      flagLoadTimeouts.current = {};
-      console.log('Cleared all flag loading timeouts for new game');
-      
-      // Load regional flags if in regional mode
-      if (gameMode === "regional" && regionalFlags.length === 0) {
-        await fetchRegionalFlags();
+    }, 2500); // Show final message for 2.5 seconds
+  };
+
+  const startGame = async () => {
+    // Always reset game state when starting a new game
+    setScore(0);
+    setHealth(3);
+    setMessage("");
+    setGameStarted(true);
+    setUsedFlags([]);
+    setGameStartTime(new Date().getTime());
+    setTotalAttempts(0);
+    setShowEndScreen(false);
+    setEndState(null);
+    
+    // Initialize Time Attack mode
+    if (timeAttackMode) {
+      console.log('Initializing Time Attack mode with 60 seconds');
+      setTimeRemaining(60);
+      setTimerStarted(false);
+      setFirstGuessMade(false);
+    }
+    
+    // Clear flag loading and error states when starting a new game
+    setFlagLoadingStates({});
+    setFlagErrorStates({});
+    // Clear any existing timeouts
+    Object.values(flagLoadTimeouts.current).forEach(timeout => clearTimeout(timeout));
+    flagLoadTimeouts.current = {};
+    console.log('Cleared all flag loading timeouts for new game');
+    
+    // Load regional flags if in regional mode
+    let loadedFlags = null;
+    if (gameMode === "regional" && regionalFlags.length === 0) {
+      try {
+        loadedFlags = await fetchRegionalFlags();
+      } catch (error) {
+        console.error('Error loading regional flags:', error);
+        setMessage("Regional flags unavailable. Switching to standard mode.");
+        // Fallback to standard mode if regional flags fail
+        setGameMode("standard");
+        setMenuStep(0);
+        setGameStarted(false);
+        return;
       }
     }
     
-    // Load the next question
-    await loadNextQuestion();
+    // Ensure we have flags loaded before proceeding
+    const isRegionalMode = gameMode === "regional";
+    const currentFlags = isRegionalMode ? (loadedFlags || regionalFlags) : filteredFlags;
+    
+    if (!currentFlags || currentFlags.length === 0) {
+      console.error('No flags available when starting game');
+      setMessage("Error: No flags available. Please try again.");
+      setGameStarted(false);
+      return;
+    }
+    
+    // Load the next question with reset usedFlags
+    await loadNextQuestion(null, []);
   };
 
   // Transition functions for smooth animations
@@ -465,18 +613,18 @@ const Site1 = () => {
     setMessageTransitioning(false);
   };
 
-  const transitionToNextQuestion = async () => {
+  const transitionToNextQuestion = async (currentScore = null) => {
     startTransition();
     // Wait for transition out animation
     await new Promise(resolve => setTimeout(resolve, 200));
-    await loadNextQuestion();
+    await loadNextQuestion(currentScore, null);
     // Wait a bit more for content to load, then end transition
     setTimeout(() => {
       endTransition();
     }, 50);
   };
 
-  const loadNextQuestion = async () => {
+  const loadNextQuestion = async (currentScore = null, resetUsedFlags = null) => {
     // Determine which flags to use based on game mode
     const isRegionalMode = gameMode === "regional";
     let currentFlags;
@@ -527,17 +675,27 @@ const Site1 = () => {
 
     setMessage("");
     setIsFlagLoading(true);
-    let availableFlags = currentInfiniteMode ? currentFlags : currentFlags.filter(flag => !usedFlags.includes(flag.id));
+    const flagsToUse = resetUsedFlags !== null ? resetUsedFlags : usedFlags;
+    let availableFlags = currentInfiniteMode ? currentFlags : currentFlags.filter(flag => !flagsToUse.includes(flag.id));
+    
+    console.log('loadNextQuestion debug:', {
+      currentFlags: currentFlags?.length || 0,
+      usedFlags: flagsToUse?.length || 0,
+      availableFlags: availableFlags?.length || 0,
+      currentInfiniteMode,
+      gameStarted
+    });
     
     // Check if we have enough available flags
-    if (availableFlags.length === 0) {
+    if (availableFlags.length === 0 && gameStarted) {
       // No more flags available - game is actually complete
       const gameEndTime = new Date().getTime();
       const timeElapsed = gameEndTime - gameStartTime;
+      const finalScore = currentScore !== null ? currentScore : score;
       setGameStats({
-        score: score,
+        score: finalScore,
         totalAttempts: totalAttempts,
-        accuracy: totalAttempts > 0 ? ((score / totalAttempts) * 100).toFixed(1) : 0,
+        accuracy: totalAttempts > 0 ? ((finalScore / totalAttempts) * 100).toFixed(1) : 0,
         timeElapsed: timeElapsed,
         remainingFlags: 0,
         endState: "allCompleted",
@@ -551,9 +709,26 @@ const Site1 = () => {
       return;
     }
     
+    // Ensure we have available flags before proceeding (only if game is started)
+    if (availableFlags.length === 0 && gameStarted) {
+      console.error('No available flags found. This should not happen after the previous check.');
+      setMessage("Error: No flags available. Please try again.");
+      setGameStarted(false);
+      return;
+    }
+    
     const randomFlag = availableFlags[Math.floor(Math.random() * availableFlags.length)];
+    
+    // Additional safety check
+    if (!randomFlag || !randomFlag.id) {
+      console.error('Invalid flag selected:', randomFlag);
+      setMessage("Error: Invalid flag data. Please try again.");
+      setGameStarted(false);
+      return;
+    }
+    
     setCurrentFlag(randomFlag);
-    setUsedFlags([...usedFlags, randomFlag.id]);
+    setUsedFlags([...flagsToUse, randomFlag.id]);
     
     if (currentGameType === "flag-to-country" || currentGameType === "flag-to-region") {
       // Show flag, guess name (country or region)
@@ -671,7 +846,7 @@ const Site1 = () => {
     if (mainFlagFailed) {
       console.log("Main flag failed to load, replacing entire question");
       // If the main flag failed, we need to replace the entire question
-      loadNextQuestion();
+      loadNextQuestion(null, null);
       return;
     }
     
@@ -700,7 +875,7 @@ const Site1 = () => {
     if (availableFlags.length < failedFlagIds.length) {
       console.log("Not enough alternative flags available, skipping question");
       // In this case, we have no choice but to skip the question
-      loadNextQuestion();
+      loadNextQuestion(null, null);
       return;
     }
     
@@ -745,6 +920,13 @@ const Site1 = () => {
   const checkAnswer = (selectedAnswer) => {
     setTotalAttempts(prev => prev + 1);
     
+    // Start timer on first guess in Time Attack mode
+    if (timeAttackMode && !firstGuessMade) {
+      console.log('Starting Time Attack timer on first guess');
+      setFirstGuessMade(true);
+      setTimerStarted(true);
+    }
+    
     let isCorrect = false;
     
     // Determine current game type based on mode
@@ -763,7 +945,8 @@ const Site1 = () => {
     }
     
     if (isCorrect) {
-      setScore(score + 1);
+      const newScore = score + 1;
+      setScore(newScore);
       setScoreAnimation(true);
       setMessage("Correct!");
       setButtonsDisabled(true);
@@ -772,14 +955,26 @@ const Site1 = () => {
       });
       setTimeout(() => {
         setScoreAnimation(false);
-        transitionToNextQuestion();
+        transitionToNextQuestion(newScore);
         setButtonStyles({});
         setButtonsDisabled(false);
       }, 1000);
     } else {
-      if (health > 1) {
-        setHealth(health - 1);
-        setMessage("Incorrect! Try again.");
+      // Handle incorrect answer
+      if (timeAttackMode) {
+        // In Time Attack mode, deduct 5 seconds from remaining time
+        const newTime = Math.max(0, timeRemaining - 5);
+        console.log(`Time Attack: Incorrect answer. Time remaining: ${timeRemaining}s -> ${newTime}s`);
+        setTimeRemaining(newTime);
+        
+        // Check if this incorrect answer caused the timer to reach 0
+        if (newTime === 0) {
+          setMessage("⏰ Time's up! -5 seconds");
+          // The timer effect will handle the game end
+        } else {
+          setMessage("Incorrect! -5 seconds");
+        }
+        
         setButtonStyles({
           [selectedAnswer]: styles.incorrectButton
         });
@@ -787,27 +982,39 @@ const Site1 = () => {
           setButtonStyles({});
         }, 1000);
       } else {
-        // Game Over - Ran out of hearts
-        const gameEndTime = new Date().getTime();
-        const timeElapsed = gameEndTime - gameStartTime;
-        const finalAttempts = totalAttempts + 1;
-        const accuracy = finalAttempts > 0 ? ((score / finalAttempts) * 100).toFixed(1) : 0;
-        
-        setGameStats({
-          score: score,
-          totalAttempts: finalAttempts,
-          accuracy: accuracy,
-          timeElapsed: timeElapsed,
-          endState: "ranOutOfHearts",
-          gameType: currentGameType,
-          gameSettings: buildGameSettings(),
-          totalFlags: getTotalFlagsCount(),
-          remainingFlags: getRemainingFlagsCount()
-        });
-        setEndState("ranOutOfHearts");
-        setHealth(0);
-        setGameStarted(false);
-        setShowEndScreen(true);
+        // Standard mode - use health system
+        if (health > 1) {
+          setHealth(health - 1);
+          setMessage("Incorrect! Try again.");
+          setButtonStyles({
+            [selectedAnswer]: styles.incorrectButton
+          });
+          setTimeout(() => {
+            setButtonStyles({});
+          }, 1000);
+        } else {
+          // Game Over - Ran out of hearts
+          const gameEndTime = new Date().getTime();
+          const timeElapsed = gameEndTime - gameStartTime;
+          const finalAttempts = totalAttempts + 1;
+          const accuracy = finalAttempts > 0 ? ((score / finalAttempts) * 100).toFixed(1) : 0;
+          
+          setGameStats({
+            score: score,
+            totalAttempts: finalAttempts,
+            accuracy: accuracy,
+            timeElapsed: timeElapsed,
+            endState: "ranOutOfHearts",
+            gameType: currentGameType,
+            gameSettings: buildGameSettings(),
+            totalFlags: getTotalFlagsCount(),
+            remainingFlags: getRemainingFlagsCount()
+          });
+          setEndState("ranOutOfHearts");
+          setHealth(0);
+          setGameStarted(false);
+          setShowEndScreen(true);
+        }
       }
     }
   };
@@ -817,7 +1024,7 @@ const Site1 = () => {
     if (!selectedRegionalCountry || selectedDivisionTypes.length === 0) {
       console.error("No country or division types selected for regional flags");
       setMessage("Please select a country and division types first.");
-      return;
+      return null;
     }
 
     setIsLoadingRegionalFlags(true);
@@ -834,18 +1041,20 @@ const Site1 = () => {
         setMessage(`No regional flags found for ${selectedRegionalCountry.name} with the selected division types.`);
         setRegionalFlags([]);
         setFilteredRegionalFlags([]);
-        return;
+        return null;
       }
       
       setRegionalFlags(regionalFlags);
       setFilteredRegionalFlags(regionalFlags);
       
       console.log(`Loaded ${regionalFlags.length} regional flags for ${selectedRegionalCountry.name}`);
+      return regionalFlags;
     } catch (error) {
       console.error("Error fetching regional flags:", error);
       setMessage("Error loading regional flags. Please try again.");
       setRegionalFlags([]);
       setFilteredRegionalFlags([]);
+      return null;
     } finally {
       setIsLoadingRegionalFlags(false);
     }
@@ -873,7 +1082,7 @@ const Site1 = () => {
         selectedContinent === "6" ? "Oceania" : "Unknown"
       ) : null,
       territories: !isRegionalMode ? (includeTerritories ? "Included" : "Excluded") : null,
-      mode: (isRegionalMode ? regionalInfiniteMode : infiniteMode) ? "Infinite" : "Standard"
+      mode: timeAttackMode ? "Time Attack" : (isRegionalMode ? regionalInfiniteMode : infiniteMode) ? "Infinite" : "Standard"
     };
   };
 
@@ -1044,11 +1253,25 @@ const Site1 = () => {
                   />
                   <MenuButton
                     type="setting"
+                    icon="⏱️"
+                    label="Time Attack Mode"
+                    description="Race against the clock"
+                    isSelected={timeAttackMode}
+                    onClick={() => {
+                      setTimeAttackMode(!timeAttackMode);
+                      if (!timeAttackMode) {
+                        setInfiniteMode(true); // Auto-enable infinite mode
+                      }
+                    }}
+                  />
+                  <MenuButton
+                    type="setting"
                     icon="♾️"
                     label="Infinite Mode"
                     description="Play endlessly without running out of flags"
                     isSelected={infiniteMode}
                     onClick={() => setInfiniteMode(!infiniteMode)}
+                    disabled={timeAttackMode} // Disable when time attack is enabled
                   />
                 </div>
                 <div className={styles.settingsButtons}>
@@ -1251,11 +1474,25 @@ const Site1 = () => {
                 <div className={styles.settingsGrid}>
                   <MenuButton
                     type="setting"
+                    icon="⏱️"
+                    label="Time Attack Mode"
+                    description="Race against the clock"
+                    isSelected={timeAttackMode}
+                    onClick={() => {
+                      setTimeAttackMode(!timeAttackMode);
+                      if (!timeAttackMode) {
+                        setRegionalInfiniteMode(true); // Auto-enable infinite mode
+                      }
+                    }}
+                  />
+                  <MenuButton
+                    type="setting"
                     icon="♾️"
                     label="Infinite Mode"
                     description="Play endlessly without running out of flags"
                     isSelected={regionalInfiniteMode}
                     onClick={() => setRegionalInfiniteMode(!regionalInfiniteMode)}
+                    disabled={timeAttackMode} // Disable when time attack is enabled
                   />
                 </div>
                 <div className={styles.settingsButtons}>
@@ -1279,18 +1516,31 @@ const Site1 = () => {
                 {score}
               </span>
             </div>
-            <div className={styles.health}>
-              {Array.from({ length: 3 }).map((_, index) => (
-                <span 
-                  key={index} 
-                  className={`${styles.heart} ${health > index ? styles.activeHeart : styles.inactiveHeart}`}
-                  title={`${health > index ? 'Active' : 'Lost'} life`}
-                >
-                  🌍
+            {timeAttackMode && (
+              <div className={styles.timer}>
+                <span className={styles.timerLabel}>⏱️ Time:</span>
+                <span className={`${styles.timerValue} ${timeRemaining <= 10 ? styles.timerWarning : ''} ${timeRemaining <= 5 ? styles.timerCritical : ''}`}>
+                  {timeRemaining}s
                 </span>
-              ))}
-            </div>
-            {(infiniteMode || regionalInfiniteMode) && (
+                {timeRemaining <= 5 && (
+                  <span className={styles.timerCountdown}>⚠️</span>
+                )}
+              </div>
+            )}
+            {!timeAttackMode && (
+              <div className={styles.health}>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <span 
+                    key={index} 
+                    className={`${styles.heart} ${health > index ? styles.activeHeart : styles.inactiveHeart}`}
+                    title={`${health > index ? 'Active' : 'Lost'} life`}
+                  >
+                    🌍
+                  </span>
+                ))}
+              </div>
+            )}
+            {(infiniteMode || regionalInfiniteMode) && !timeAttackMode && (
               <button
                 className={`${styles.button} ${styles.endGameButton}`}
                 onClick={endInfiniteMode}
@@ -1456,6 +1706,13 @@ const Site1 = () => {
                   <p className={styles.endStateSubtitle}>Great job on your infinite run!</p>
                 </>
               )}
+              {endState === "timeAttack" && (
+                <>
+                  <div className={`${styles.endStateIcon} ${styles.timeAttackIcon}`}>⏱️</div>
+                  <h2 className={styles.endStateTitle}>Time's Up!</h2>
+                  <p className={styles.endStateSubtitle}>Great job on your time attack run!</p>
+                </>
+              )}
             </div>
 
             <div className={styles.quickStatsSection}>
@@ -1473,6 +1730,11 @@ const Site1 = () => {
                   <>
                     <div className={styles.quickStatValue}>{gameStats.accuracy}%</div>
                     <div className={styles.quickStatLabel}>Accuracy</div>
+                  </>
+                ) : endState === "timeAttack" ? (
+                  <>
+                    <div className={styles.quickStatValue}>{gameStats.totalAttempts}</div>
+                    <div className={styles.quickStatLabel}>Total Attempts</div>
                   </>
                 ) : (infiniteMode || regionalInfiniteMode) ? (
                   <>
@@ -1615,9 +1877,18 @@ const Site1 = () => {
               </button>
               <button
                 className={`${styles.button} ${styles.mainButton}`}
-                onClick={() => {
+                onClick={async () => {
+                  // Hide the end screen and clear game state immediately
                   setShowEndScreen(false);
-                  startGame();
+                  setGameStats({});
+                  setEndState(null);
+                  setGameStarted(false);
+                  
+                  // Wait a moment to ensure state updates are processed
+                  await new Promise(resolve => setTimeout(resolve, 50));
+                  
+                  // Start the new game (this will reset all game state)
+                  await startGame();
                 }}
               >
                 Play Again

@@ -2,6 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/admin": "pages/admin.js",
+  "/": "pages/index.js",
+  "/api/regional-flags": "pages/api/regional-flags.js",
   "/site1": "pages/site1.js"
 }

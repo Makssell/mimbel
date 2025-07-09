@@ -45,13 +45,11 @@ export default async function handler(req, res) {
 
       case 'POST':
         // Create new regional flag
-        const { name, image_url, abbreviation, code, country_id, division_type_id: createDivisionTypeId } = req.body;
+        const { name, image_url, country_id, division_type_id: createDivisionTypeId } = req.body;
 
         console.log('Creating regional flag with data:', {
           name,
           image_url,
-          abbreviation,
-          code,
           country_id,
           division_type_id: createDivisionTypeId
         });
@@ -67,14 +65,6 @@ export default async function handler(req, res) {
           country_id,
           division_type_id: createDivisionTypeId
         };
-
-        // Only add optional fields if they have values
-        if (abbreviation && abbreviation.trim()) {
-          insertData.abbreviation = abbreviation.trim();
-        }
-        if (code && code.trim()) {
-          insertData.code = code.trim();
-        }
 
         const { data: newRegionalFlag, error: createError } = await supabase
           .from('regional_flags')
@@ -92,7 +82,7 @@ export default async function handler(req, res) {
 
       case 'PUT':
         // Update regional flag
-        const { id: updateId, name: updateName, image_url: updateImageUrl, abbreviation: updateAbbreviation, code: updateCode } = req.body;
+        const { id: updateId, name: updateName, image_url: updateImageUrl } = req.body;
 
         if (!updateId) {
           return res.status(400).json({ error: 'Regional flag ID is required' });
@@ -102,8 +92,6 @@ export default async function handler(req, res) {
         const updateData = {};
         if (updateName !== undefined) updateData.name = updateName;
         if (updateImageUrl !== undefined) updateData.image_url = updateImageUrl;
-        if (updateAbbreviation !== undefined) updateData.abbreviation = updateAbbreviation;
-        if (updateCode !== undefined) updateData.code = updateCode;
 
         const { data: updatedRegionalFlag, error: updateError } = await supabase
           .from('regional_flags')
