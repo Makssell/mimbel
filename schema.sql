@@ -66,3 +66,64 @@ CREATE TABLE public.regional_flags (
 CREATE INDEX idx_regional_flags_country_id ON public.regional_flags(country_id);
 CREATE INDEX idx_regional_flags_division_type_id ON public.regional_flags(division_type_id);
 CREATE INDEX idx_region_division_types_country_id ON public.region_division_types(country_id);
+
+-- Enable Row Level Security (RLS) on tables
+ALTER TABLE public.continents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.country_continent ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.flags ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.regional_flag_countries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.region_division_types ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.regional_flags ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for anonymous read access
+-- Allow anonymous users to read all continents
+CREATE POLICY "Allow anonymous read access to continents" ON public.continents
+  FOR SELECT USING (true);
+
+-- Allow anonymous users to read all country_continent relationships
+CREATE POLICY "Allow anonymous read access to country_continent" ON public.country_continent
+  FOR SELECT USING (true);
+
+-- Allow anonymous users to read all flags
+CREATE POLICY "Allow anonymous read access to flags" ON public.flags
+  FOR SELECT USING (true);
+
+-- Allow anonymous users to read active regional flag countries
+CREATE POLICY "Allow anonymous read access to active regional flag countries" ON public.regional_flag_countries
+  FOR SELECT USING (is_active = true);
+
+-- Allow anonymous users to read active region division types
+CREATE POLICY "Allow anonymous read access to active region division types" ON public.region_division_types
+  FOR SELECT USING (is_active = true);
+
+-- Allow anonymous users to read all regional flags
+CREATE POLICY "Allow anonymous read access to regional flags" ON public.regional_flags
+  FOR SELECT USING (true);
+
+-- Admin policies (for authenticated admin users)
+-- These policies allow full CRUD access for admin users
+-- You'll need to implement proper admin authentication in your app
+
+-- Admin can do everything on continents
+CREATE POLICY "Allow admin full access to continents" ON public.continents
+  FOR ALL USING (auth.role() = 'admin');
+
+-- Admin can do everything on country_continent
+CREATE POLICY "Allow admin full access to country_continent" ON public.country_continent
+  FOR ALL USING (auth.role() = 'admin');
+
+-- Admin can do everything on flags
+CREATE POLICY "Allow admin full access to flags" ON public.flags
+  FOR ALL USING (auth.role() = 'admin');
+
+-- Admin can do everything on regional_flag_countries
+CREATE POLICY "Allow admin full access to regional_flag_countries" ON public.regional_flag_countries
+  FOR ALL USING (auth.role() = 'admin');
+
+-- Admin can do everything on region_division_types
+CREATE POLICY "Allow admin full access to region_division_types" ON public.region_division_types
+  FOR ALL USING (auth.role() = 'admin');
+
+-- Admin can do everything on regional_flags
+CREATE POLICY "Allow admin full access to regional_flags" ON public.regional_flags
+  FOR ALL USING (auth.role() = 'admin');

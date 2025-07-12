@@ -860,3 +860,226 @@
   border-color: var(--text-secondary);
   transform: translateY(-1px);
 }
+
+/* Feedback Management Styles */
+.feedbackContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.feedbackCard {
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.feedbackCard:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.feedbackHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.feedbackMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.statusBadge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statusnew {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.statusin_progress {
+  background: rgba(33, 150, 243, 0.2);
+  color: #2196f3;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.statusresolved {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.statusclosed {
+  background: rgba(158, 158, 158, 0.2);
+  color: #9e9e9e;
+  border: 1px solid rgba(158, 158, 158, 0.3);
+}
+
+.categoryBadge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: rgba(108, 92, 231, 0.2);
+  color: var(--accent-color);
+  border: 1px solid rgba(108, 92, 231, 0.3);
+}
+
+.dateBadge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.feedbackActions {
+  display: flex;
+  gap: 8px;
+}
+
+.feedbackContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feedbackDescription h4,
+.feedbackEmail h4,
+.feedbackContext h4,
+.feedbackFlag h4,
+.feedbackNotes h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.feedbackDescription p,
+.feedbackEmail p,
+.feedbackNotes p {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.feedbackContext {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.contextGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.contextItem {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.contextItem strong {
+  color: var(--text-primary);
+}
+
+.feedbackFlag {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.flagContext {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.flagContext img {
+  width: 40px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.flagContext span {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.feedbackNotes {
+  background: rgba(255, 193, 7, 0.05);
+  border: 1px solid rgba(255, 193, 7, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.feedbackNotes h4 {
+  color: #ffc107;
+}
+
+.textarea {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Mobile responsive for feedback */
+@media (max-width: 768px) {
+  .feedbackHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .feedbackMeta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .feedbackActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .contextGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .flagContext {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

@@ -18,6 +18,7 @@ const Site4 = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [buttonsDisabled, setButtonsDisabled] = useState(false);
   const [buttonStyles, setButtonStyles] = useState({});
+  const [gameMode, setGameMode] = useState("flagToCountry"); // "flagToCountry" or "countryToFlag"
 
   useEffect(() => {
     const fetchFlags = async () => {
@@ -83,21 +84,40 @@ const Site4 = () => {
     const randomFlag = availableFlags[Math.floor(Math.random() * availableFlags.length)];
     setCurrentFlag(randomFlag);
     setUsedFlags([...usedFlags, randomFlag.id]);
-    const correctCountry = randomFlag.name;
-    let incorrectCountries = filteredFlags.filter((flag) => flag.name !== correctCountry);
-    incorrectCountries = incorrectCountries.sort(() => Math.random() - 0.5).slice(0, 3);
-    const shuffledCountries = [correctCountry, ...incorrectCountries.map((flag) => flag.name)].sort(() => Math.random() - 0.5);
-    setOptions(shuffledCountries);
+    
+    if (gameMode === "flagToCountry") {
+      // Original mode: flag -> country
+      const correctCountry = randomFlag.name;
+      let incorrectCountries = filteredFlags.filter((flag) => flag.name !== correctCountry);
+      incorrectCountries = incorrectCountries.sort(() => Math.random() - 0.5).slice(0, 3);
+      const shuffledCountries = [correctCountry, ...incorrectCountries.map((flag) => flag.name)].sort(() => Math.random() - 0.5);
+      setOptions(shuffledCountries);
+    } else {
+      // New mode: country -> flag
+      const correctFlag = randomFlag;
+      let incorrectFlags = filteredFlags.filter((flag) => flag.id !== correctFlag.id);
+      incorrectFlags = incorrectFlags.sort(() => Math.random() - 0.5).slice(0, 3);
+      const shuffledFlags = [correctFlag, ...incorrectFlags].sort(() => Math.random() - 0.5);
+      setOptions(shuffledFlags);
+    }
   };
 
-  const checkAnswer = (selectedCountry) => {
-    const newButtonStyles = selectedCountry === currentFlag.name ? 'correct' : 'incorrect';
+  const checkAnswer = (selectedOption) => {
+    let isCorrect = false;
+    
+    if (gameMode === "flagToCountry") {
+      isCorrect = selectedOption === currentFlag.name;
+    } else {
+      isCorrect = selectedOption.id === currentFlag.id;
+    }
+    
+    const newButtonStyles = isCorrect ? 'correct' : 'incorrect';
     
     setButtonStyles({
-      [selectedCountry]: newButtonStyles
+      [gameMode === "flagToCountry" ? selectedOption : selectedOption.id]: newButtonStyles
     });
   
-    if (selectedCountry === currentFlag.name) {
+    if (isCorrect) {
       const newScore = score + 1;
       setScore(newScore);
       setMessage("Correct!");
@@ -138,6 +158,30 @@ const Site4 = () => {
       )}
       {!gameStarted && (
         <>
+          <div>
+            <h3>Game Mode:</h3>
+            <label>
+              <input 
+                type="radio" 
+                name="gameMode" 
+                value="flagToCountry" 
+                checked={gameMode === "flagToCountry"} 
+                onChange={(e) => setGameMode(e.target.value)} 
+              />
+              Flag → Country (Guess country from flag)
+            </label>
+            <br />
+            <label>
+              <input 
+                type="radio" 
+                name="gameMode" 
+                value="countryToFlag" 
+                checked={gameMode === "countryToFlag"} 
+                onChange={(e) => setGameMode(e.target.value)} 
+              />
+              Country → Flag (Guess flag from country)
+            </label>
+          </div>
           <select value={continent} onChange={(e) => setContinent(e.target.value)}>
             <option value="">World</option>
             <option value="1">Africa</option>
@@ -160,20 +204,44 @@ const Site4 = () => {
       <button onClick={gameStarted ? giveUp : startGame}>{gameStarted ? "Give Up" : "Start Game"}</button>
       {gameStarted && currentFlag && (  /* Hide the flag and guess buttons when the game ends */
         <div>
-          <img src={currentFlag.image_url} alt={currentFlag.name} width="200" />
-          <h3>Which country does this flag belong to?</h3>
-          <div>
-          {options.map((country, index) => (
-  <button 
-    key={index} 
-    onClick={() => checkAnswer(country)} 
-    disabled={buttonsDisabled} 
-    className={`${buttonStyles[country] || ""} ${buttonsDisabled ? "disabled" : ""}`}  // Combine disabled and dynamic class
-  >
-    {country}
-  </button>
-))}
-          </div>
+          {gameMode === "flagToCountry" ? (
+            // Original mode: show flag, guess country
+            <>
+              <img src={currentFlag.image_url} alt={currentFlag.name} width="200" />
+              <h3>Which country does this flag belong to?</h3>
+              <div>
+                {options.map((country, index) => (
+                  <button 
+                    key={index} 
+                    onClick={() => checkAnswer(country)} 
+                    disabled={buttonsDisabled} 
+                    className={`${buttonStyles[country] || ""} ${buttonsDisabled ? "disabled" : ""}`}
+                  >
+                    {country}
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            // New mode: show country, guess flag
+            <>
+              <h2>{currentFlag.name}</h2>
+              <h3>Which flag belongs to this country?</h3>
+              <div>
+                {options.map((flag, index) => (
+                  <button 
+                    key={index} 
+                    onClick={() => checkAnswer(flag)} 
+                    disabled={buttonsDisabled} 
+                    className={`${buttonStyles[flag.id] || ""} ${buttonsDisabled ? "disabled" : ""}`}
+                    style={{ padding: "10px", margin: "5px" }}
+                  >
+                    <img src={flag.image_url} alt={flag.name} width="100" height="60" style={{ objectFit: "cover" }} />
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
       {message && <p>{message}</p>}

@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "../lib/supabase";
-import { loadFlags, getRegionalCountries, getDivisionTypes } from "../lib/flagLoader";
 import styles from "../styles/site1.module.css";
 import MenuButton from "../components/MenuButton";
 import ActionButton from "../components/ActionButton";
@@ -28,9 +27,6 @@ const Site1 = () => {
   const [startScreenStep, setStartScreenStep] = useState(1);
   const [scoreAnimation, setScoreAnimation] = useState(false);
   const [flagOptions, setFlagOptions] = useState([]);
-  const [flagLoadingStates, setFlagLoadingStates] = useState({});
-  const [flagErrorStates, setFlagErrorStates] = useState({});
-  const flagLoadTimeouts = useRef({});
 
   // New state variables for end screen
   const [showEndScreen, setShowEndScreen] = useState(false);
@@ -66,6 +62,8 @@ const Site1 = () => {
   
   // Ref to store current game flags (for regional mode)
   const currentGameFlagsRef = useRef([]);
+  // Ref to track current score (for Time Attack mode)
+  const currentScoreRef = useRef(0);
 
   // Progress bar state
   const [progressBarHover, setProgressBarHover] = useState(false);
@@ -229,17 +227,154 @@ const Site1 = () => {
     );
   };
 
+  // Simple direct Supabase query for global flags (Site4 style)
+  const fetchGlobalFlags = async (continent = "world", includeTerritories = false) => {
+    try {
+      let query = supabase
+        .from("flags")
+        .select(`
+          id,
+          name,
+          territory,
+          image_url,
+          country_continent (continent_id)
+        `);
+
+      // Apply territory filter
+      if (!includeTerritories) {
+        query = query.eq('territory', false);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Error fetching global flags:", error);
+        throw error;
+      }
+
+      // Apply continent filter in memory (like Site4)
+      let filteredData = data;
+      if (continent !== "world") {
+        filteredData = data.filter((flag) =>
+          flag.country_continent.some((cc) => cc.continent_id === Number(continent))
+        );
+      }
+
+      return filteredData || [];
+    } catch (error) {
+      console.error("Error in fetchGlobalFlags:", error);
+      throw error;
+    }
+  };
+
+  // Simple direct Supabase query for regional flags (Site4 style)
+  const fetchRegionalFlags = async (countryId, divisionTypes) => {
+    try {
+      const { data, error } = await supabase
+        .from('regional_flags')
+        .select(`
+          id,
+          name,
+          image_url,
+          division_type_id
+        `)
+        .eq('country_id', countryId)
+        .in('division_type_id', divisionTypes);
+
+      if (error) {
+        console.error("Error fetching regional flags:", error);
+        throw error;
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error("Error in fetchRegionalFlags:", error);
+      throw error;
+    }
+  };
+
+  // Simple direct Supabase query for regional countries with flag counts (Site4 style)
+  const fetchRegionalCountries = async () => {
+    try {
+      const { data: countries, error } = await supabase
+        .from('regional_flag_countries')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) {
+        console.error("Error fetching regional countries:", error);
+        throw error;
+      }
+
+      // Calculate flag counts for each country
+      const countriesWithCounts = await Promise.all(
+        countries.map(async (country) => {
+          const { count, error: countError } = await supabase
+            .from('regional_flags')
+            .select('*', { count: 'exact', head: true })
+            .eq('country_id', country.id);
+
+          if (countError) {
+            console.error(`Error counting flags for country ${country.id}:`, countError);
+            return { ...country, total_regional_flags: 0 };
+          }
+
+          return { ...country, total_regional_flags: count || 0 };
+        })
+      );
+
+      return countriesWithCounts || [];
+    } catch (error) {
+      console.error("Error in fetchRegionalCountries:", error);
+      throw error;
+    }
+  };
+
+  // Simple direct Supabase query for division types with flag counts (Site4 style)
+  const fetchDivisionTypes = async () => {
+    try {
+      const { data: divisionTypes, error } = await supabase
+        .from('region_division_types')
+        .select('*')
+        .eq('is_active', true)
+        .order('type_name');
+
+      if (error) {
+        console.error("Error fetching division types:", error);
+        throw error;
+      }
+
+      // Calculate flag counts for each division type
+      const divisionTypesWithCounts = await Promise.all(
+        divisionTypes.map(async (divisionType) => {
+          const { count, error: countError } = await supabase
+            .from('regional_flags')
+            .select('*', { count: 'exact', head: true })
+            .eq('division_type_id', divisionType.id);
+
+          if (countError) {
+            console.error(`Error counting flags for division type ${divisionType.id}:`, countError);
+            return { ...divisionType, flag_count: 0 };
+          }
+
+          return { ...divisionType, flag_count: count || 0 };
+        })
+      );
+
+      return divisionTypesWithCounts || [];
+    } catch (error) {
+      console.error("Error in fetchDivisionTypes:", error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     const fetchFlags = async () => {
       setIsLoading(true);
       try {
-        // Load global flags by default
-        const globalFlags = await loadFlags({
-          gameType: "standard",
-          selectedContinent: "world",
-          includeTerritories: false
-        });
-        
+        // Load global flags by default using simple direct query
+        const globalFlags = await fetchGlobalFlags("world", false);
         setFlags(globalFlags);
         setFilteredFlags(globalFlags);
       } catch (error) {
@@ -253,44 +388,22 @@ const Site1 = () => {
     fetchFlags();
   }, []);
 
-  // Load regional data from database
+  // Load regional data from database using simple direct queries
   useEffect(() => {
     const loadRegionalData = async () => {
       setIsLoadingRegionalCountries(true);
       
       try {
-        // Use the new utility functions
-        const countriesData = await getRegionalCountries();
-        const divisionTypesData = await getDivisionTypes();
+        // Use simple direct queries with flag counts
+        const countriesData = await fetchRegionalCountries();
+        const divisionTypesData = await fetchDivisionTypes();
         
-        // Calculate total regional flags for each country
-        const countriesWithFlagCounts = countriesData.map(country => {
-          const countryDivisionTypes = divisionTypesData.filter(
-            divisionType => divisionType.country_id === country.id
-          );
-          const totalFlags = countryDivisionTypes.reduce(
-            (sum, divisionType) => sum + (divisionType.flag_count || 0), 
-            0
-          );
-          
-          return {
-            ...country,
-            total_regional_flags: totalFlags
-          };
-        });
-        
-        // Add flag counts to division types
-        const divisionTypesWithCounts = divisionTypesData.map(divisionType => ({
-          ...divisionType,
-          flag_count: divisionType.flag_count || 0
-        }));
-        
-        setRegionalCountries(countriesWithFlagCounts);
-        setRegionalDivisionTypes(divisionTypesWithCounts);
+        setRegionalCountries(countriesData);
+        setRegionalDivisionTypes(divisionTypesData);
         
         console.log('Loaded regional data:', {
-          countries: countriesWithFlagCounts,
-          divisionTypes: divisionTypesWithCounts
+          countries: countriesData,
+          divisionTypes: divisionTypesData
         });
         
       } catch (error) {
@@ -309,13 +422,9 @@ const Site1 = () => {
   useEffect(() => {
     const applyFilters = async () => {
       try {
-        // Only apply filters for global mode
+        // Only apply filters for global mode using simple direct query
         if (gameMode === "standard") {
-          const filteredFlags = await loadFlags({
-            gameType: "standard",
-            selectedContinent: selectedContinent,
-            includeTerritories: includeTerritories
-          });
+          const filteredFlags = await fetchGlobalFlags(selectedContinent, includeTerritories);
           setFilteredFlags(filteredFlags);
         }
         // For regional mode, filtering is handled by the regional flag loading
@@ -328,7 +437,7 @@ const Site1 = () => {
     applyFilters();
   }, [selectedContinent, includeTerritories, gameMode]);
 
-  // Load appropriate flags when game mode changes
+  // Load appropriate flags when game mode changes using simple direct queries
   useEffect(() => {
     const loadFlagsForMode = async () => {
       try {
@@ -338,12 +447,8 @@ const Site1 = () => {
           setRegionalFlags([]);
           setFilteredRegionalFlags([]);
         } else {
-          // For global mode, load flags with current filters
-          const globalFlags = await loadFlags({
-            gameType: "standard",
-            selectedContinent: selectedContinent,
-            includeTerritories: includeTerritories
-          });
+          // For global mode, load flags with current filters using simple direct query
+          const globalFlags = await fetchGlobalFlags(selectedContinent, includeTerritories);
           setFlags(globalFlags);
           setFilteredFlags(globalFlags);
         }
@@ -356,70 +461,12 @@ const Site1 = () => {
     loadFlagsForMode();
   }, [gameMode]);
 
-  // Cleanup timeouts when component unmounts or game type changes
+  // Simple cleanup when component unmounts (Site4 style)
   useEffect(() => {
     return () => {
-      console.log('Cleaning up flag loading timeouts');
-      Object.values(flagLoadTimeouts.current).forEach(timeout => clearTimeout(timeout));
-      flagLoadTimeouts.current = {};
+      // No complex timeout management needed
     };
-  }, [gameType]);
-
-  // Function to set up timeouts for flag images
-  const setupFlagTimeouts = () => {
-    // Handle both standard and regional flag-to-flag modes
-    const isRegionalMode = gameMode === "regional";
-    const currentGameType = isRegionalMode ? regionalGameType : gameType;
-    const isFlagToFlagMode = currentGameType === "country-to-flag" || currentGameType === "region-to-flag";
-    
-    if (isFlagToFlagMode && flagOptions.length > 0) {
-      console.log(`Setting up timeouts for ${flagOptions.length} flags`);
-      
-      // Clear timeouts for flags that are no longer in the current options
-      const currentFlagIds = flagOptions.map(flag => flag.id);
-      Object.keys(flagLoadTimeouts.current).forEach(flagId => {
-        if (!currentFlagIds.includes(parseInt(flagId))) {
-          console.log(`Clearing stale timeout for flag ID: ${flagId}`);
-          clearTimeout(flagLoadTimeouts.current[flagId]);
-          delete flagLoadTimeouts.current[flagId];
-        }
-      });
-      
-      flagOptions.forEach(flag => {
-        // Only set up timeout if the flag is in loading state and no timeout exists
-        if (flagLoadingStates[flag.id] && !flagErrorStates[flag.id] && !flagLoadTimeouts.current[flag.id]) {
-          console.log(`Setting timeout for flag: ${flag.name} (ID: ${flag.id})`);
-          flagLoadTimeouts.current[flag.id] = setTimeout(() => {
-            console.log(`Timeout triggered for flag: ${flag.name} (ID: ${flag.id})`);
-            handleFlagError(flag.id, flag.name);
-          }, 8000); // Increased to 8 seconds for better reliability
-        }
-      });
-    }
-    
-    // Also set up timeout for the main flag display (currentFlag)
-    if (currentFlag && isFlagLoading && !flagErrorStates[currentFlag.id] && !flagLoadTimeouts.current[`main-${currentFlag.id}`]) {
-      console.log(`Setting timeout for main flag: ${currentFlag.name} (ID: ${currentFlag.id})`);
-      flagLoadTimeouts.current[`main-${currentFlag.id}`] = setTimeout(() => {
-        console.log(`Timeout triggered for main flag: ${currentFlag.name} (ID: ${currentFlag.id})`);
-        handleFlagError(currentFlag.id, currentFlag.name);
-      }, 8000); // 8 seconds
-    }
-  };
-
-  // Set up timeouts when flagOptions changes or when currentFlag changes
-  useEffect(() => {
-    const isRegionalMode = gameMode === "regional";
-    const currentGameType = isRegionalMode ? regionalGameType : gameType;
-    const isFlagToFlagMode = currentGameType === "country-to-flag" || currentGameType === "region-to-flag";
-    
-    if ((isFlagToFlagMode && flagOptions.length > 0) || currentFlag) {
-      // Use setTimeout to ensure this runs after the current render cycle
-      setTimeout(() => {
-        setupFlagTimeouts();
-      }, 0);
-    }
-  }, [flagOptions, gameType, regionalGameType, gameMode, currentFlag, isFlagLoading]); // Include all relevant dependencies
+  }, []);
 
   // Time Attack mode timer countdown effect
   useEffect(() => {
@@ -436,13 +483,8 @@ const Site1 = () => {
               timerRef.current = null;
             }
             
-            // Add a brief flash effect before ending
-            setMessage("⏰ Time's up!");
-            
-            // Use setTimeout to ensure state updates are processed before ending game
-            setTimeout(() => {
-              endTimeAttackGame();
-            }, 500);
+            // End the game immediately
+            endTimeAttackGame();
             
             return 0;
           }
@@ -456,7 +498,7 @@ const Site1 = () => {
         }
       };
     }
-  }, [timeAttackMode, timerStarted, timeRemaining]);
+  }, [timeAttackMode, timerStarted]);
 
   // Cleanup timer when component unmounts or game ends
   useEffect(() => {
@@ -492,7 +534,13 @@ const Site1 = () => {
 
   // Function to end Time Attack game
   const endTimeAttackGame = () => {
-    console.log('Time Attack: Ending game with final score:', score);
+    // Prevent multiple calls
+    if (!gameStarted || showEndScreen) {
+      return;
+    }
+    
+    const finalScore = currentScoreRef.current; // Use ref for accurate score
+    console.log('Time Attack: Ending game with final score:', finalScore);
     
     // Clear the timer
     if (timerRef.current) {
@@ -507,11 +555,11 @@ const Site1 = () => {
     const gameEndTime = new Date().getTime();
     const timeElapsed = gameEndTime - gameStartTime;
     const finalAttempts = totalAttempts;
-    const accuracy = finalAttempts > 0 ? ((score / finalAttempts) * 100).toFixed(1) : 0;
+    const accuracy = finalAttempts > 0 ? ((finalScore / finalAttempts) * 100).toFixed(1) : 0;
     
     // Create a more engaging final message
-    const finalMessage = score > 0 
-      ? `⏰ Time's up! Great job! You got ${score} correct answer${score === 1 ? '' : 's'} in 60 seconds!`
+    const finalMessage = finalScore > 0 
+      ? `⏰ Time's up! Great job! You got ${finalScore} correct answer${finalScore === 1 ? '' : 's'} in 60 seconds!`
       : `⏰ Time's up! Keep practicing - you'll get better!`;
     
     setMessage(finalMessage);
@@ -519,7 +567,7 @@ const Site1 = () => {
     // Add a brief pause to let the user see the final score
     setTimeout(() => {
       setGameStats({
-        score: score,
+        score: finalScore,
         totalAttempts: finalAttempts,
         accuracy: accuracy,
         timeElapsed: timeElapsed,
@@ -542,6 +590,7 @@ const Site1 = () => {
   const startGame = async () => {
     // Always reset game state when starting a new game
     setScore(0);
+    currentScoreRef.current = 0; // Reset score ref
     setHealth(3);
     setMessage("");
     setGameStarted(true);
@@ -559,19 +608,14 @@ const Site1 = () => {
       setFirstGuessMade(false);
     }
     
-    // Clear flag loading and error states when starting a new game
-    setFlagLoadingStates({});
-    setFlagErrorStates({});
-    // Clear any existing timeouts
-    Object.values(flagLoadTimeouts.current).forEach(timeout => clearTimeout(timeout));
-    flagLoadTimeouts.current = {};
-    console.log('Cleared all flag loading timeouts for new game');
+    // Simple flag loading state reset (Site4 style)
+    setIsFlagLoading(true);
     
     // Load regional flags if in regional mode
     let loadedFlags = null;
     if (gameMode === "regional" && regionalFlags.length === 0) {
       try {
-        loadedFlags = await fetchRegionalFlags();
+        loadedFlags = await fetchRegionalFlags(selectedRegionalCountry.id, selectedDivisionTypes);
       } catch (error) {
         console.error('Error loading regional flags:', error);
         setMessage("Regional flags unavailable. Switching to standard mode.");
@@ -617,14 +661,46 @@ const Site1 = () => {
     startTransition();
     // Wait for transition out animation
     await new Promise(resolve => setTimeout(resolve, 200));
-    await loadNextQuestion(currentScore, null);
-    // Wait a bit more for content to load, then end transition
+    
+    // Load next question and get the new flag options
+    const newFlagOptions = await loadNextQuestion(currentScore, null);
+    
+    // Preload flag images for country-to-flag mode before ending transition
+    const isRegionalMode = gameMode === "regional";
+    const currentGameType = isRegionalMode ? regionalGameType : gameType;
+    
+    if ((currentGameType === "country-to-flag" || currentGameType === "region-to-flag") && newFlagOptions && newFlagOptions.length > 0) {
+      // Preload flag images using the new flag options
+      const preloadPromises = newFlagOptions.map(flag => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // Don't block on errors
+          img.src = flag.image_url;
+        });
+      });
+      
+      // Wait for all flags to load (with a timeout)
+      await Promise.race([
+        Promise.all(preloadPromises),
+        new Promise(resolve => setTimeout(resolve, 1000)) // 1 second timeout
+      ]);
+    }
+    
+    // End transition after flags are loaded
     setTimeout(() => {
       endTransition();
     }, 50);
   };
 
   const loadNextQuestion = async (currentScore = null, resetUsedFlags = null) => {
+    // Update score if provided (for correct answers)
+    if (currentScore !== null) {
+      console.log(`loadNextQuestion: Updating score from ${score} to ${currentScore}`);
+      setScore(currentScore);
+      currentScoreRef.current = currentScore; // Update ref immediately
+    }
+    
     // Determine which flags to use based on game mode
     const isRegionalMode = gameMode === "regional";
     let currentFlags;
@@ -635,15 +711,11 @@ const Site1 = () => {
       // For regional mode, ensure we have flags loaded
       if (regionalFlags.length === 0) {
         try {
-          const loadedFlags = await loadFlags({
-            gameType: "regional",
-            selectedCountryId: selectedRegionalCountry.id,
-            selectedDivisionTypes: selectedDivisionTypes
-          });
+          const loadedFlags = await fetchRegionalFlags(selectedRegionalCountry.id, selectedDivisionTypes);
           
           if (loadedFlags.length === 0) {
             setMessage("No regional flags available for selected filters.");
-            return;
+            return null;
           }
           
           setRegionalFlags(loadedFlags);
@@ -652,7 +724,7 @@ const Site1 = () => {
         } catch (error) {
           console.error("Error loading regional flags:", error);
           setMessage("Error loading regional flags. Please try again.");
-          return;
+          return null;
         }
       } else {
         currentFlags = regionalFlags;
@@ -670,7 +742,7 @@ const Site1 = () => {
     
     if (currentFlags.length === 0) {
       setMessage("No flags available for selected filters.");
-      return;
+      return null;
     }
 
     setMessage("");
@@ -706,7 +778,7 @@ const Site1 = () => {
       setEndState("allCompleted");
       setGameStarted(false);
       setShowEndScreen(true);
-      return;
+      return null;
     }
     
     // Ensure we have available flags before proceeding (only if game is started)
@@ -714,7 +786,7 @@ const Site1 = () => {
       console.error('No available flags found. This should not happen after the previous check.');
       setMessage("Error: No flags available. Please try again.");
       setGameStarted(false);
-      return;
+      return null;
     }
     
     const randomFlag = availableFlags[Math.floor(Math.random() * availableFlags.length)];
@@ -724,11 +796,13 @@ const Site1 = () => {
       console.error('Invalid flag selected:', randomFlag);
       setMessage("Error: Invalid flag data. Please try again.");
       setGameStarted(false);
-      return;
+      return null;
     }
     
     setCurrentFlag(randomFlag);
     setUsedFlags([...flagsToUse, randomFlag.id]);
+    
+    let newFlagOptions = null;
     
     if (currentGameType === "flag-to-country" || currentGameType === "flag-to-region") {
       // Show flag, guess name (country or region)
@@ -741,7 +815,6 @@ const Site1 = () => {
     
       setOptions(shuffledNames);
       setFlagOptions([]); // Clear flag options for this mode
-      setFlagLoadingStates({}); // Clear loading states
     } else {
       // Show name, guess flag (country-to-flag or region-to-flag)
       const correctFlag = randomFlag;
@@ -750,37 +823,18 @@ const Site1 = () => {
     
       const allFlags = [correctFlag, ...incorrectFlags];
       const shuffledFlags = allFlags.sort(() => Math.random() - 0.5);
-    
+      
+      newFlagOptions = shuffledFlags; // Store for return
       setFlagOptions(shuffledFlags);
       setOptions([]); // Clear name options for this mode
-      
-      // Initialize loading states for all flags
-      const initialLoadingStates = {};
-      shuffledFlags.forEach(flag => {
-        initialLoadingStates[flag.id] = true;
-      });
-      setFlagLoadingStates(initialLoadingStates);
     }
+    
+    return newFlagOptions;
   };
 
+  // Simple flag load handler (Site4 style)
   const handleFlagLoad = (flagId) => {
     console.log(`Flag loaded successfully: ${flagId}`);
-    setFlagLoadingStates(prev => ({
-      ...prev,
-      [flagId]: false
-    }));
-    
-    // Clear both regular and main flag timeouts
-    if (flagLoadTimeouts.current[flagId]) {
-      clearTimeout(flagLoadTimeouts.current[flagId]);
-      delete flagLoadTimeouts.current[flagId];
-      console.log(`Cleared timeout for flag: ${flagId}`);
-    }
-    if (flagLoadTimeouts.current[`main-${flagId}`]) {
-      clearTimeout(flagLoadTimeouts.current[`main-${flagId}`]);
-      delete flagLoadTimeouts.current[`main-${flagId}`];
-      console.log(`Cleared main flag timeout for: ${flagId}`);
-    }
     
     // If this is the main flag, also clear the main loading state
     if (currentFlag && currentFlag.id === flagId) {
@@ -788,28 +842,9 @@ const Site1 = () => {
     }
   };
 
+  // Simple flag error handler (Site4 style)
   const handleFlagError = (flagId, flagName) => {
     console.log(`Flag failed to load: ${flagName} (ID: ${flagId})`);
-    setFlagErrorStates(prev => ({
-      ...prev,
-      [flagId]: true
-    }));
-    setFlagLoadingStates(prev => ({
-      ...prev,
-      [flagId]: false
-    }));
-    
-    // Clear both regular and main flag timeouts
-    if (flagLoadTimeouts.current[flagId]) {
-      clearTimeout(flagLoadTimeouts.current[flagId]);
-      delete flagLoadTimeouts.current[flagId];
-      console.log(`Cleared timeout for flag: ${flagId} due to error`);
-    }
-    if (flagLoadTimeouts.current[`main-${flagId}`]) {
-      clearTimeout(flagLoadTimeouts.current[`main-${flagId}`]);
-      delete flagLoadTimeouts.current[`main-${flagId}`];
-      console.log(`Cleared main flag timeout for: ${flagId} due to error`);
-    }
     
     // If this is the main flag, also clear the main loading state
     if (currentFlag && currentFlag.id === flagId) {
@@ -819,102 +854,11 @@ const Site1 = () => {
     console.error(`Flag image failed to load: ${flagName} (ID: ${flagId})`);
   };
 
+  // Simple retry function (Site4 style) - just reload the current question
   const retryFlagLoad = (flagId) => {
     console.log(`Retrying flag load for: ${flagId}`);
-    setFlagErrorStates(prev => ({
-      ...prev,
-      [flagId]: false
-    }));
-    setFlagLoadingStates(prev => ({
-      ...prev,
-      [flagId]: true
-    }));
-    
-    // Set up a new timeout for the retry
-    flagLoadTimeouts.current[flagId] = setTimeout(() => {
-      console.log(`Retry timeout triggered for flag: ${flagId}`);
-      handleFlagError(flagId, "Unknown");
-    }, 8000);
-  };
-
-  const replaceFailedFlags = () => {
-    console.log("Replacing failed flags with alternatives");
-    
-    // Check if the main flag (currentFlag) failed to load
-    const mainFlagFailed = currentFlag && flagErrorStates[currentFlag.id];
-    
-    if (mainFlagFailed) {
-      console.log("Main flag failed to load, replacing entire question");
-      // If the main flag failed, we need to replace the entire question
-      loadNextQuestion(null, null);
-      return;
-    }
-    
-    // Get current flags and determine which option flags failed
-    const isRegionalMode = gameMode === "regional";
-    const currentFlags = isRegionalMode ? currentGameFlagsRef.current : filteredFlags;
-    const failedFlagIds = flagOptions.filter(flag => flagErrorStates[flag.id]).map(flag => flag.id);
-    
-    if (failedFlagIds.length === 0) {
-      console.log("No failed flags to replace");
-      return;
-    }
-    
-    // Get the correct flag (the one that should be the answer)
-    const correctFlag = currentFlag;
-    
-    // Get all available flags that haven't been used and aren't currently in the options
-    const usedFlagIds = [...usedFlags, ...flagOptions.map(flag => flag.id)];
-    const availableFlags = currentFlags.filter(flag => 
-      !usedFlagIds.includes(flag.id) && 
-      flag.id !== correctFlag.id &&
-      !flagErrorStates[flag.id] // Don't use flags that have already failed
-    );
-    
-    // If we don't have enough alternatives, we need to handle this case
-    if (availableFlags.length < failedFlagIds.length) {
-      console.log("Not enough alternative flags available, skipping question");
-      // In this case, we have no choice but to skip the question
-      loadNextQuestion(null, null);
-      return;
-    }
-    
-    // Create new flag options by replacing failed flags
-    const newFlagOptions = [...flagOptions];
-    const shuffledAvailableFlags = availableFlags.sort(() => Math.random() - 0.5);
-    
-    failedFlagIds.forEach((failedFlagId, index) => {
-      const replacementFlag = shuffledAvailableFlags[index];
-      if (replacementFlag) {
-        // Find the index of the failed flag in the options
-        const optionIndex = newFlagOptions.findIndex(flag => flag.id === failedFlagId);
-        if (optionIndex !== -1) {
-          // Replace the failed flag with the replacement
-          newFlagOptions[optionIndex] = replacementFlag;
-          
-          // Clear error and loading states for the new flag
-          setFlagErrorStates(prev => ({
-            ...prev,
-            [replacementFlag.id]: false
-          }));
-          setFlagLoadingStates(prev => ({
-            ...prev,
-            [replacementFlag.id]: true
-          }));
-          
-          // Set up timeout for the new flag
-          flagLoadTimeouts.current[replacementFlag.id] = setTimeout(() => {
-            console.log(`Timeout triggered for replacement flag: ${replacementFlag.name} (ID: ${replacementFlag.id})`);
-            handleFlagError(replacementFlag.id, replacementFlag.name);
-          }, 8000);
-        }
-      }
-    });
-    
-    // Update the flag options
-    setFlagOptions(newFlagOptions);
-    
-    console.log(`Replaced ${failedFlagIds.length} failed flags with alternatives`);
+    // Simple approach: just load the next question
+    loadNextQuestion(null, null);
   };
 
   const checkAnswer = (selectedAnswer) => {
@@ -946,7 +890,9 @@ const Site1 = () => {
     
     if (isCorrect) {
       const newScore = score + 1;
+      console.log(`checkAnswer: Correct! Score updated from ${score} to ${newScore}`);
       setScore(newScore);
+      currentScoreRef.current = newScore; // Update ref immediately
       setScoreAnimation(true);
       setMessage("Correct!");
       setButtonsDisabled(true);
@@ -969,18 +915,22 @@ const Site1 = () => {
         
         // Check if this incorrect answer caused the timer to reach 0
         if (newTime === 0) {
-          setMessage("⏰ Time's up! -5 seconds");
-          // The timer effect will handle the game end
+          // Don't set message here - let the timer effect handle the game end
+          setButtonStyles({
+            [selectedAnswer]: styles.incorrectButton
+          });
+          setTimeout(() => {
+            setButtonStyles({});
+          }, 1000);
         } else {
           setMessage("Incorrect! -5 seconds");
+          setButtonStyles({
+            [selectedAnswer]: styles.incorrectButton
+          });
+          setTimeout(() => {
+            setButtonStyles({});
+          }, 1000);
         }
-        
-        setButtonStyles({
-          [selectedAnswer]: styles.incorrectButton
-        });
-        setTimeout(() => {
-          setButtonStyles({});
-        }, 1000);
       } else {
         // Standard mode - use health system
         if (health > 1) {
@@ -1016,47 +966,6 @@ const Site1 = () => {
           setShowEndScreen(true);
         }
       }
-    }
-  };
-
-  // Function to fetch regional flags for the selected country and division types
-  const fetchRegionalFlags = async () => {
-    if (!selectedRegionalCountry || selectedDivisionTypes.length === 0) {
-      console.error("No country or division types selected for regional flags");
-      setMessage("Please select a country and division types first.");
-      return null;
-    }
-
-    setIsLoadingRegionalFlags(true);
-    
-    try {
-      // Use the new smart loadFlags function
-      const regionalFlags = await loadFlags({
-        gameType: "regional",
-        selectedCountryId: selectedRegionalCountry.id,
-        selectedDivisionTypes: selectedDivisionTypes
-      });
-      
-      if (regionalFlags.length === 0) {
-        setMessage(`No regional flags found for ${selectedRegionalCountry.name} with the selected division types.`);
-        setRegionalFlags([]);
-        setFilteredRegionalFlags([]);
-        return null;
-      }
-      
-      setRegionalFlags(regionalFlags);
-      setFilteredRegionalFlags(regionalFlags);
-      
-      console.log(`Loaded ${regionalFlags.length} regional flags for ${selectedRegionalCountry.name}`);
-      return regionalFlags;
-    } catch (error) {
-      console.error("Error fetching regional flags:", error);
-      setMessage("Error loading regional flags. Please try again.");
-      setRegionalFlags([]);
-      setFilteredRegionalFlags([]);
-      return null;
-    } finally {
-      setIsLoadingRegionalFlags(false);
     }
   };
 
@@ -1535,7 +1444,7 @@ const Site1 = () => {
                     className={`${styles.heart} ${health > index ? styles.activeHeart : styles.inactiveHeart}`}
                     title={`${health > index ? 'Active' : 'Lost'} life`}
                   >
-                    🌍
+                    ❤️
                   </span>
                 ))}
               </div>
@@ -1554,40 +1463,17 @@ const Site1 = () => {
           {currentFlag && (
             <div className={`${styles.flagContainer} ${flagTransitioning ? styles.transitioning : ''}`}>
               {(gameType === "flag-to-country" || regionalGameType === "flag-to-region") ? (
-                // Show flag image for flag-to-country or flag-to-region mode
+                // Show flag image for flag-to-country or flag-to-region mode (Site4 style)
                 <>
-                  {isFlagLoading && !flagErrorStates[currentFlag.id] && <div className={styles.loadingSpinner}></div>}
-                  {flagErrorStates[currentFlag.id] ? (
-                    <div className={styles.flagErrorPlaceholder}>
-                      <span role="img" aria-label="Flag failed to load">❌</span>
-                      <span className={styles.flagErrorText}>Failed to load</span>
-                      <div className={styles.flagErrorActions}>
-                        <button
-                          className={styles.retryButton}
-                          onClick={() => retryFlagLoad(currentFlag.id)}
-                          title="Retry loading flag"
-                        >
-                          🔄
-                        </button>
-                        <button
-                          className={`${styles.button} ${styles.skipButton}`}
-                          onClick={replaceFailedFlags}
-                          title="Replace with different flag"
-                        >
-                          🔄 Replace
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <img
-                      src={currentFlag.image_url}
-                      alt={currentFlag.name}
-                      className={`${styles.flagImage} ${flagTransitioning ? styles.transitioning : ''}`}
-                      onLoad={() => handleFlagLoad(currentFlag.id)}
-                      onError={() => handleFlagError(currentFlag.id, currentFlag.name)}
-                      style={{ display: isFlagLoading ? 'none' : 'block' }}
-                    />
-                  )}
+                  {isFlagLoading && <div className={styles.loadingSpinner}></div>}
+                  <img
+                    src={currentFlag.image_url}
+                    alt={currentFlag.name}
+                    className={`${styles.flagImage} ${flagTransitioning ? styles.transitioning : ''}`}
+                    onLoad={() => handleFlagLoad(currentFlag.id)}
+                    onError={() => handleFlagError(currentFlag.id, currentFlag.name)}
+                    style={{ display: isFlagLoading ? 'none' : 'block' }}
+                  />
                 </>
               ) : (
                 // Show name for country-to-flag or region-to-flag mode
@@ -1612,57 +1498,23 @@ const Site1 = () => {
                 </button>
               ))
             ) : (
-              // Show flag images as buttons for country-to-flag or region-to-flag mode
+              // Show flag images as buttons for country-to-flag or region-to-flag mode (Site4 style)
               <>
                 {flagOptions.map((flag, index) => (
                   <button
                     key={index}
                     onClick={() => checkAnswer(flag.id)}
                     className={`${styles.button} ${styles.flagGuessButton} ${styles.optionsTransition} ${buttonStyles[flag.id] || ''} ${optionsTransitioning ? styles.transitioning : ''}`}
-                    disabled={buttonsDisabled || flagLoadingStates[flag.id] || flagErrorStates[flag.id]}
+                    disabled={buttonsDisabled}
                   >
-                    {flagLoadingStates[flag.id] && !flagErrorStates[flag.id] && (
-                      <div className={styles.flagLoadingSpinner}></div>
-                    )}
-                    {flagErrorStates[flag.id] ? (
-                      <div className={styles.flagErrorPlaceholder}>
-                        <span role="img" aria-label="Flag failed to load">❌</span>
-                        <span className={styles.flagErrorText}>Failed to load</span>
-                        <button
-                          className={styles.retryButton}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            retryFlagLoad(flag.id);
-                          }}
-                          title="Retry loading flag"
-                        >
-                          🔄
-                        </button>
-                      </div>
-                    ) : (
-                      <img
-                        src={flag.image_url}
-                        alt={flag.name}
-                        onLoad={() => handleFlagLoad(flag.id)}
-                        onError={() => handleFlagError(flag.id, flag.name)}
-                        style={{
-                          opacity: flagLoadingStates[flag.id] ? 0 : 1,
-                          transition: 'opacity 0.3s ease'
-                        }}
-                      />
-                    )}
+                    <img
+                      src={flag.image_url}
+                      alt={flag.name}
+                      onLoad={() => handleFlagLoad(flag.id)}
+                      onError={() => handleFlagError(flag.id, flag.name)}
+                    />
                   </button>
                 ))}
-                {/* Show replace button if any flag failed to load */}
-                {flagOptions.some(flag => flagErrorStates[flag.id]) && (
-                  <button
-                    className={`${styles.button} ${styles.skipButton}`}
-                    onClick={replaceFailedFlags}
-                    title="Replace failed flags with working alternatives"
-                  >
-                    🔄 Replace Failed
-                  </button>
-                )}
               </>
             )}
           </div>

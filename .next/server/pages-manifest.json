@@ -3,6 +3,5 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/": "pages/index.js",
-  "/api/regional-flags": "pages/api/regional-flags.js",
   "/site1": "pages/site1.js"
 }

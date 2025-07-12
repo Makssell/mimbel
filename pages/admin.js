@@ -67,7 +67,7 @@ const AdminPage = () => {
   const [editingContinent, setEditingContinent] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddContinentForm, setShowAddContinentForm] = useState(false);
-  const [activeTab, setActiveTab] = useState('flags'); // 'flags', 'continents', 'regional-countries', 'division-types', 'regional-flags'
+  const [activeTab, setActiveTab] = useState('flags'); // 'flags', 'continents', 'regional-countries', 'division-types', 'regional-flags', 'feedback'
   const [newFlag, setNewFlag] = useState({
     name: '',
     territory: false,
@@ -114,6 +114,13 @@ const AdminPage = () => {
     image_url: ''
   });
 
+  // Feedback management states
+  const [feedback, setFeedback] = useState([]);
+  const [editingFeedback, setEditingFeedback] = useState(null);
+  const [feedbackSearchTerm, setFeedbackSearchTerm] = useState('');
+  const [feedbackStatusFilter, setFeedbackStatusFilter] = useState('all');
+  const [feedbackCategoryFilter, setFeedbackCategoryFilter] = useState('all');
+
   // JWT token for API requests
   const [authToken, setAuthToken] = useState('');
 
@@ -122,6 +129,7 @@ const AdminPage = () => {
       fetchFlags();
       fetchContinents();
       fetchRegionalCountries();
+      fetchFeedback();
     }
   }, [isAuthenticated]);
 
@@ -194,6 +202,24 @@ const AdminPage = () => {
       return { 'All Flags': filteredAndSortedFlags };
     }
   };
+
+  // Filter and sort feedback
+  const filteredFeedback = feedback
+    .filter(item => {
+      // Search filter
+      const matchesSearch = !feedbackSearchTerm || 
+        item.description.toLowerCase().includes(feedbackSearchTerm.toLowerCase()) ||
+        item.email.toLowerCase().includes(feedbackSearchTerm.toLowerCase());
+      
+      // Status filter
+      const matchesStatus = feedbackStatusFilter === 'all' || item.status === feedbackStatusFilter;
+      
+      // Category filter
+      const matchesCategory = feedbackCategoryFilter === 'all' || item.category === feedbackCategoryFilter;
+      
+      return matchesSearch && matchesStatus && matchesCategory;
+    })
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -313,6 +339,80 @@ const AdminPage = () => {
       setRegionalFlags(data || []);
     } catch (error) {
       setMessage('Error fetching regional flags: ' + error.message);
+    }
+  };
+
+  // Feedback management API functions
+  const fetchFeedback = async () => {
+    try {
+      const response = await fetch('/api/admin/feedback', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch feedback');
+      
+      const data = await response.json();
+      setFeedback(data || []);
+    } catch (error) {
+      setMessage('Error fetching feedback: ' + error.message);
+    }
+  };
+
+  const handleUpdateFeedback = async (feedbackId, updates) => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/feedback', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          id: feedbackId,
+          ...updates
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update feedback');
+      }
+
+      setMessage('Feedback updated successfully!');
+      setEditingFeedback(null);
+      fetchFeedback();
+    } catch (error) {
+      setMessage('Error updating feedback: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteFeedback = async (feedbackId) => {
+    if (!confirm('Are you sure you want to delete this feedback?')) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/admin/feedback?id=${feedbackId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete feedback');
+      }
+
+      setMessage('Feedback deleted successfully!');
+      fetchFeedback();
+    } catch (error) {
+      setMessage('Error deleting feedback: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -987,6 +1087,13 @@ const AdminPage = () => {
     setNewRegionalCountry({ name: '', flag_image_url: '', is_active: true });
     setNewDivisionType({ type_name: '', is_active: true });
     setNewRegionalFlag({ name: '', image_url: '' });
+    
+    // Reset feedback states
+    setFeedback([]);
+    setEditingFeedback(null);
+    setFeedbackSearchTerm('');
+    setFeedbackStatusFilter('all');
+    setFeedbackCategoryFilter('all');
   };
 
   if (!isAuthenticated) {
@@ -1053,6 +1160,12 @@ const AdminPage = () => {
           onClick={() => setActiveTab('regional-flags')}
         >
           Regional Flags ({regionalFlags.length})
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'feedback' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('feedback')}
+        >
+          Feedback ({filteredFeedback.length}/{feedback.length})
         </button>
       </div>
 
@@ -1854,6 +1967,177 @@ const AdminPage = () => {
             ) : (
               <div className={styles.noResults}>
                 Please select a country and division type from the previous tabs to manage regional flags.
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {activeTab === 'feedback' && (
+        <>
+          <div className={styles.flagsList}>
+            <div className={styles.filtersSection}>
+              <div className={styles.filtersRow}>
+                <input
+                  type="text"
+                  placeholder="Search feedback..."
+                  value={feedbackSearchTerm}
+                  onChange={(e) => setFeedbackSearchTerm(e.target.value)}
+                  className={styles.searchInput}
+                />
+                <select
+                  value={feedbackStatusFilter}
+                  onChange={(e) => setFeedbackStatusFilter(e.target.value)}
+                  className={styles.filterSelect}
+                >
+                  <option value="all">All Status</option>
+                  <option value="new">New</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="resolved">Resolved</option>
+                  <option value="closed">Closed</option>
+                </select>
+                <select
+                  value={feedbackCategoryFilter}
+                  onChange={(e) => setFeedbackCategoryFilter(e.target.value)}
+                  className={styles.filterSelect}
+                >
+                  <option value="all">All Categories</option>
+                  <option value="bug">Bug Report</option>
+                  <option value="flag-error">Flag Data Error</option>
+                  <option value="feedback">General Feedback</option>
+                </select>
+              </div>
+              <div className={styles.filterStats}>
+                Showing {filteredFeedback.length} of {feedback.length} feedback items
+                {feedbackSearchTerm && ` matching "${feedbackSearchTerm}"`}
+              </div>
+            </div>
+
+            <h2>User Feedback</h2>
+            {loading ? (
+              <div className={styles.loading}>Loading...</div>
+            ) : (
+              <div className={styles.feedbackContainer}>
+                {filteredFeedback.map(item => (
+                  <div key={item.id} className={styles.feedbackCard}>
+                    {editingFeedback?.id === item.id ? (
+                      <div className={styles.editForm}>
+                        <div className={styles.formRow}>
+                          <label>Status:</label>
+                          <select
+                            value={editingFeedback.status}
+                            onChange={(e) => setEditingFeedback({ ...editingFeedback, status: e.target.value })}
+                            className={styles.select}
+                          >
+                            <option value="new">New</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                          </select>
+                        </div>
+                        <div className={styles.formRow}>
+                          <label>Admin Notes:</label>
+                          <textarea
+                            value={editingFeedback.admin_notes || ''}
+                            onChange={(e) => setEditingFeedback({ ...editingFeedback, admin_notes: e.target.value })}
+                            className={styles.textarea}
+                            rows={3}
+                            placeholder="Add internal notes..."
+                          />
+                        </div>
+                        <div className={styles.editActions}>
+                          <button 
+                            onClick={() => handleUpdateFeedback(item.id, {
+                              status: editingFeedback.status,
+                              admin_notes: editingFeedback.admin_notes
+                            })} 
+                            className={styles.button} 
+                            disabled={loading}
+                          >
+                            {loading ? 'Saving...' : 'Save'}
+                          </button>
+                          <button onClick={() => setEditingFeedback(null)} className={styles.cancelButton}>
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className={styles.feedbackHeader}>
+                          <div className={styles.feedbackMeta}>
+                            <span className={`${styles.statusBadge} ${styles[`status${item.status}`]}`}>
+                              {item.status.replace('_', ' ')}
+                            </span>
+                            <span className={styles.categoryBadge}>
+                              {item.category === 'bug' ? '🐛 Bug' : 
+                               item.category === 'flag-error' ? '🚩 Flag Error' : '💬 Feedback'}
+                            </span>
+                            <span className={styles.dateBadge}>
+                              {new Date(item.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <div className={styles.feedbackActions}>
+                            <button onClick={() => setEditingFeedback(item)} className={styles.editButton}>
+                              Edit
+                            </button>
+                            <button onClick={() => handleDeleteFeedback(item.id)} className={styles.deleteButton}>
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div className={styles.feedbackContent}>
+                          <div className={styles.feedbackDescription}>
+                            <h4>Feedback:</h4>
+                            <p>{item.description}</p>
+                          </div>
+                          
+                          {item.email && item.email !== 'anonymous' && (
+                            <div className={styles.feedbackEmail}>
+                              <h4>Contact:</h4>
+                              <p>{item.email}</p>
+                            </div>
+                          )}
+                          
+                          {item.game_context && Object.keys(item.game_context).length > 0 && (
+                            <div className={styles.feedbackContext}>
+                              <h4>Game Context:</h4>
+                              <div className={styles.contextGrid}>
+                                {Object.entries(item.game_context).map(([key, value]) => (
+                                  <div key={key} className={styles.contextItem}>
+                                    <strong>{key}:</strong> {String(value)}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {item.current_flag && (
+                            <div className={styles.feedbackFlag}>
+                              <h4>Flag Context:</h4>
+                              <div className={styles.flagContext}>
+                                <img src={item.current_flag.image_url} alt={item.current_flag.name} />
+                                <span>{item.current_flag.name}</span>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {item.admin_notes && (
+                            <div className={styles.feedbackNotes}>
+                              <h4>Admin Notes:</h4>
+                              <p>{item.admin_notes}</p>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+                {filteredFeedback.length === 0 && (
+                  <div className={styles.noResults}>
+                    No feedback found matching your filters.
+                  </div>
+                )}
               </div>
             )}
           </div>
