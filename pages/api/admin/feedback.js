@@ -1,4 +1,5 @@
-import { supabase } from '../../../lib/supabase';
+import { supabaseAdmin } from '../../../lib/supabase-admin';
+import { verifyToken } from '../../../lib/auth';
 
 export default async function handler(req, res) {
   // Check if admin password is provided in headers
@@ -19,7 +20,7 @@ export default async function handler(req, res) {
   switch (method) {
     case 'GET':
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
           .from('feedback')
           .select('*')
           .order('created_at', { ascending: false });
@@ -41,7 +42,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Category and description are required' });
         }
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
           .from('feedback')
           .insert([
             {
@@ -76,7 +77,7 @@ export default async function handler(req, res) {
         if (status) updateData.status = status;
         if (admin_notes !== undefined) updateData.admin_notes = admin_notes;
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
           .from('feedback')
           .update(updateData)
           .eq('id', id)
@@ -99,7 +100,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Feedback ID is required' });
         }
 
-        const { error } = await supabase
+        const { error } = await supabaseAdmin
           .from('feedback')
           .delete()
           .eq('id', id);

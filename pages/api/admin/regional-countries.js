@@ -1,4 +1,4 @@
-import { supabase } from '../../../lib/supabase';
+import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { verifyToken } from '../../../lib/auth';
 
 export default async function handler(req, res) {
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     switch (method) {
       case 'GET':
         // Get all regional countries
-        const { data: countries, error: fetchError } = await supabase
+        const { data: countries, error: fetchError } = await supabaseAdmin
           .from('regional_flag_countries')
           .select('*')
           .order('name');
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Name and flag image URL are required' });
         }
 
-        const { data: newCountry, error: createError } = await supabase
+        const { data: newCountry, error: createError } = await supabaseAdmin
           .from('regional_flag_countries')
           .insert([{
             name,
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Country ID is required' });
         }
 
-        const { data: updatedCountry, error: updateError } = await supabase
+        const { data: updatedCountry, error: updateError } = await supabaseAdmin
           .from('regional_flag_countries')
           .update(updateData)
           .eq('id', id)
@@ -79,7 +79,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Country ID is required' });
         }
 
-        const { error: deleteError } = await supabase
+        const { error: deleteError } = await supabaseAdmin
           .from('regional_flag_countries')
           .delete()
           .eq('id', deleteId);

@@ -1,4 +1,4 @@
-import { supabase } from '../../../lib/supabase';
+import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { verifyToken } from '../../../lib/auth';
 
 export default async function handler(req, res) {
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     }
 
     // Delete from Supabase Storage
-    const { error } = await supabase.storage
+    const { error } = await supabaseAdmin.storage
       .from('flags')
       .remove([fileName]);
 

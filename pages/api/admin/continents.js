@@ -1,4 +1,4 @@
-import { supabase } from '../../../lib/supabase';
+import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { verifyToken } from '../../../lib/auth';
 
 export default async function handler(req, res) {
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   switch (req.method) {
     case 'GET':
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
           .from('continents')
           .select('*')
           .order('name');
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Continent name is required' });
         }
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
           .from('continents')
           .insert({ name })
           .select();
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID and continent name are required' });
         }
 
-        const { error } = await supabase
+        const { error } = await supabaseAdmin
           .from('continents')
           .update({ name })
           .eq('id', id);
@@ -79,7 +79,7 @@ export default async function handler(req, res) {
         }
 
         // Check if continent is being used by any flags
-        const { data: usedFlags, error: checkError } = await supabase
+        const { data: usedFlags, error: checkError } = await supabaseAdmin
           .from('country_continent')
           .select('country_id')
           .eq('continent_id', id);
@@ -92,7 +92,7 @@ export default async function handler(req, res) {
           });
         }
 
-        const { error } = await supabase
+        const { error } = await supabaseAdmin
           .from('continents')
           .delete()
           .eq('id', id);

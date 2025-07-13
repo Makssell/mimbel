@@ -1,4 +1,4 @@
-import { supabase } from '../../../lib/supabase';
+import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { verifyToken } from '../../../lib/auth';
 
 export default async function handler(req, res) {
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Country ID is required' });
         }
 
-        const { data: divisionTypes, error: fetchError } = await supabase
+        const { data: divisionTypes, error: fetchError } = await supabaseAdmin
           .from('region_division_types')
           .select('*')
           .eq('country_id', country_id)
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Type name and country ID are required' });
         }
 
-        const { data: newDivisionType, error: createError } = await supabase
+        const { data: newDivisionType, error: createError } = await supabaseAdmin
           .from('region_division_types')
           .insert([{
             type_name,
@@ -67,7 +67,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Division type ID is required' });
         }
 
-        const { data: updatedDivisionType, error: updateError } = await supabase
+        const { data: updatedDivisionType, error: updateError } = await supabaseAdmin
           .from('region_division_types')
           .update(updateData)
           .eq('id', id)
@@ -86,7 +86,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Division type ID is required' });
         }
 
-        const { error: deleteError } = await supabase
+        const { error: deleteError } = await supabaseAdmin
           .from('region_division_types')
           .delete()
           .eq('id', deleteId);

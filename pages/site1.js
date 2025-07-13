@@ -74,6 +74,283 @@ const Site1 = () => {
   const [optionsTransitioning, setOptionsTransitioning] = useState(false);
   const [messageTransitioning, setMessageTransitioning] = useState(false);
 
+  // Audio context and sound system
+  const audioContextRef = useRef(null);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+
+  // Refs to track current state values for keyboard handler
+  const timeRemainingRef = useRef(timeRemaining);
+  const buttonsDisabledRef = useRef(buttonsDisabled);
+  const gameStartedRef = useRef(gameStarted);
+  const gameModeRef = useRef(gameMode);
+  const regionalGameTypeRef = useRef(regionalGameType);
+  const gameTypeRef = useRef(gameType);
+  const optionsRef = useRef(options);
+  const flagOptionsRef = useRef(flagOptions);
+  const currentFlagRef = useRef(currentFlag);
+  const scoreRef = useRef(score);
+  const timeAttackModeRef = useRef(timeAttackMode);
+  const firstGuessMadeRef = useRef(firstGuessMade);
+  const healthRef = useRef(health);
+  const regionalFlagsRef = useRef(regionalFlags);
+  const filteredFlagsRef = useRef(filteredFlags);
+  const regionalInfiniteModeRef = useRef(regionalInfiniteMode);
+  const infiniteModeRef = useRef(infiniteMode);
+
+  // Initialize audio context
+  useEffect(() => {
+    const initAudio = () => {
+      try {
+        // Create audio context only when user interacts
+        if (!audioContextRef.current) {
+          audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      } catch (error) {
+        console.error('Failed to initialize audio context:', error);
+        setAudioEnabled(false);
+      }
+    };
+
+    // Initialize audio on first user interaction
+    const handleFirstInteraction = () => {
+      initAudio();
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
+    };
+
+    document.addEventListener('click', handleFirstInteraction);
+    document.addEventListener('keydown', handleFirstInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
+    };
+  }, []);
+
+  // Sound generation functions with mystical characteristics
+  const playTone = (frequency, duration = 200, type = 'sine', volume = 0.15, reverb = false) => {
+    if (!audioEnabled || !audioContextRef.current) return;
+
+    try {
+      const oscillator = audioContextRef.current.createOscillator();
+      const gainNode = audioContextRef.current.createGain();
+      const filter = audioContextRef.current.createBiquadFilter();
+      
+      // Create a slight detune effect for mystical feel
+      const detune = (Math.random() - 0.5) * 10; // ±5 cents
+      const detunedFreq = frequency * Math.pow(2, detune / 1200);
+      
+      oscillator.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(audioContextRef.current.destination);
+      
+      oscillator.frequency.setValueAtTime(detunedFreq, audioContextRef.current.currentTime);
+      oscillator.type = type;
+      
+      // Apply gentle lowpass filter for mystical darkness
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(3000, audioContextRef.current.currentTime);
+      filter.Q.setValueAtTime(0.5, audioContextRef.current.currentTime);
+      
+      // Fade in and out for smooth sound
+      gainNode.gain.setValueAtTime(0, audioContextRef.current.currentTime);
+      gainNode.gain.linearRampToValueAtTime(volume, audioContextRef.current.currentTime + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContextRef.current.currentTime + duration / 1000);
+      
+      // Add reverb effect if requested
+      if (reverb) {
+        const delay = audioContextRef.current.createDelay();
+        const feedback = audioContextRef.current.createGain();
+        
+        delay.delayTime.setValueAtTime(0.1, audioContextRef.current.currentTime);
+        feedback.gain.setValueAtTime(0.3, audioContextRef.current.currentTime);
+        
+        gainNode.connect(delay);
+        delay.connect(feedback);
+        feedback.connect(delay);
+        delay.connect(audioContextRef.current.destination);
+      }
+      
+      oscillator.start(audioContextRef.current.currentTime);
+      oscillator.stop(audioContextRef.current.currentTime + duration / 1000);
+    } catch (error) {
+      console.error('Error playing tone:', error);
+    }
+  };
+
+  // 1. Menu Interaction (hover/select) - Very short soft chime
+  const playMenuClickSound = () => {
+    // D#5 (~622 Hz) sine wave, 100ms, with gentle fade out
+    playTone(622, 100, 'sine', 0.08, true);
+  };
+
+  // 2. Correct Guess - Soft two-note upward interval A4 → C5
+  const playCorrectSound = () => {
+    // A4 (440 Hz) → C5 (523 Hz), each 150ms, legato
+    playTone(440, 150, 'triangle', 0.12, true);
+    setTimeout(() => {
+      playTone(523, 150, 'triangle', 0.12, true);
+    }, 150);
+  };
+
+  // 3. Wrong Guess - Quick minor downward interval C5 → G#4
+  const playIncorrectSound = () => {
+    // C5 (523 Hz) → G#4 (415 Hz), ~150ms each, with soft dark filter
+    playTone(523, 150, 'triangle', 0.1, true);
+    setTimeout(() => {
+      playTone(415, 150, 'triangle', 0.1, true);
+    }, 150);
+  };
+
+  // 4. Losing All Hearts - Low gentle 3-note descending motif
+  const playGameOverSound = () => {
+    // A4 → F#4 → D4 (440 → 370 → 294 Hz), 250ms per note with reverb
+    playTone(440, 250, 'sine', 0.15, true);
+    setTimeout(() => {
+      playTone(370, 250, 'sine', 0.15, true);
+    }, 250);
+    setTimeout(() => {
+      playTone(294, 250, 'sine', 0.15, true);
+    }, 500);
+  };
+
+  // 5. Finishing All Flags (Victory) - Soft arpeggiated upward minor 7 chord
+  const playVictorySound = () => {
+    // A4 → C5 → E5 → G5, each ~200ms with shimmering reverb
+    const frequencies = [440, 523, 659, 784];
+    frequencies.forEach((freq, index) => {
+      setTimeout(() => {
+        playTone(freq, 200, 'triangle', 0.12, true);
+      }, index * 200);
+    });
+  };
+
+  const playMenuHoverSound = () => {
+    // Subtle hover sound - even softer than click
+    playTone(622, 50, 'sine', 0.04, true);
+  };
+
+  const playGameStartSound = () => {
+    // Gentle ascending sequence for game start
+    playTone(440, 150, 'triangle', 0.12, true);
+    setTimeout(() => playTone(523, 150, 'triangle', 0.12, true), 150);
+    setTimeout(() => playTone(659, 200, 'triangle', 0.12, true), 300);
+  };
+
+  const playTimeWarningSound = () => {
+    // Gentle warning beep for low time
+    playTone(523, 100, 'triangle', 0.1, true);
+  };
+
+  // Update refs when state changes
+  useEffect(() => {
+    timeRemainingRef.current = timeRemaining;
+  }, [timeRemaining]);
+
+  useEffect(() => {
+    buttonsDisabledRef.current = buttonsDisabled;
+  }, [buttonsDisabled]);
+
+  useEffect(() => {
+    gameStartedRef.current = gameStarted;
+  }, [gameStarted]);
+
+  useEffect(() => {
+    gameModeRef.current = gameMode;
+  }, [gameMode]);
+
+  useEffect(() => {
+    regionalGameTypeRef.current = regionalGameType;
+  }, [regionalGameType]);
+
+  useEffect(() => {
+    gameTypeRef.current = gameType;
+  }, [gameType]);
+
+  useEffect(() => {
+    optionsRef.current = options;
+  }, [options]);
+
+  useEffect(() => {
+    flagOptionsRef.current = flagOptions;
+  }, [flagOptions]);
+
+  useEffect(() => {
+    currentFlagRef.current = currentFlag;
+  }, [currentFlag]);
+
+  useEffect(() => {
+    scoreRef.current = score;
+  }, [score]);
+
+  useEffect(() => {
+    timeAttackModeRef.current = timeAttackMode;
+  }, [timeAttackMode]);
+
+  useEffect(() => {
+    firstGuessMadeRef.current = firstGuessMade;
+  }, [firstGuessMade]);
+
+  useEffect(() => {
+    healthRef.current = health;
+  }, [health]);
+
+  useEffect(() => {
+    regionalFlagsRef.current = regionalFlags;
+  }, [regionalFlags]);
+
+  useEffect(() => {
+    filteredFlagsRef.current = filteredFlags;
+  }, [filteredFlags]);
+
+  useEffect(() => {
+    regionalInfiniteModeRef.current = regionalInfiniteMode;
+  }, [regionalInfiniteMode]);
+
+  useEffect(() => {
+    infiniteModeRef.current = infiniteMode;
+  }, [infiniteMode]);
+
+  // Keyboard event handler for number keys 1-4
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      // Only handle keyboard input when game is started and buttons are not disabled
+      if (!gameStartedRef.current || buttonsDisabledRef.current) return;
+      
+      // Check if the pressed key is 1, 2, 3, or 4
+      const keyNumber = parseInt(event.key);
+      if (keyNumber >= 1 && keyNumber <= 4) {
+        // Get the current options based on game type
+        const isRegionalMode = gameModeRef.current === "regional";
+        const currentGameType = isRegionalMode ? regionalGameTypeRef.current : gameTypeRef.current;
+        
+        let currentOptions = [];
+        if (currentGameType === "flag-to-country" || currentGameType === "flag-to-region") {
+          // For flag-to-country/region mode, options are names
+          currentOptions = optionsRef.current || [];
+        } else {
+          // For country-to-flag/region mode, options are flag IDs
+          currentOptions = (flagOptionsRef.current || []).map(flag => flag.id);
+        }
+        
+        // Check if the selected option exists (index is 0-based, so subtract 1)
+        const selectedIndex = keyNumber - 1;
+        if (selectedIndex < currentOptions.length) {
+          const selectedAnswer = currentOptions[selectedIndex];
+          checkAnswer(selectedAnswer);
+        }
+      }
+    };
+
+    // Add event listener
+    document.addEventListener('keydown', handleKeyPress);
+    
+    // Cleanup event listener on unmount
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+  }, []); // Empty dependency array since we're using refs
+
   // Progress bar configuration
   const getProgressSteps = () => {
     if (gameMode === "regional") {
@@ -118,6 +395,8 @@ const Site1 = () => {
   const goToPreviousStep = () => {
     if (!canGoBack()) return;
     
+    playMenuClickSound();
+    
     const steps = getProgressSteps();
     const currentIndex = getCurrentStepIndex();
     const previousStep = steps[currentIndex - 1];
@@ -127,6 +406,8 @@ const Site1 = () => {
 
   const goToNextStep = () => {
     if (!canGoForward()) return;
+    
+    playMenuClickSound();
     
     const steps = getProgressSteps();
     const currentIndex = getCurrentStepIndex();
@@ -155,6 +436,7 @@ const Site1 = () => {
     
     // Only allow jumping to completed steps or the current step
     if (stepIndex <= currentIndex) {
+      playMenuClickSound();
       setMenuStep(stepId);
     }
   };
@@ -488,6 +770,12 @@ const Site1 = () => {
             
             return 0;
           }
+          
+          // Play warning sound when time is low
+          if (prev <= 5 && prev > 0) {
+            playTimeWarningSound();
+          }
+          
           return prev - 1;
         });
       }, 1000);
@@ -511,6 +799,9 @@ const Site1 = () => {
 
   // Function to end infinite mode game
   const endInfiniteMode = () => {
+    // Play game over sound
+    playGameOverSound();
+    
     const gameEndTime = new Date().getTime();
     const timeElapsed = gameEndTime - gameStartTime;
     const finalAttempts = totalAttempts;
@@ -538,6 +829,9 @@ const Site1 = () => {
     if (!gameStarted || showEndScreen) {
       return;
     }
+    
+    // Play game over sound
+    playGameOverSound();
     
     const finalScore = currentScoreRef.current; // Use ref for accurate score
     console.log('Time Attack: Ending game with final score:', finalScore);
@@ -588,6 +882,9 @@ const Site1 = () => {
   };
 
   const startGame = async () => {
+    // Play game start sound
+    playGameStartSound();
+    
     // Always reset game state when starting a new game
     setScore(0);
     currentScoreRef.current = 0; // Reset score ref
@@ -666,8 +963,8 @@ const Site1 = () => {
     const newFlagOptions = await loadNextQuestion(currentScore, null);
     
     // Preload flag images for country-to-flag mode before ending transition
-    const isRegionalMode = gameMode === "regional";
-    const currentGameType = isRegionalMode ? regionalGameType : gameType;
+    const isRegionalMode = gameModeRef.current === "regional";
+    const currentGameType = isRegionalMode ? regionalGameTypeRef.current : gameTypeRef.current;
     
     if ((currentGameType === "country-to-flag" || currentGameType === "region-to-flag") && newFlagOptions && newFlagOptions.length > 0) {
       // Preload flag images using the new flag options
@@ -696,20 +993,20 @@ const Site1 = () => {
   const loadNextQuestion = async (currentScore = null, resetUsedFlags = null) => {
     // Update score if provided (for correct answers)
     if (currentScore !== null) {
-      console.log(`loadNextQuestion: Updating score from ${score} to ${currentScore}`);
+      console.log(`loadNextQuestion: Updating score from ${scoreRef.current} to ${currentScore}`);
       setScore(currentScore);
       currentScoreRef.current = currentScore; // Update ref immediately
     }
     
     // Determine which flags to use based on game mode
-    const isRegionalMode = gameMode === "regional";
+    const isRegionalMode = gameModeRef.current === "regional";
     let currentFlags;
     let currentInfiniteMode;
     let currentGameType;
     
     if (isRegionalMode) {
       // For regional mode, ensure we have flags loaded
-      if (regionalFlags.length === 0) {
+      if (regionalFlagsRef.current.length === 0) {
         try {
           const loadedFlags = await fetchRegionalFlags(selectedRegionalCountry.id, selectedDivisionTypes);
           
@@ -727,15 +1024,15 @@ const Site1 = () => {
           return null;
         }
       } else {
-        currentFlags = regionalFlags;
+        currentFlags = regionalFlagsRef.current;
       }
-      currentInfiniteMode = regionalInfiniteMode;
-      currentGameType = regionalGameType;
+      currentInfiniteMode = regionalInfiniteModeRef.current;
+      currentGameType = regionalGameTypeRef.current;
     } else {
       // Standard mode
-      currentFlags = filteredFlags;
-      currentInfiniteMode = infiniteMode;
-      currentGameType = gameType;
+      currentFlags = filteredFlagsRef.current;
+      currentInfiniteMode = infiniteModeRef.current;
+      currentGameType = gameTypeRef.current;
     }
     
     currentGameFlagsRef.current = currentFlags; // Store for use in checkAnswer
@@ -761,6 +1058,8 @@ const Site1 = () => {
     // Check if we have enough available flags
     if (availableFlags.length === 0 && gameStarted) {
       // No more flags available - game is actually complete
+      playVictorySound(); // Play victory sound for completing all flags
+      
       const gameEndTime = new Date().getTime();
       const timeElapsed = gameEndTime - gameStartTime;
       const finalScore = currentScore !== null ? currentScore : score;
@@ -862,10 +1161,19 @@ const Site1 = () => {
   };
 
   const checkAnswer = (selectedAnswer) => {
+    // Use the ref to get the current flag (avoids closure issues)
+    const currentFlagValue = currentFlagRef.current;
+    
+    // Safety check: ensure we have a current flag
+    if (!currentFlagValue) {
+      console.error('checkAnswer called without currentFlag, selectedAnswer:', selectedAnswer);
+      return;
+    }
+    
     setTotalAttempts(prev => prev + 1);
     
     // Start timer on first guess in Time Attack mode
-    if (timeAttackMode && !firstGuessMade) {
+    if (timeAttackModeRef.current && !firstGuessMadeRef.current) {
       console.log('Starting Time Attack timer on first guess');
       setFirstGuessMade(true);
       setTimerStarted(true);
@@ -874,23 +1182,26 @@ const Site1 = () => {
     let isCorrect = false;
     
     // Determine current game type based on mode
-    const isRegionalMode = gameMode === "regional";
-    const currentGameType = isRegionalMode ? regionalGameType : gameType;
+    const isRegionalMode = gameModeRef.current === "regional";
+    const currentGameType = isRegionalMode ? regionalGameTypeRef.current : gameTypeRef.current;
     
     // Get the current flags for the game
     const currentFlags = isRegionalMode ? currentGameFlagsRef.current : filteredFlags;
     
     if (currentGameType === "flag-to-country" || currentGameType === "flag-to-region") {
       // Check if selected name matches current flag
-      isCorrect = selectedAnswer === currentFlag.name;
+      isCorrect = selectedAnswer === currentFlagValue.name;
     } else {
       // Check if selected flag matches current name
-      isCorrect = selectedAnswer === currentFlag.id;
+      isCorrect = selectedAnswer === currentFlagValue.id;
     }
     
     if (isCorrect) {
-      const newScore = score + 1;
-      console.log(`checkAnswer: Correct! Score updated from ${score} to ${newScore}`);
+      // Play correct sound
+      playCorrectSound();
+      
+      const newScore = scoreRef.current + 1;
+      console.log(`checkAnswer: Correct! Score updated from ${scoreRef.current} to ${newScore}`);
       setScore(newScore);
       currentScoreRef.current = newScore; // Update ref immediately
       setScoreAnimation(true);
@@ -906,11 +1217,14 @@ const Site1 = () => {
         setButtonsDisabled(false);
       }, 1000);
     } else {
+      // Play incorrect sound
+      playIncorrectSound();
+      
       // Handle incorrect answer
-      if (timeAttackMode) {
+      if (timeAttackModeRef.current) {
         // In Time Attack mode, deduct 5 seconds from remaining time
-        const newTime = Math.max(0, timeRemaining - 5);
-        console.log(`Time Attack: Incorrect answer. Time remaining: ${timeRemaining}s -> ${newTime}s`);
+        const newTime = Math.max(0, timeRemainingRef.current - 5);
+        console.log(`Time Attack: Incorrect answer. Time remaining: ${timeRemainingRef.current}s -> ${newTime}s`);
         setTimeRemaining(newTime);
         
         // Check if this incorrect answer caused the timer to reach 0
@@ -933,8 +1247,8 @@ const Site1 = () => {
         }
       } else {
         // Standard mode - use health system
-        if (health > 1) {
-          setHealth(health - 1);
+        if (healthRef.current > 1) {
+          setHealth(healthRef.current - 1);
           setMessage("Incorrect! Try again.");
           setButtonStyles({
             [selectedAnswer]: styles.incorrectButton
@@ -944,13 +1258,15 @@ const Site1 = () => {
           }, 1000);
         } else {
           // Game Over - Ran out of hearts
+          playGameOverSound();
+          
           const gameEndTime = new Date().getTime();
           const timeElapsed = gameEndTime - gameStartTime;
           const finalAttempts = totalAttempts + 1;
-          const accuracy = finalAttempts > 0 ? ((score / finalAttempts) * 100).toFixed(1) : 0;
+          const accuracy = finalAttempts > 0 ? ((scoreRef.current / finalAttempts) * 100).toFixed(1) : 0;
           
           setGameStats({
-            score: score,
+            score: scoreRef.current,
             totalAttempts: finalAttempts,
             accuracy: accuracy,
             timeElapsed: timeElapsed,
@@ -1041,6 +1357,7 @@ const Site1 = () => {
                     description="Play with national flags and territories"
                     isSelected={gameMode === "standard"}
                     onClick={() => {
+                      playMenuClickSound();
                       setGameMode("standard");
                       setMenuStep(1);
                     }}
@@ -1052,6 +1369,7 @@ const Site1 = () => {
                     description="Play with state, province, and regional flags"
                     isSelected={gameMode === "regional"}
                     onClick={() => {
+                      playMenuClickSound();
                       setGameMode("regional");
                       setMenuStep("regional-1");
                     }}
@@ -1069,6 +1387,7 @@ const Site1 = () => {
                     description="Guess the country name from the flag"
                     isSelected={gameType === "flag-to-country"}
                     onClick={() => {
+                      playMenuClickSound();
                       setGameType("flag-to-country");
                       setMenuStep(2);
                     }}
@@ -1080,6 +1399,7 @@ const Site1 = () => {
                     description="Guess the flag from the country name"
                     isSelected={gameType === "country-to-flag"}
                     onClick={() => {
+                      playMenuClickSound();
                       setGameType("country-to-flag");
                       setMenuStep(2);
                     }}
@@ -1094,6 +1414,7 @@ const Site1 = () => {
                     label="World"
                     isSelected={selectedContinent === "world"}
                     onClick={() => {
+                      playMenuClickSound();
                       setSelectedContinent("world");
                       setMenuStep(3);
                     }}
@@ -1102,6 +1423,7 @@ const Site1 = () => {
                     label="Africa"
                     isSelected={selectedContinent === "1"}
                     onClick={() => {
+                      playMenuClickSound();
                       setSelectedContinent("1");
                       setMenuStep(3);
                     }}
@@ -1110,6 +1432,7 @@ const Site1 = () => {
                     label="Asia"
                     isSelected={selectedContinent === "2"}
                     onClick={() => {
+                      playMenuClickSound();
                       setSelectedContinent("2");
                       setMenuStep(3);
                     }}
@@ -1118,6 +1441,7 @@ const Site1 = () => {
                     label="Europe"
                     isSelected={selectedContinent === "3"}
                     onClick={() => {
+                      playMenuClickSound();
                       setSelectedContinent("3");
                       setMenuStep(3);
                     }}
@@ -1126,6 +1450,7 @@ const Site1 = () => {
                     label="North America"
                     isSelected={selectedContinent === "4"}
                     onClick={() => {
+                      playMenuClickSound();
                       setSelectedContinent("4");
                       setMenuStep(3);
                     }}
@@ -1134,6 +1459,7 @@ const Site1 = () => {
                     label="South America"
                     isSelected={selectedContinent === "5"}
                     onClick={() => {
+                      playMenuClickSound();
                       setSelectedContinent("5");
                       setMenuStep(3);
                     }}
@@ -1142,6 +1468,7 @@ const Site1 = () => {
                     label="Oceania"
                     isSelected={selectedContinent === "6"}
                     onClick={() => {
+                      playMenuClickSound();
                       setSelectedContinent("6");
                       setMenuStep(3);
                     }}
@@ -1158,7 +1485,10 @@ const Site1 = () => {
                     label="Include Territories"
                     description="Play with territories and dependencies"
                     isSelected={includeTerritories}
-                    onClick={() => setIncludeTerritories(!includeTerritories)}
+                    onClick={() => {
+                      playMenuClickSound();
+                      setIncludeTerritories(!includeTerritories);
+                    }}
                   />
                   <MenuButton
                     type="setting"
@@ -1167,6 +1497,7 @@ const Site1 = () => {
                     description="Race against the clock"
                     isSelected={timeAttackMode}
                     onClick={() => {
+                      playMenuClickSound();
                       setTimeAttackMode(!timeAttackMode);
                       if (!timeAttackMode) {
                         setInfiniteMode(true); // Auto-enable infinite mode
@@ -1179,12 +1510,18 @@ const Site1 = () => {
                     label="Infinite Mode"
                     description="Play endlessly without running out of flags"
                     isSelected={infiniteMode}
-                    onClick={() => setInfiniteMode(!infiniteMode)}
+                    onClick={() => {
+                      playMenuClickSound();
+                      setInfiniteMode(!infiniteMode);
+                    }}
                     disabled={timeAttackMode} // Disable when time attack is enabled
                   />
                 </div>
                 <div className={styles.settingsButtons}>
-                  <ActionButton onClick={startGame}>
+                  <ActionButton onClick={() => {
+                    playMenuClickSound();
+                    startGame();
+                  }}>
                     Start Game
                   </ActionButton>
                 </div>
@@ -1202,6 +1539,7 @@ const Site1 = () => {
                     description="Guess the region name from the flag"
                     isSelected={regionalGameType === "flag-to-region"}
                     onClick={() => {
+                      playMenuClickSound();
                       setRegionalGameType("flag-to-region");
                       setMenuStep("regional-2");
                     }}
@@ -1213,6 +1551,7 @@ const Site1 = () => {
                     description="Guess the flag from the region name"
                     isSelected={regionalGameType === "region-to-flag"}
                     onClick={() => {
+                      playMenuClickSound();
                       setRegionalGameType("region-to-flag");
                       setMenuStep("regional-2");
                     }}
@@ -1237,7 +1576,10 @@ const Site1 = () => {
                       <div className={styles.emptyStateDescription}>Please check your data or try refreshing the page</div>
                       <ActionButton
                         variant="secondary"
-                        onClick={() => window.location.reload()}
+                        onClick={() => {
+                          playMenuClickSound();
+                          window.location.reload();
+                        }}
                         className={styles.refreshButton}
                       >
                         🔄 Refresh Page
@@ -1257,6 +1599,7 @@ const Site1 = () => {
                         key={country.id}
                         className={styles.regionalCountryItem}
                         onClick={() => {
+                          playMenuClickSound();
                           setSelectedRegionalCountry(country);
                           // Check if this country has only one division type group
                           const countryDivisionTypes = regionalDivisionTypes.filter(
@@ -1347,6 +1690,7 @@ const Site1 = () => {
                         key={divisionType.id}
                         className={`${styles.divisionTypeItem} ${selectedDivisionTypes.includes(divisionType.id) ? styles.selected : ''}`}
                         onClick={() => {
+                          playMenuClickSound();
                           if (selectedDivisionTypes.includes(divisionType.id)) {
                             setSelectedDivisionTypes(selectedDivisionTypes.filter(id => id !== divisionType.id));
                           } else {
@@ -1368,7 +1712,10 @@ const Site1 = () => {
                   <div className={styles.settingsButtons}>
                     <button
                       className={`${styles.button} ${styles.mainButton}`}
-                      onClick={() => setMenuStep("regional-4")}
+                      onClick={() => {
+                        playMenuClickSound();
+                        setMenuStep("regional-4");
+                      }}
                       disabled={selectedDivisionTypes.length === 0}
                     >
                       Continue
@@ -1388,6 +1735,7 @@ const Site1 = () => {
                     description="Race against the clock"
                     isSelected={timeAttackMode}
                     onClick={() => {
+                      playMenuClickSound();
                       setTimeAttackMode(!timeAttackMode);
                       if (!timeAttackMode) {
                         setRegionalInfiniteMode(true); // Auto-enable infinite mode
@@ -1400,12 +1748,18 @@ const Site1 = () => {
                     label="Infinite Mode"
                     description="Play endlessly without running out of flags"
                     isSelected={regionalInfiniteMode}
-                    onClick={() => setRegionalInfiniteMode(!regionalInfiniteMode)}
+                    onClick={() => {
+                      playMenuClickSound();
+                      setRegionalInfiniteMode(!regionalInfiniteMode);
+                    }}
                     disabled={timeAttackMode} // Disable when time attack is enabled
                   />
                 </div>
                 <div className={styles.settingsButtons}>
-                  <ActionButton onClick={startGame}>
+                  <ActionButton onClick={() => {
+                    playMenuClickSound();
+                    startGame();
+                  }}>
                     Start Game
                   </ActionButton>
                 </div>
@@ -1452,7 +1806,10 @@ const Site1 = () => {
             {(infiniteMode || regionalInfiniteMode) && !timeAttackMode && (
               <button
                 className={`${styles.button} ${styles.endGameButton}`}
-                onClick={endInfiniteMode}
+                onClick={() => {
+                  playMenuClickSound();
+                  endInfiniteMode();
+                }}
                 title="End Game"
               >
                 🏁 End
@@ -1716,6 +2073,7 @@ const Site1 = () => {
               <button
                 className={`${styles.button} ${styles.secondaryButton}`}
                 onClick={() => {
+                  playMenuClickSound();
                   setShowEndScreen(false);
                   setMenuStep(0);
                   setGameMode("standard");
@@ -1730,6 +2088,7 @@ const Site1 = () => {
               <button
                 className={`${styles.button} ${styles.mainButton}`}
                 onClick={async () => {
+                  playMenuClickSound();
                   // Hide the end screen and clear game state immediately
                   setShowEndScreen(false);
                   setGameStats({});

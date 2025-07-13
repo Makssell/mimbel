@@ -3470,10 +3470,10 @@
 /* Improved scrolling for regional country list */
 .regionalCountryList {
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   padding: 10px;
   max-height: 60vh;
@@ -3530,8 +3530,10 @@
 
   .regionalCountryList,
   .divisionTypeList {
-    max-height: 50vh;
-    padding: 8px;
+    max-height: 70vh;
+    padding: 4px;
+    grid-template-columns: 1fr; /* Single column on mobile */
+    gap: 8px;
   }
 }
 
@@ -3559,8 +3561,10 @@
 
   .regionalCountryList,
   .divisionTypeList {
-    max-height: 45vh;
-    padding: 5px;
+    max-height: 65vh;
+    padding: 2px;
+    grid-template-columns: 1fr; /* Single column on small mobile */
+    gap: 6px;
   }
 }
 
@@ -3950,4 +3954,31 @@
   .feedbackText {
     display: none;
   }
+}
+
+.flagGuessButton.correctButton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(46, 204, 113, 0.45); /* green overlay */
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  transition: background 0.2s;
+}
+
+.flagGuessButton.incorrectButton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(231, 76, 60, 0.45); /* red overlay */
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  transition: background 0.2s;
+}
+
+.flagGuessButton {
+  position: relative;
+  overflow: hidden;
 }

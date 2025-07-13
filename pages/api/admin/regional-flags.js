@@ -1,4 +1,4 @@
-import { supabase } from '../../../lib/supabase';
+import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { verifyToken } from '../../../lib/auth';
 
 export default async function handler(req, res) {
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Division type ID is required' });
         }
 
-        const { data: regionalFlags, error: fetchError } = await supabase
+        const { data: regionalFlags, error: fetchError } = await supabaseAdmin
           .from('regional_flags')
           .select('*')
           .eq('division_type_id', division_type_id)
@@ -66,7 +66,7 @@ export default async function handler(req, res) {
           division_type_id: createDivisionTypeId
         };
 
-        const { data: newRegionalFlag, error: createError } = await supabase
+        const { data: newRegionalFlag, error: createError } = await supabaseAdmin
           .from('regional_flags')
           .insert([insertData])
           .select()
@@ -93,7 +93,7 @@ export default async function handler(req, res) {
         if (updateName !== undefined) updateData.name = updateName;
         if (updateImageUrl !== undefined) updateData.image_url = updateImageUrl;
 
-        const { data: updatedRegionalFlag, error: updateError } = await supabase
+        const { data: updatedRegionalFlag, error: updateError } = await supabaseAdmin
           .from('regional_flags')
           .update(updateData)
           .eq('id', updateId)
@@ -112,7 +112,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Regional flag ID is required' });
         }
 
-        const { error: deleteError } = await supabase
+        const { error: deleteError } = await supabaseAdmin
           .from('regional_flags')
           .delete()
           .eq('id', deleteId);

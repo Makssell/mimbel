@@ -1,4 +1,4 @@
-import { supabase } from '../../../lib/supabase';
+import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { verifyToken } from '../../../lib/auth';
 
 export default async function handler(req, res) {
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   switch (req.method) {
     case 'GET':
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
           .from('flags')
           .select(`
             *,
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
         }
 
         // Insert new flag
-        const { data: flagData, error: flagError } = await supabase
+        const { data: flagData, error: flagError } = await supabaseAdmin
           .from('flags')
           .insert({
             name,
@@ -61,7 +61,7 @@ export default async function handler(req, res) {
 
         // Add continent relationship if provided
         if (continent_id && flagData?.[0]) {
-          const { error: continentError } = await supabase
+          const { error: continentError } = await supabaseAdmin
             .from('country_continent')
             .insert({
               country_id: flagData[0].id,
@@ -86,7 +86,7 @@ export default async function handler(req, res) {
         }
 
         // Get the current flag to check if we need to delete the old image
-        const { data: currentFlag, error: fetchError } = await supabase
+        const { data: currentFlag, error: fetchError } = await supabaseAdmin
           .from('flags')
           .select('fileName')
           .eq('id', id)
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
         if (fetchError) throw fetchError;
 
         // Update the flag
-        const { error: flagError } = await supabase
+        const { error: flagError } = await supabaseAdmin
           .from('flags')
           .update({
             name,
@@ -110,7 +110,7 @@ export default async function handler(req, res) {
         // Delete old image if it exists and is different from the new one
         if (currentFlag?.fileName && currentFlag.fileName !== fileName) {
           try {
-            await supabase.storage
+            await supabaseAdmin.storage
               .from('flags')
               .remove([currentFlag.fileName]);
           } catch (deleteError) {
@@ -122,14 +122,14 @@ export default async function handler(req, res) {
         // Update continent relationship
         if (continent_id !== undefined) {
           // Delete existing continent relationships
-          await supabase
+          await supabaseAdmin
             .from('country_continent')
             .delete()
             .eq('country_id', id);
 
           // Add new relationship if continent_id is provided
           if (continent_id) {
-            const { error: continentError } = await supabase
+            const { error: continentError } = await supabaseAdmin
               .from('country_continent')
               .insert({
                 country_id: id,
@@ -155,7 +155,7 @@ export default async function handler(req, res) {
         }
 
         // Get the flag to check if it has an associated image
-        const { data: flag, error: fetchError } = await supabase
+        const { data: flag, error: fetchError } = await supabaseAdmin
           .from('flags')
           .select('fileName')
           .eq('id', id)
@@ -164,13 +164,13 @@ export default async function handler(req, res) {
         if (fetchError) throw fetchError;
 
         // Delete continent relationships first
-        await supabase
+        await supabaseAdmin
           .from('country_continent')
           .delete()
           .eq('country_id', id);
 
         // Delete the flag
-        const { error } = await supabase
+        const { error } = await supabaseAdmin
           .from('flags')
           .delete()
           .eq('id', id);
@@ -180,7 +180,7 @@ export default async function handler(req, res) {
         // Delete the associated image if it exists
         if (flag?.fileName) {
           try {
-            await supabase.storage
+            await supabaseAdmin.storage
               .from('flags')
               .remove([flag.fileName]);
           } catch (deleteError) {

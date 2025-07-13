@@ -1,4 +1,4 @@
-import { supabase } from '../../../lib/supabase';
+import { supabaseAdmin } from '../../../lib/supabase-admin';
 import { verifyToken } from '../../../lib/auth';
 
 export default async function handler(req, res) {
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     const uniqueFileName = `${timestamp}_${fileName}`;
 
     // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
+    const { data, error } = await supabaseAdmin.storage
       .from('flags') // Make sure this bucket exists in your Supabase project
       .upload(uniqueFileName, buffer, {
         contentType: 'image/png', // Adjust based on your image type
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
     }
 
     // Get public URL
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = supabaseAdmin.storage
       .from('flags')
       .getPublicUrl(uniqueFileName);
 
