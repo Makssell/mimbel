@@ -2831,6 +2831,11 @@
   opacity: 1;
 }
 
+.browseAllButton::before {
+  display: none !important;
+  content: none !important;
+}
+
 .regionalCountryFlag {
   width: 60px;
   height: 60px;
@@ -5095,5 +5100,192 @@
   .activeGameDivisionTypes {
     font-size: 0.7em;
     margin-top: 1px;
+  }
+}
+
+/* Browse All Section */
+.browseAllSection {
+  margin-top: 30px;
+  padding-top: 20px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.browseAllButton {
+  background: rgba(255, 255, 255, 0.012);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  min-width: 140px;
+}
+
+.browseAllButton:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Browse All Modal Styles */
+.browseAllModal {
+  background: linear-gradient(
+    135deg,
+    rgba(21, 21, 21, 0.98),
+    rgba(15, 15, 15, 0.95)
+  );
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+}
+
+.browseAllModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.browseAllModalHeader h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 50%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.modalCloseButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
+}
+
+.modalCloseButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modalCloseButton:active {
+  transform: scale(0.95);
+}
+
+.browseAllModalBody {
+  padding: 0 24px 24px 24px;
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.browseAllModalBody::-webkit-scrollbar {
+  width: 8px;
+}
+
+.browseAllModalBody::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.browseAllModalBody::-webkit-scrollbar-thumb {
+  background: rgba(108, 92, 231, 0.3);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.browseAllModalBody::-webkit-scrollbar-thumb:hover {
+  background: rgba(108, 92, 231, 0.5);
+}
+
+/* Mobile responsive for Browse All Modal */
+@media screen and (max-width: 768px) {
+  .browseAllModal {
+    width: 95%;
+    max-height: 85vh;
+    border-radius: 16px;
+  }
+
+  .browseAllModalHeader {
+    padding: 20px 20px 16px 20px;
+  }
+
+  .browseAllModalHeader h2 {
+    font-size: 1.5rem;
+  }
+
+  .browseAllModalBody {
+    padding: 0 20px 20px 20px;
+    flex: 1;
+  }
+
+  .modalCloseButton {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .browseAllModal {
+    width: 98%;
+    max-height: 90vh;
+    border-radius: 12px;
+  }
+
+  .browseAllModalHeader {
+    padding: 16px 16px 12px 16px;
+  }
+
+  .browseAllModalHeader h2 {
+    font-size: 1.3rem;
+  }
+
+  .browseAllModalBody {
+    padding: 0 16px 16px 16px;
+    flex: 1;
+  }
+
+  .modalCloseButton {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
   }
 }

@@ -101,6 +101,7 @@ jspm_packages/
 ehthumbs.db
 Thumbs.db
 
+
 # Database files
 schema.sql
 *.sql

@@ -116,7 +116,8 @@ const AdminPage = () => {
   const [newRegionalCountry, setNewRegionalCountry] = useState({
     name: '',
     flag_image_url: '',
-    is_active: true
+    is_active: true,
+    featured: false
   });
   const [newDivisionType, setNewDivisionType] = useState({
     type_name: '',
@@ -773,7 +774,7 @@ const AdminPage = () => {
       }
 
       setMessage('Regional country added successfully!');
-      setNewRegionalCountry({ name: '', flag_image_url: '', is_active: true });
+      setNewRegionalCountry({ name: '', flag_image_url: '', is_active: true, featured: false });
       setShowAddRegionalCountryForm(false);
       fetchRegionalCountries();
     } catch (error) {
@@ -805,7 +806,8 @@ const AdminPage = () => {
           id: editingRegionalCountry.id,
           name: editingRegionalCountry.name,
           flag_image_url: editingRegionalCountry.flag_image_url,
-          is_active: editingRegionalCountry.is_active
+          is_active: editingRegionalCountry.is_active,
+          featured: editingRegionalCountry.featured
         })
       });
 
@@ -1581,6 +1583,16 @@ const AdminPage = () => {
                   Active
                 </label>
               </div>
+              <div className={styles.formRow}>
+                <label className={styles.checkbox}>
+                  <input
+                    type="checkbox"
+                    checked={newRegionalCountry.featured}
+                    onChange={(e) => setNewRegionalCountry({ ...newRegionalCountry, featured: e.target.checked })}
+                  />
+                  Featured
+                </label>
+              </div>
               <button onClick={handleAddRegionalCountry} className={styles.button} disabled={loading}>
                 {loading ? 'Adding...' : 'Add Regional Country'}
               </button>
@@ -1640,6 +1652,14 @@ const AdminPage = () => {
                           />
                           Active
                         </label>
+                        <label className={styles.checkbox}>
+                          <input
+                            type="checkbox"
+                            checked={editingRegionalCountry.featured}
+                            onChange={(e) => setEditingRegionalCountry({ ...editingRegionalCountry, featured: e.target.checked })}
+                          />
+                          Featured
+                        </label>
                         <div className={styles.editActions}>
                           <button onClick={handleSaveRegionalCountry} className={styles.button} disabled={loading}>
                             {loading ? 'Saving...' : 'Save'}
@@ -1661,6 +1681,7 @@ const AdminPage = () => {
                         <div className={styles.flagInfo}>
                           <h3>{country.name}</h3>
                           <p>Status: {country.is_active ? 'Active' : 'Inactive'}</p>
+                          <p>Featured: {country.featured ? 'Yes' : 'No'}</p>
                           <button
                             onClick={() => {
                               setSelectedCountry(country);

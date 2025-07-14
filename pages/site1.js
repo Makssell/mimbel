@@ -73,6 +73,11 @@ const Site1 = () => {
   const [filteredRegionalFlags, setFilteredRegionalFlags] = useState([]);
   const [isLoadingRegionalFlags, setIsLoadingRegionalFlags] = useState(false);
   
+  // Featured countries state
+  const [featuredCountries, setFeaturedCountries] = useState([]);
+  const [showAllCountriesModal, setShowAllCountriesModal] = useState(false);
+  const [isLoadingFeaturedCountries, setIsLoadingFeaturedCountries] = useState(false);
+  
   // Ref to store current game flags (for regional mode)
   const currentGameFlagsRef = useRef([]);
   // Ref to track current score (for Time Attack mode)
@@ -1053,6 +1058,93 @@ const Site1 = () => {
     );
   };
 
+  // Browse All Countries Modal
+  const BrowseAllCountriesModal = () => {
+    return (
+      <div className={styles.modalOverlay} onClick={() => setShowAllCountriesModal(false)}>
+        <div className={styles.browseAllModal} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.browseAllModalHeader}>
+            <h2>All Regional Countries</h2>
+            <button 
+              className={styles.modalCloseButton}
+              onClick={() => setShowAllCountriesModal(false)}
+            >
+              ×
+            </button>
+          </div>
+          <div className={styles.browseAllModalBody}>
+            <div className={styles.regionalCountryList}>
+              {isLoadingRegionalCountries ? (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyStateIcon}>⏳</div>
+                  <div className={styles.emptyStateTitle}>Loading countries...</div>
+                  <div className={styles.emptyStateDescription}>Please wait while we fetch available countries</div>
+                </div>
+              ) : regionalCountries.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyStateIcon}>🌍</div>
+                  <div className={styles.emptyStateTitle}>No countries found</div>
+                  <div className={styles.emptyStateDescription}>Please check your data or try refreshing the page</div>
+                </div>
+              ) : regionalCountries.filter(country => country.is_active).length === 0 ? (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyStateIcon}>🚫</div>
+                  <div className={styles.emptyStateTitle}>No active countries</div>
+                  <div className={styles.emptyStateDescription}>All countries are currently inactive. Please contact an administrator.</div>
+                </div>
+              ) : (
+                regionalCountries
+                  .filter(country => country.is_active)
+                  .map(country => (
+                  <div
+                    key={country.id}
+                    className={styles.regionalCountryItem}
+                    onClick={() => {
+                      playMenuClickSound();
+                      setSelectedRegionalCountry(country);
+                      setShowAllCountriesModal(false);
+                      // Check if this country has only one division type group
+                      const countryDivisionTypes = regionalDivisionTypes.filter(
+                        divisionType => divisionType.country_id === country.id
+                      );
+                      
+                      if (countryDivisionTypes.length === 1) {
+                        // Skip toggles step, go straight to game settings
+                        setSelectedDivisionTypes([countryDivisionTypes[0].id]);
+                        setMenuStep("regional-4");
+                      } else {
+                        // Go to division type selection
+                        setMenuStep("regional-3");
+                      }
+                    }}
+                  >
+                    <img
+                      src={country.flag_image_url}
+                      alt={country.name}
+                      className={styles.regionalCountryFlag}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className={styles.regionalCountryFlagFallback} style={{ display: 'none' }}>
+                      🌍
+                    </div>
+                    <div className={styles.regionalCountryInfo}>
+                      <div className={styles.regionalCountryName}>{country.name}</div>
+                      <div className={styles.regionalCountryCount}>{country.total_regional_flags} regional flags</div>
+                    </div>
+                    <span className={styles.regionalCountryArrow}>→</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Simple direct Supabase query for global flags (Site4 style)
   const fetchGlobalFlags = async (continent = "world", includeTerritories = false) => {
     try {
@@ -1160,6 +1252,23 @@ const Site1 = () => {
     }
   };
 
+  // Fetch featured regional countries
+  const fetchFeaturedCountries = async () => {
+    try {
+      const response = await fetch('/api/featured-regional-countries');
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch featured countries');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error in fetchFeaturedCountries:", error);
+      throw error;
+    }
+  };
+
   // Simple direct Supabase query for division types with flag counts (Site4 style)
   const fetchDivisionTypes = async () => {
     try {
@@ -1221,18 +1330,22 @@ const Site1 = () => {
   useEffect(() => {
     const loadRegionalData = async () => {
       setIsLoadingRegionalCountries(true);
+      setIsLoadingFeaturedCountries(true);
       
       try {
         // Use simple direct queries with flag counts
         const countriesData = await fetchRegionalCountries();
         const divisionTypesData = await fetchDivisionTypes();
+        const featuredCountriesData = await fetchFeaturedCountries();
         
         setRegionalCountries(countriesData);
         setRegionalDivisionTypes(divisionTypesData);
+        setFeaturedCountries(featuredCountriesData);
         
         console.log('Loaded regional data:', {
           countries: countriesData,
-          divisionTypes: divisionTypesData
+          divisionTypes: divisionTypesData,
+          featuredCountries: featuredCountriesData
         });
         
       } catch (error) {
@@ -1240,8 +1353,10 @@ const Site1 = () => {
         // Fallback to empty arrays if API fails
         setRegionalCountries([]);
         setRegionalDivisionTypes([]);
+        setFeaturedCountries([]);
       } finally {
         setIsLoadingRegionalCountries(false);
+        setIsLoadingFeaturedCountries(false);
       }
     };
 
@@ -2927,36 +3042,20 @@ const Site1 = () => {
             {menuStep === "regional-2" && (
               <div className={styles.regionalCountrySection}>
                 <div className={styles.regionalCountryList}>
-                  {isLoadingRegionalCountries ? (
+                  {isLoadingFeaturedCountries ? (
                     <div className={styles.emptyState}>
                       <div className={styles.emptyStateIcon}>⏳</div>
-                      <div className={styles.emptyStateTitle}>Loading countries...</div>
-                      <div className={styles.emptyStateDescription}>Please wait while we fetch available countries</div>
+                      <div className={styles.emptyStateTitle}>Loading featured countries...</div>
+                      <div className={styles.emptyStateDescription}>Please wait while we fetch featured countries</div>
                     </div>
-                  ) : regionalCountries.length === 0 ? (
+                  ) : featuredCountries.length === 0 ? (
                     <div className={styles.emptyState}>
-                      <div className={styles.emptyStateIcon}>🌍</div>
-                      <div className={styles.emptyStateTitle}>No countries found</div>
-                      <div className={styles.emptyStateDescription}>Please check your data or try refreshing the page</div>
-                      <ActionButton
-                        variant="secondary"
-                        onClick={() => {
-                          playMenuClickSound();
-                          window.location.reload();
-                        }}
-                        className={styles.refreshButton}
-                      >
-                        🔄 Refresh Page
-                      </ActionButton>
-                    </div>
-                  ) : regionalCountries.filter(country => country.is_active).length === 0 ? (
-                    <div className={styles.emptyState}>
-                      <div className={styles.emptyStateIcon}>🚫</div>
-                      <div className={styles.emptyStateTitle}>No active countries</div>
-                      <div className={styles.emptyStateDescription}>All countries are currently inactive. Please contact an administrator.</div>
+                      <div className={styles.emptyStateIcon}>⭐</div>
+                      <div className={styles.emptyStateTitle}>No featured countries</div>
+                      <div className={styles.emptyStateDescription}>No countries are currently marked as featured. Please contact an administrator.</div>
                     </div>
                   ) : (
-                    regionalCountries
+                    featuredCountries
                       .filter(country => country.is_active)
                       .map(country => (
                       <div
@@ -3001,6 +3100,22 @@ const Site1 = () => {
                     ))
                   )}
                 </div>
+                
+                {/* Browse All Button */}
+                {!isLoadingFeaturedCountries && featuredCountries.length > 0 && (
+                  <div className={styles.browseAllSection}>
+                    <ActionButton
+                      variant="primary"
+                      onClick={() => {
+                        playMenuClickSound();
+                        setShowAllCountriesModal(true);
+                      }}
+                      className={styles.browseAllButton}
+                    >
+                      🌍 Browse All
+                    </ActionButton>
+                  </div>
+                )}
               </div>
             )}
             
@@ -3599,6 +3714,9 @@ const Site1 = () => {
           {modalType === 'games' && <GamesModal />}
         </>
       )}
+
+      {/* Browse All Countries Modal */}
+      {showAllCountriesModal && <BrowseAllCountriesModal />}
       
 
     </div>
