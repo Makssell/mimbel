@@ -57,6 +57,19 @@ const compressImage = (file) => {
 };
 
 const AdminPage = () => {
+  // Prevent admin access in production for security
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loginForm}>
+          <h1>Admin Access Restricted</h1>
+          <p>Admin access is only available from localhost for security reasons.</p>
+          <p>Please access the admin panel from your local development environment.</p>
+        </div>
+      </div>
+    );
+  }
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [flags, setFlags] = useState([]);

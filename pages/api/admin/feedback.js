@@ -10,8 +10,9 @@ export default async function handler(req, res) {
 
   const token = authHeader.substring(7);
   
-  // Simple token validation (you might want to use proper JWT validation)
-  if (token !== process.env.ADMIN_PASSWORD) {
+  // Verify JWT token
+  const decoded = verifyToken(token);
+  if (!decoded || decoded.role !== 'admin') {
     return res.status(401).json({ error: 'Invalid token' });
   }
 

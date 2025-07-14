@@ -3688,7 +3688,7 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   max-width: 600px;
   width: 100%;
-  max-height: 90vh;
+  max-height: 70vh;
   overflow-y: auto;
   animation: modalSlideIn 0.3s ease-out;
   position: relative;
@@ -3749,6 +3749,8 @@
 
 .feedbackForm {
   padding: 0 24px 24px 24px;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .formGroup {
@@ -3948,15 +3950,18 @@
   }
 
   .feedbackModal {
-    max-height: 95vh;
+    max-height: 70vh;
   }
 
   .modalHeader {
-    padding: 20px 20px 0 20px;
+    padding: 20px 20px 16px 20px;
+    margin-bottom: 24px;
   }
 
   .feedbackForm {
     padding: 0 20px 20px 20px;
+    max-height: 50vh;
+    overflow-y: auto;
   }
 
   .categoryGrid {
@@ -4361,5 +4366,734 @@
 
   .helpItem {
     font-size: 12px;
+  }
+}
+
+/* Mobile responsive styles for floating menu */
+@media screen and (max-width: 768px) {
+  .floatingMenuContainer {
+    top: 15px;
+    right: 15px;
+  }
+
+  .floatingMenuButton {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .floatingMenuDropdown {
+    min-width: 180px;
+    margin-top: 8px;
+    padding: 12px;
+  }
+
+  .floatingMenuItem {
+    padding: 14px 16px;
+    font-size: 15px;
+    min-height: 48px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .floatingMenuContainer {
+    top: 10px;
+    right: 10px;
+  }
+
+  .floatingMenuButton {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .floatingMenuDropdown {
+    min-width: 200px;
+    margin-top: 6px;
+    padding: 16px;
+  }
+
+  .floatingMenuItem {
+    padding: 16px 18px;
+    font-size: 16px;
+    min-height: 52px;
+  }
+}
+
+/* Games Modal Styles */
+.gamesModalContent {
+  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.gamesViewTabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+}
+
+.gamesViewTab {
+  flex: 1;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+  position: relative;
+}
+
+.gamesViewTab:hover {
+  background: rgba(108, 92, 231, 0.1);
+  color: var(--accent-color);
+}
+
+.gamesViewTab.activeTab {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+  background: rgba(108, 92, 231, 0.1);
+}
+
+.gamesViewContent {
+  padding: 0 20px 20px 20px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.gamesModalActions {
+  display: flex;
+  justify-content: center;
+}
+
+.gamesModalActions:not(:empty) {
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Game History Styles */
+.gameHistoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gameHistoryContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.completedGamesSection h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Active Game Styles */
+.activeGameSection {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 193, 7, 0.1),
+    rgba(255, 193, 7, 0.05)
+  );
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.activeGameSection::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ffc107, rgba(255, 193, 7, 0.5));
+  animation: activeGamePulse 2s ease-in-out infinite;
+}
+
+@keyframes activeGamePulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.activeGameHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.activeGameHeader h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.activeGameBadge {
+  background: #ffc107;
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: badgePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.activeGameItem {
+  background: rgba(21, 21, 21, 0.8);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.activeGameItem:hover {
+  border-color: rgba(255, 193, 7, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 193, 7, 0.1);
+}
+
+.activeGameMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.activeGamePrimary {
+  flex: 1;
+  min-width: 0;
+}
+
+.activeGameMode {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffc107;
+  margin-bottom: 4px;
+  text-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+}
+
+.activeGameType {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.activeGameSecondary {
+  text-align: right;
+  min-width: 120px;
+}
+
+.activeGameRegion {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.activeGamePaused {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.activeGameStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255, 193, 7, 0.2);
+  border-bottom: 1px solid rgba(255, 193, 7, 0.2);
+  margin-bottom: 16px;
+}
+
+.activeGameStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.activeGameStatValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.activeGameStatLabel {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.activeGameActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.activeGameActions .button {
+  flex: 1;
+  max-width: 120px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Game History Item Styles */
+.gameHistoryItem {
+  background: rgba(21, 21, 21, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.gameHistoryItem:hover {
+  border-color: rgba(108, 92, 231, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.1);
+}
+
+.gameHistoryMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.gameHistoryPrimary {
+  flex: 1;
+  min-width: 0;
+}
+
+.gameHistoryMode {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-bottom: 4px;
+}
+
+.gameHistoryType {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.gameHistorySecondary {
+  text-align: right;
+  min-width: 120px;
+}
+
+.gameHistoryRegion {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.gameHistoryDate {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.gameHistoryStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gameHistoryStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.gameHistoryStatValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.gameHistoryStatLabel {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Best Scores Styles */
+.bestScoresList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bestScoreItem {
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.1),
+    rgba(108, 92, 231, 0.05)
+  );
+  border: 1px solid rgba(108, 92, 231, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.bestScoreItem::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-color),
+    rgba(108, 92, 231, 0.5)
+  );
+}
+
+.bestScoreItem:hover {
+  border-color: rgba(108, 92, 231, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.2);
+}
+
+.bestScoreMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.bestScorePrimary {
+  flex: 1;
+  min-width: 0;
+}
+
+.bestScoreMode {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bestScoreBadge {
+  font-size: 16px;
+  animation: trophyGlow 2s ease-in-out infinite;
+}
+
+@keyframes trophyGlow {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3) drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+  }
+}
+
+.bestScoreType {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.bestScoreSecondary {
+  text-align: right;
+  min-width: 120px;
+}
+
+.bestScoreRegion {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.bestScoreDate {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.bestScoreStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(108, 92, 231, 0.2);
+}
+
+.bestScoreStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.bestScoreStatValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.bestScoreStatLabel {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Mobile Responsive for Games Modal */
+@media screen and (max-width: 768px) {
+  .gamesViewTabs {
+    margin-bottom: 16px;
+  }
+
+  .gamesViewTab {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  .gamesViewContent {
+    padding: 0 16px 16px 16px;
+    max-height: 45vh;
+  }
+
+  .gamesModalActions {
+    padding: 16px;
+  }
+
+  .gameHistoryItem,
+  .bestScoreItem {
+    padding: 14px;
+  }
+
+  .gameHistoryMain,
+  .bestScoreMain,
+  .activeGameMain {
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .gameHistoryStats,
+  .bestScoreStats,
+  .activeGameStats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding-top: 10px;
+  }
+
+  .gameHistoryMode,
+  .bestScoreMode {
+    font-size: 15px;
+  }
+
+  .gameHistoryType,
+  .bestScoreType {
+    font-size: 13px;
+  }
+
+  .gameHistoryStatValue,
+  .bestScoreStatValue,
+  .activeGameStatValue {
+    font-size: 16px;
+  }
+
+  .gameHistoryStatLabel,
+  .bestScoreStatLabel,
+  .activeGameStatLabel {
+    font-size: 11px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .gamesViewTab {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .gamesViewContent {
+    padding: 0 12px 12px 12px;
+    max-height: 40vh;
+  }
+
+  .gameHistoryItem,
+  .bestScoreItem,
+  .activeGameItem {
+    padding: 12px;
+  }
+
+  .gameHistoryStats,
+  .bestScoreStats,
+  .activeGameStats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding-top: 12px;
+  }
+
+  .gameHistoryStat,
+  .bestScoreStat,
+  .activeGameStat {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .gameHistoryStatValue,
+  .bestScoreStatValue,
+  .activeGameStatValue {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .gameHistoryStatLabel,
+  .bestScoreStatLabel,
+  .activeGameStatLabel {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 0;
+    margin-right: 0;
+  }
+}
+
+/* Territories indicators for games modal */
+.gameHistoryTerritories,
+.bestScoreTerritories,
+.activeGameTerritories {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 0.9em;
+  opacity: 0.8;
+  vertical-align: middle;
+}
+
+.gameHistoryTerritories {
+  color: var(--text-secondary);
+}
+
+.bestScoreTerritories {
+  color: var(--text-secondary);
+}
+
+.activeGameTerritories {
+  color: rgba(255, 193, 7, 0.8);
+}
+
+/* Mobile responsive styles for territories indicators */
+@media (max-width: 768px) {
+  .gameHistoryTerritories,
+  .bestScoreTerritories,
+  .activeGameTerritories {
+    margin-left: 2px;
+    font-size: 0.85em;
+  }
+}
+
+@media (max-width: 480px) {
+  .gameHistoryTerritories,
+  .bestScoreTerritories,
+  .activeGameTerritories {
+    margin-left: 1px;
+    font-size: 0.8em;
+  }
+}
+
+/* Division types indicators for games modal */
+.gameHistoryDivisionTypes,
+.bestScoreDivisionTypes,
+.activeGameDivisionTypes {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8em;
+  color: var(--text-secondary);
+  opacity: 0.9;
+  font-style: italic;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 4px;
+  border-radius: 4px;
+  border-left: 2px solid var(--accent-color);
+}
+
+.gameHistoryDivisionTypes {
+  color: var(--text-secondary);
+}
+
+.bestScoreDivisionTypes {
+  color: var(--text-secondary);
+}
+
+.activeGameDivisionTypes {
+  color: rgba(255, 193, 7, 0.7);
+}
+
+/* Mobile responsive styles for division types indicators */
+@media (max-width: 768px) {
+  .gameHistoryDivisionTypes,
+  .bestScoreDivisionTypes,
+  .activeGameDivisionTypes {
+    font-size: 0.75em;
+    margin-top: 1px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gameHistoryDivisionTypes,
+  .bestScoreDivisionTypes,
+  .activeGameDivisionTypes {
+    font-size: 0.7em;
+    margin-top: 1px;
   }
 }

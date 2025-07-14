@@ -2,7 +2,9 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/api/admin/feedback": "pages/api/admin/feedback.js",
+  "/admin": "pages/admin.js",
+  "/api/admin/regional-flags": "pages/api/admin/regional-flags.js",
+  "/api/admin/regional-countries": "pages/api/admin/regional-countries.js",
   "/site1": "pages/site1.js",
-  "/admin": "pages/admin.js"
+  "/api/admin/upload": "pages/api/admin/upload.js"
 }

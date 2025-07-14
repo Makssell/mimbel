@@ -42,7 +42,7 @@ const FeedbackModal = ({ isOpen, onClose, currentFlag = null, gameContext = null
       };
 
       // Submit feedback to API
-      const response = await fetch('/api/admin/feedback', {
+      const response = await fetch('/api/feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
