@@ -5,6 +5,7 @@ import MenuButton from "../components/MenuButton";
 import ActionButton from "../components/ActionButton";
 import GameButton from "../components/GameButton";
 import ContinentButton from "../components/ContinentButton";
+import FeedbackModal from "../components/FeedbackModal";
 
 const Site1 = () => {
   const [flags, setFlags] = useState([]);
@@ -24,6 +25,8 @@ const Site1 = () => {
   const [timeAttackMode, setTimeAttackMode] = useState(false);
   const [usedFlags, setUsedFlags] = useState([]);
   const [isFlagLoading, setIsFlagLoading] = useState(true);
+  const [flagLoadingTimeout, setFlagLoadingTimeout] = useState(null);
+  const [lastFlagId, setLastFlagId] = useState(null);
   const [startScreenStep, setStartScreenStep] = useState(1);
   const [scoreAnimation, setScoreAnimation] = useState(false);
   const [flagOptions, setFlagOptions] = useState([]);
@@ -34,6 +37,16 @@ const Site1 = () => {
   const [totalAttempts, setTotalAttempts] = useState(0);
   const [endState, setEndState] = useState(null);
   const [gameStats, setGameStats] = useState({});
+
+  // Game state snapshot for end screen (to avoid state changes affecting display)
+  const [gameStateSnapshot, setGameStateSnapshot] = useState({});
+  
+  // New tracking variables for enhanced statistics
+  const [longestStreak, setLongestStreak] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [guessTimes, setGuessTimes] = useState([]);
+  const [fastestGuess, setFastestGuess] = useState(null);
+  const [lastGuessTime, setLastGuessTime] = useState(null);
 
   // Time Attack mode state variables
   const [timeRemaining, setTimeRemaining] = useState(60);
@@ -78,6 +91,11 @@ const Site1 = () => {
   const audioContextRef = useRef(null);
   const [audioEnabled, setAudioEnabled] = useState(true);
 
+  // New state for floating menu
+  const [showFloatingMenu, setShowFloatingMenu] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState(null); // 'feedback', 'help', 'settings'
+
   // Refs to track current state values for keyboard handler
   const timeRemainingRef = useRef(timeRemaining);
   const buttonsDisabledRef = useRef(buttonsDisabled);
@@ -96,6 +114,16 @@ const Site1 = () => {
   const filteredFlagsRef = useRef(filteredFlags);
   const regionalInfiniteModeRef = useRef(regionalInfiniteMode);
   const infiniteModeRef = useRef(infiniteMode);
+  const longestStreakRef = useRef(longestStreak);
+  const currentStreakRef = useRef(currentStreak);
+  const guessTimesRef = useRef(guessTimes);
+  const fastestGuessRef = useRef(fastestGuess);
+  const totalAttemptsRef = useRef(totalAttempts);
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    totalAttemptsRef.current = totalAttempts;
+  }, [totalAttempts]);
 
   // Initialize audio context
   useEffect(() => {
@@ -126,6 +154,28 @@ const Site1 = () => {
       document.removeEventListener('keydown', handleFirstInteraction);
     };
   }, []);
+
+  // Handle clicking outside floating menu to close it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const floatingMenu = document.querySelector(`.${styles.floatingMenuContainer}`);
+      if (floatingMenu && !floatingMenu.contains(event.target)) {
+        setShowFloatingMenu(false);
+      }
+    };
+
+    if (showFloatingMenu) {
+      // Use a small delay to allow menu item clicks to process first
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('click', handleClickOutside);
+      }, 100);
+
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener('click', handleClickOutside);
+      };
+    }
+  }, [showFloatingMenu]);
 
   // Sound generation functions with mystical characteristics
   const playTone = (frequency, duration = 200, type = 'sine', volume = 0.15, reverb = false) => {
@@ -279,6 +329,15 @@ const Site1 = () => {
     currentFlagRef.current = currentFlag;
   }, [currentFlag]);
 
+  // Cleanup flag loading timeout when component unmounts or flag changes
+  useEffect(() => {
+    return () => {
+      if (flagLoadingTimeout) {
+        clearTimeout(flagLoadingTimeout);
+      }
+    };
+  }, [flagLoadingTimeout]);
+
   useEffect(() => {
     scoreRef.current = score;
   }, [score]);
@@ -310,6 +369,22 @@ const Site1 = () => {
   useEffect(() => {
     infiniteModeRef.current = infiniteMode;
   }, [infiniteMode]);
+
+  useEffect(() => {
+    longestStreakRef.current = longestStreak;
+  }, [longestStreak]);
+
+  useEffect(() => {
+    currentStreakRef.current = currentStreak;
+  }, [currentStreak]);
+
+  useEffect(() => {
+    guessTimesRef.current = guessTimes;
+  }, [guessTimes]);
+
+  useEffect(() => {
+    fastestGuessRef.current = fastestGuess;
+  }, [fastestGuess]);
 
   // Keyboard event handler for number keys 1-4
   useEffect(() => {
@@ -509,6 +584,105 @@ const Site1 = () => {
     );
   };
 
+  // Floating Menu Component
+  const FloatingMenu = () => {
+    const handleFeedback = () => {
+      console.log('Feedback clicked');
+      playMenuClickSound();
+      setModalType('feedback');
+      setShowModal(true);
+    };
+
+    const handleHelp = () => {
+      console.log('Help clicked');
+      playMenuClickSound();
+      setModalType('help');
+      setShowModal(true);
+    };
+
+    return (
+      <div className={styles.floatingMenuContainer}>
+        {/* Main floating button */}
+        <button
+          className={styles.floatingMenuButton}
+          onClick={() => {
+            playMenuClickSound();
+            setShowFloatingMenu(!showFloatingMenu);
+          }}
+          aria-label="Open menu"
+          title="Menu"
+        >
+          🌍
+        </button>
+        
+        {/* Dropdown menu */}
+        {showFloatingMenu && (
+          <div className={styles.floatingMenuDropdown}>
+            <button
+              className={styles.floatingMenuItem}
+              onClick={handleFeedback}
+              aria-label="Send feedback"
+            >
+              💬 Feedback
+            </button>
+            <button
+              className={styles.floatingMenuItem}
+              onClick={handleHelp}
+              aria-label="Get help"
+            >
+              ❓ Help
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Modal Components
+
+  const HelpModal = () => {
+    return (
+      <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
+        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalHeader}>
+            <h2>❓ Help & How to Play</h2>
+            <button
+              className={styles.closeButton}
+              onClick={() => setShowModal(false)}
+              aria-label="Close modal"
+            >
+              ×
+            </button>
+          </div>
+          
+          <form className={styles.modalForm}>
+            <div className={styles.helpSection}>
+              <h3>🎮 Controls & Navigation</h3>
+              <div className={styles.helpItem}>
+                <strong>Mouse:</strong> Click on your answer
+              </div>
+              <div className={styles.helpItem}>
+                <strong>Keyboard:</strong> Press 1, 2, 3, or 4 to select answers
+              </div>
+            </div>
+
+            <div className={styles.formActions}>
+              <button
+                type="button"
+                className={`${styles.button} ${styles.mainButton}`}
+                onClick={() => setShowModal(false)}
+              >
+                Ok
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+
+
   // Simple direct Supabase query for global flags (Site4 style)
   const fetchGlobalFlags = async (continent = "world", includeTerritories = false) => {
     try {
@@ -606,7 +780,10 @@ const Site1 = () => {
         })
       );
 
-      return countriesWithCounts || [];
+      // Sort countries by total_regional_flags in descending order (highest first)
+      const sortedCountries = countriesWithCounts.sort((a, b) => b.total_regional_flags - a.total_regional_flags);
+
+      return sortedCountries || [];
     } catch (error) {
       console.error("Error in fetchRegionalCountries:", error);
       throw error;
@@ -803,21 +980,45 @@ const Site1 = () => {
     playGameOverSound();
     
     const gameEndTime = new Date().getTime();
-    const timeElapsed = gameEndTime - gameStartTime;
+    const timeElapsed = gameStartTime ? gameEndTime - gameStartTime : 0;
     const finalAttempts = totalAttempts;
     const accuracy = finalAttempts > 0 ? ((score / finalAttempts) * 100).toFixed(1) : 0;
     
-    setGameStats({
+    // Create a snapshot of current game state for end screen
+    const currentGameState = {
+      gameMode: gameMode,
+      gameType: gameMode === "regional" ? regionalGameType : gameType,
+      selectedRegionalCountry: selectedRegionalCountry,
+      selectedContinent: selectedContinent,
+      includeTerritories: includeTerritories,
+      timeAttackMode: timeAttackMode,
+      regionalInfiniteMode: regionalInfiniteMode,
+      infiniteMode: infiniteMode,
+      regionalFlags: regionalFlags,
+      filteredFlags: filteredFlags,
+      usedFlags: usedFlags // Include usedFlags in the snapshot
+    };
+    
+    const finalGameStats = {
       score: score,
       totalAttempts: finalAttempts,
       accuracy: accuracy,
       timeElapsed: timeElapsed,
       endState: "infiniteMode",
       gameType: gameMode === "regional" ? regionalGameType : gameType,
-      gameSettings: buildGameSettings(),
-      totalFlags: getTotalFlagsCount(),
-      remainingFlags: getRemainingFlagsCount()
-    });
+      gameSettings: buildGameSettingsFromSnapshot(currentGameState),
+      totalFlags: getTotalFlagsCountFromSnapshot(currentGameState),
+      remainingFlags: getRemainingFlagsCountFromSnapshot(currentGameState, currentGameState.usedFlags.length),
+      longestStreak: longestStreak,
+      averageTimePerGuess: calculateAverageTime(),
+      fastestGuess: fastestGuess
+    };
+    
+    console.log('Infinite Mode End - Final game stats:', finalGameStats);
+    console.log('Infinite Mode End - Current game state:', currentGameState);
+    
+    setGameStats(finalGameStats);
+    setGameStateSnapshot(currentGameState);
     setEndState("infiniteMode");
     setGameStarted(false);
     setShowEndScreen(true);
@@ -847,9 +1048,9 @@ const Site1 = () => {
     
     // Calculate final statistics
     const gameEndTime = new Date().getTime();
-    const timeElapsed = gameEndTime - gameStartTime;
-    const finalAttempts = totalAttempts;
-    const accuracy = finalAttempts > 0 ? ((finalScore / finalAttempts) * 100).toFixed(1) : 0;
+    const timeElapsed = gameStartTime ? gameEndTime - gameStartTime : 0;
+    const finalAttempts = totalAttemptsRef.current;
+    const accuracy = finalAttempts > 0 ? Math.min(((finalScore / finalAttempts) * 100), 100).toFixed(1) : 0;
     
     // Create a more engaging final message
     const finalMessage = finalScore > 0 
@@ -860,6 +1061,21 @@ const Site1 = () => {
     
     // Add a brief pause to let the user see the final score
     setTimeout(() => {
+      // Create a snapshot of current game state for end screen
+      const currentGameState = {
+        gameMode: gameMode,
+        gameType: gameMode === "regional" ? regionalGameType : gameType,
+        selectedRegionalCountry: selectedRegionalCountry,
+        selectedContinent: selectedContinent,
+        includeTerritories: includeTerritories,
+        timeAttackMode: timeAttackMode,
+        regionalInfiniteMode: regionalInfiniteMode,
+        infiniteMode: infiniteMode,
+        regionalFlags: regionalFlags,
+        filteredFlags: filteredFlags,
+        usedFlags: usedFlags // Include usedFlags in the snapshot
+      };
+      
       setGameStats({
         score: finalScore,
         totalAttempts: finalAttempts,
@@ -867,10 +1083,14 @@ const Site1 = () => {
         timeElapsed: timeElapsed,
         endState: "timeAttack",
         gameType: gameMode === "regional" ? regionalGameType : gameType,
-        gameSettings: buildGameSettings(),
-        totalFlags: getTotalFlagsCount(),
-        remainingFlags: getRemainingFlagsCount()
+        gameSettings: buildGameSettingsFromSnapshot(currentGameState),
+        totalFlags: getTotalFlagsCountFromSnapshot(currentGameState),
+        remainingFlags: getRemainingFlagsCountFromSnapshot(currentGameState, currentGameState.usedFlags.length),
+        longestStreak: longestStreak,
+        averageTimePerGuess: calculateAverageTime(),
+        fastestGuess: fastestGuess
       });
+      setGameStateSnapshot(currentGameState);
       setEndState("timeAttack");
       setGameStarted(false);
       setShowEndScreen(true);
@@ -885,6 +1105,8 @@ const Site1 = () => {
     // Play game start sound
     playGameStartSound();
     
+    console.log('startGame: Resetting all game state');
+    
     // Always reset game state when starting a new game
     setScore(0);
     currentScoreRef.current = 0; // Reset score ref
@@ -892,10 +1114,20 @@ const Site1 = () => {
     setMessage("");
     setGameStarted(true);
     setUsedFlags([]);
+    setLastFlagId(null); // Reset last flag ID for clean state
     setGameStartTime(new Date().getTime());
     setTotalAttempts(0);
     setShowEndScreen(false);
     setEndState(null);
+    setGameStats({}); // Clear previous game stats
+    setGameStateSnapshot({}); // Clear previous game state snapshot
+    
+    // Reset enhanced tracking variables
+    setLongestStreak(0);
+    setCurrentStreak(0);
+    setGuessTimes([]);
+    setFastestGuess(null);
+    setLastGuessTime(null);
     
     // Initialize Time Attack mode
     if (timeAttackMode) {
@@ -960,6 +1192,7 @@ const Site1 = () => {
     await new Promise(resolve => setTimeout(resolve, 200));
     
     // Load next question and get the new flag options
+    // Don't reset usedFlags here - let it use the current state
     const newFlagOptions = await loadNextQuestion(currentScore, null);
     
     // Preload flag images for country-to-flag mode before ending transition
@@ -991,6 +1224,14 @@ const Site1 = () => {
   };
 
   const loadNextQuestion = async (currentScore = null, resetUsedFlags = null) => {
+    console.log(`loadNextQuestion: called with currentScore=${currentScore}, resetUsedFlags=${resetUsedFlags}, current scoreRef=${scoreRef.current}, gameStarted=${gameStartedRef.current}`);
+    
+    // Safety check: if game is not started and this is not the initial load, return
+    if (!gameStartedRef.current && resetUsedFlags === null) {
+      console.log('loadNextQuestion: Game not started, skipping');
+      return null;
+    }
+    
     // Update score if provided (for correct answers)
     if (currentScore !== null) {
       console.log(`loadNextQuestion: Updating score from ${scoreRef.current} to ${currentScore}`);
@@ -1052,7 +1293,10 @@ const Site1 = () => {
       usedFlags: flagsToUse?.length || 0,
       availableFlags: availableFlags?.length || 0,
       currentInfiniteMode,
-      gameStarted
+      gameStarted,
+      isRegionalMode,
+      regionalInfiniteMode: regionalInfiniteModeRef.current,
+      infiniteMode: infiniteModeRef.current
     });
     
     // Check if we have enough available flags
@@ -1061,19 +1305,42 @@ const Site1 = () => {
       playVictorySound(); // Play victory sound for completing all flags
       
       const gameEndTime = new Date().getTime();
-      const timeElapsed = gameEndTime - gameStartTime;
+      const timeElapsed = gameStartTime ? gameEndTime - gameStartTime : 0;
       const finalScore = currentScore !== null ? currentScore : score;
+      // Include the final correct attempt in total attempts
+      const finalTotalAttempts = totalAttempts + 1;
+      
+      // Create a snapshot of current game state for end screen
+      const currentGameState = {
+        gameMode: gameMode,
+        gameType: currentGameType,
+        selectedRegionalCountry: selectedRegionalCountry,
+        selectedContinent: selectedContinent,
+        includeTerritories: includeTerritories,
+        timeAttackMode: timeAttackMode,
+        regionalInfiniteMode: regionalInfiniteMode,
+        infiniteMode: infiniteMode,
+        regionalFlags: regionalFlags,
+        filteredFlags: filteredFlags,
+        usedFlags: usedFlags // Include usedFlags in the snapshot
+      };
+      
       setGameStats({
         score: finalScore,
-        totalAttempts: totalAttempts,
-        accuracy: totalAttempts > 0 ? ((finalScore / totalAttempts) * 100).toFixed(1) : 0,
+        totalAttempts: finalTotalAttempts,
+        accuracy: finalTotalAttempts > 0 ? ((finalScore / finalTotalAttempts) * 100).toFixed(1) : 0,
         timeElapsed: timeElapsed,
         remainingFlags: 0,
         endState: "allCompleted",
         gameType: currentGameType,
-        gameSettings: buildGameSettings(),
-        totalFlags: getTotalFlagsCount()
+        gameSettings: buildGameSettingsFromSnapshot(currentGameState),
+        totalFlags: getTotalFlagsCountFromSnapshot(currentGameState),
+        longestStreak: longestStreak,
+        averageTimePerGuess: calculateAverageTime(),
+        fastestGuess: fastestGuess,
+        completionTime: timeElapsed
       });
+      setGameStateSnapshot(currentGameState);
       setEndState("allCompleted");
       setGameStarted(false);
       setShowEndScreen(true);
@@ -1098,8 +1365,30 @@ const Site1 = () => {
       return null;
     }
     
-    setCurrentFlag(randomFlag);
-    setUsedFlags([...flagsToUse, randomFlag.id]);
+    // Check if this is the same flag as the last one (consecutive flag)
+    const isConsecutiveFlag = lastFlagId === randomFlag.id;
+    
+    // Add cache-busting parameter for consecutive flags to force reload
+    const flagWithCacheBust = isConsecutiveFlag ? {
+      ...randomFlag,
+      image_url: `${randomFlag.image_url}?t=${Date.now()}`
+    } : randomFlag;
+    
+    setCurrentFlag(flagWithCacheBust);
+    setLastFlagId(randomFlag.id);
+    
+    // Always use the current usedFlags state to ensure we don't lose track
+    setUsedFlags(prevUsedFlags => [...prevUsedFlags, randomFlag.id]);
+    setLastGuessTime(Date.now()); // Set time for next guess
+    
+    // Add a fallback timer to clear loading state for consecutive flags
+    // This prevents the loading spinner from getting stuck when the same flag appears consecutively
+    const loadingTimeout = setTimeout(() => {
+      setIsFlagLoading(false);
+    }, 500); // 500ms fallback
+    
+    // Store the timeout ID to clear it if the flag loads normally
+    setFlagLoadingTimeout(loadingTimeout);
     
     let newFlagOptions = null;
     
@@ -1136,7 +1425,13 @@ const Site1 = () => {
     console.log(`Flag loaded successfully: ${flagId}`);
     
     // If this is the main flag, also clear the main loading state
-    if (currentFlag && currentFlag.id === flagId) {
+    // Use lastFlagId for comparison since it's the original flag ID without cache-busting
+    if (currentFlag && lastFlagId === flagId) {
+      // Clear the fallback timeout since the flag loaded successfully
+      if (flagLoadingTimeout) {
+        clearTimeout(flagLoadingTimeout);
+        setFlagLoadingTimeout(null);
+      }
       setIsFlagLoading(false);
     }
   };
@@ -1146,7 +1441,13 @@ const Site1 = () => {
     console.log(`Flag failed to load: ${flagName} (ID: ${flagId})`);
     
     // If this is the main flag, also clear the main loading state
-    if (currentFlag && currentFlag.id === flagId) {
+    // Use lastFlagId for comparison since it's the original flag ID without cache-busting
+    if (currentFlag && lastFlagId === flagId) {
+      // Clear the fallback timeout since we're handling the error
+      if (flagLoadingTimeout) {
+        clearTimeout(flagLoadingTimeout);
+        setFlagLoadingTimeout(null);
+      }
       setIsFlagLoading(false);
     }
     
@@ -1167,6 +1468,12 @@ const Site1 = () => {
     // Safety check: ensure we have a current flag
     if (!currentFlagValue) {
       console.error('checkAnswer called without currentFlag, selectedAnswer:', selectedAnswer);
+      return;
+    }
+    
+    // Safety check: ensure game is still running
+    if (!gameStartedRef.current) {
+      console.error('checkAnswer called when game is not started');
       return;
     }
     
@@ -1200,6 +1507,12 @@ const Site1 = () => {
       // Play correct sound
       playCorrectSound();
       
+      // Update streak for correct answer
+      updateStreak(true);
+      
+      // Record guess time for correct answers
+      recordGuessTime(true);
+      
       const newScore = scoreRef.current + 1;
       console.log(`checkAnswer: Correct! Score updated from ${scoreRef.current} to ${newScore}`);
       setScore(newScore);
@@ -1219,6 +1532,9 @@ const Site1 = () => {
     } else {
       // Play incorrect sound
       playIncorrectSound();
+      
+      // Update streak for incorrect answer
+      updateStreak(false);
       
       // Handle incorrect answer
       if (timeAttackModeRef.current) {
@@ -1261,21 +1577,59 @@ const Site1 = () => {
           playGameOverSound();
           
           const gameEndTime = new Date().getTime();
-          const timeElapsed = gameEndTime - gameStartTime;
+          const timeElapsed = gameStartTime ? gameEndTime - gameStartTime : 0;
           const finalAttempts = totalAttempts + 1;
-          const accuracy = finalAttempts > 0 ? ((scoreRef.current / finalAttempts) * 100).toFixed(1) : 0;
+          const accuracy = finalAttempts > 0 ? Math.min(((scoreRef.current / finalAttempts) * 100), 100).toFixed(1) : 0;
           
-          setGameStats({
+          // Create a snapshot of current game state for end screen
+          const currentGameState = {
+            gameMode: gameMode,
+            gameType: currentGameType,
+            selectedRegionalCountry: selectedRegionalCountry,
+            selectedContinent: selectedContinent,
+            includeTerritories: includeTerritories,
+            timeAttackMode: timeAttackMode,
+            regionalInfiniteMode: regionalInfiniteMode,
+            infiniteMode: infiniteMode,
+            regionalFlags: regionalFlags,
+            filteredFlags: filteredFlags,
+            usedFlags: usedFlags // Include usedFlags in the snapshot
+          };
+          
+          console.log('Game Over - Creating snapshot with values:', {
+            gameMode,
+            currentGameType,
+            selectedRegionalCountry: selectedRegionalCountry?.name,
+            selectedContinent,
+            includeTerritories,
+            timeAttackMode,
+            regionalInfiniteMode,
+            infiniteMode,
+            regionalFlagsLength: regionalFlags?.length,
+            filteredFlagsLength: filteredFlags?.length,
+            usedFlagsLength: usedFlags?.length
+          });
+          
+          const finalGameStats = {
             score: scoreRef.current,
             totalAttempts: finalAttempts,
             accuracy: accuracy,
             timeElapsed: timeElapsed,
             endState: "ranOutOfHearts",
             gameType: currentGameType,
-            gameSettings: buildGameSettings(),
-            totalFlags: getTotalFlagsCount(),
-            remainingFlags: getRemainingFlagsCount()
-          });
+            gameSettings: buildGameSettingsFromSnapshot(currentGameState),
+            totalFlags: getTotalFlagsCountFromSnapshot(currentGameState),
+            remainingFlags: getRemainingFlagsCountFromSnapshot(currentGameState, currentGameState.usedFlags.length),
+            longestStreak: longestStreak,
+            averageTimePerGuess: calculateAverageTime(),
+            fastestGuess: fastestGuess
+          };
+          
+          console.log('Game Over - Final game stats:', finalGameStats);
+          console.log('Game Over - Current game state:', currentGameState);
+          
+          setGameStats(finalGameStats);
+          setGameStateSnapshot(currentGameState);
           setEndState("ranOutOfHearts");
           setHealth(0);
           setGameStarted(false);
@@ -1311,6 +1665,32 @@ const Site1 = () => {
     };
   };
 
+  // Helper function to build game settings from snapshot (for end screen)
+  const buildGameSettingsFromSnapshot = (gameState) => {
+    const isRegionalMode = gameState.gameMode === "regional";
+    const currentGameType = gameState.gameType;
+    
+    return {
+      gameMode: isRegionalMode ? "Regional Flags" : "Country Flags",
+      gameType: currentGameType === "flag-to-country" ? "Flag → Country" : 
+                currentGameType === "country-to-flag" ? "Country → Flag" :
+                currentGameType === "flag-to-region" ? "Flag → Region" :
+                currentGameType === "region-to-flag" ? "Region → Flag" : "Unknown",
+      country: isRegionalMode && gameState.selectedRegionalCountry ? gameState.selectedRegionalCountry.name : null,
+      region: !isRegionalMode ? (
+        gameState.selectedContinent === "world" ? "World" :
+        gameState.selectedContinent === "1" ? "Africa" :
+        gameState.selectedContinent === "2" ? "Asia" :
+        gameState.selectedContinent === "3" ? "Europe" :
+        gameState.selectedContinent === "4" ? "North America" :
+        gameState.selectedContinent === "5" ? "South America" :
+        gameState.selectedContinent === "6" ? "Oceania" : "Unknown"
+      ) : null,
+      territories: !isRegionalMode ? (gameState.includeTerritories ? "Included" : "Excluded") : null,
+      mode: gameState.timeAttackMode ? "Time Attack" : (isRegionalMode ? gameState.regionalInfiniteMode : gameState.infiniteMode) ? "Infinite" : "Standard"
+    };
+  };
+
   // Helper function to get total flags count
   const getTotalFlagsCount = () => {
     const isRegionalMode = gameMode === "regional";
@@ -1321,10 +1701,79 @@ const Site1 = () => {
     }
   };
 
+  // Helper function to get total flags count from snapshot
+  const getTotalFlagsCountFromSnapshot = (gameState) => {
+    const isRegionalMode = gameState.gameMode === "regional";
+    if (isRegionalMode) {
+      return gameState.regionalFlags.length || 0;
+    } else {
+      return gameState.filteredFlags.length || 0;
+    }
+  };
+
   // Helper function to get remaining flags count
   const getRemainingFlagsCount = () => {
     const totalFlags = getTotalFlagsCount();
     return totalFlags - usedFlags.length;
+  };
+
+  // Helper function to get remaining flags count from snapshot
+  const getRemainingFlagsCountFromSnapshot = (gameState, usedFlagsCount) => {
+    const totalFlags = getTotalFlagsCountFromSnapshot(gameState);
+    
+    // Ensure usedFlagsCount is a number
+    let actualUsedFlagsCount = 0;
+    if (typeof usedFlagsCount === 'number') {
+      actualUsedFlagsCount = usedFlagsCount;
+    } else if (Array.isArray(usedFlagsCount)) {
+      actualUsedFlagsCount = usedFlagsCount.length;
+    } else if (gameState.usedFlags && Array.isArray(gameState.usedFlags)) {
+      actualUsedFlagsCount = gameState.usedFlags.length;
+    }
+    
+    console.log('getRemainingFlagsCountFromSnapshot:', {
+      totalFlags,
+      usedFlagsCount,
+      actualUsedFlagsCount,
+      gameStateUsedFlags: gameState.usedFlags,
+      gameStateUsedFlagsLength: gameState.usedFlags?.length
+    });
+    
+    return totalFlags - actualUsedFlagsCount;
+  };
+
+  // Helper function to calculate average time per guess
+  const calculateAverageTime = () => {
+    if (guessTimes.length === 0) return 0;
+    const totalTime = guessTimes.reduce((sum, time) => sum + time, 0);
+    return Math.round(totalTime / guessTimes.length / 1000); // Convert to seconds
+  };
+
+  // Helper function to update streak tracking
+  const updateStreak = (isCorrect) => {
+    if (isCorrect) {
+      const newCurrentStreak = currentStreak + 1;
+      setCurrentStreak(newCurrentStreak);
+      if (newCurrentStreak > longestStreak) {
+        setLongestStreak(newCurrentStreak);
+      }
+    } else {
+      setCurrentStreak(0);
+    }
+  };
+
+  // Helper function to record guess time
+  const recordGuessTime = (isCorrect) => {
+    if (lastGuessTime && isCorrect) {
+      const guessTime = Date.now() - lastGuessTime;
+      setGuessTimes(prev => [...prev, guessTime]);
+      
+      // Update fastest guess if this is faster (store in seconds for consistency)
+      const guessTimeSeconds = Math.round(guessTime / 1000);
+      if (!fastestGuess || guessTimeSeconds < fastestGuess) {
+        setFastestGuess(guessTimeSeconds);
+      }
+    }
   };
 
   if (isLoading) {
@@ -1494,13 +1943,15 @@ const Site1 = () => {
                     type="setting"
                     icon="⏱️"
                     label="Time Attack Mode"
-                    description="Race against the clock"
+                    description="Get the highest score in 1 minute"
                     isSelected={timeAttackMode}
                     onClick={() => {
                       playMenuClickSound();
                       setTimeAttackMode(!timeAttackMode);
                       if (!timeAttackMode) {
                         setInfiniteMode(true); // Auto-enable infinite mode
+                      } else {
+                        setInfiniteMode(false); // Reset to standard mode when disabling time attack
                       }
                     }}
                   />
@@ -1732,13 +2183,15 @@ const Site1 = () => {
                     type="setting"
                     icon="⏱️"
                     label="Time Attack Mode"
-                    description="Race against the clock"
+                    description="Get the highest score in 1 minute"
                     isSelected={timeAttackMode}
                     onClick={() => {
                       playMenuClickSound();
                       setTimeAttackMode(!timeAttackMode);
                       if (!timeAttackMode) {
                         setRegionalInfiniteMode(true); // Auto-enable infinite mode
+                      } else {
+                        setRegionalInfiniteMode(false); // Reset to standard mode when disabling time attack
                       }
                     }}
                   />
@@ -1767,6 +2220,9 @@ const Site1 = () => {
             )}
             </div>
           </div>
+          
+          {/* Floating Menu - only shown when not in game */}
+          <FloatingMenu />
         </div>
       )}
   
@@ -1827,8 +2283,8 @@ const Site1 = () => {
                     src={currentFlag.image_url}
                     alt={currentFlag.name}
                     className={`${styles.flagImage} ${flagTransitioning ? styles.transitioning : ''}`}
-                    onLoad={() => handleFlagLoad(currentFlag.id)}
-                    onError={() => handleFlagError(currentFlag.id, currentFlag.name)}
+                    onLoad={() => handleFlagLoad(lastFlagId)}
+                    onError={() => handleFlagError(lastFlagId, currentFlag.name)}
                     style={{ display: isFlagLoading ? 'none' : 'block' }}
                   />
                 </>
@@ -1892,6 +2348,14 @@ const Site1 = () => {
   
       {showEndScreen && (
         <div className={styles.endScreen}>
+          {(() => {
+            console.log('End screen remaining flags calculation:', {
+              gameStatsRemainingFlags: gameStats.remainingFlags,
+              calculatedRemaining: gameStats.totalFlags - gameStats.remainingFlags,
+              finalRemaining: gameStats.remainingFlags !== undefined ? gameStats.remainingFlags : 0
+            });
+            return null;
+          })()}
           <div className={styles.endScreenContent}>
             <div className={styles.endScreenHeader}>
               {endState === "ranOutOfHearts" && (
@@ -1930,25 +2394,25 @@ const Site1 = () => {
                 <div className={styles.quickStatLabel}>Points</div>
               </div>
               <div className={styles.quickStatCard}>
-                {endState === "allCompleted" ? (
-                  <>
-                    <div className={styles.quickStatValue}>{Math.floor(gameStats.timeElapsed / 1000)}s</div>
-                    <div className={styles.quickStatLabel}>Completion Time</div>
-                  </>
-                ) : endState === "ranOutOfHearts" ? (
+                {endState === "ranOutOfHearts" ? (
                   <>
                     <div className={styles.quickStatValue}>{gameStats.accuracy}%</div>
                     <div className={styles.quickStatLabel}>Accuracy</div>
                   </>
+                ) : endState === "allCompleted" ? (
+                  <>
+                    <div className={styles.quickStatValue}>{Math.floor(gameStats.timeElapsed / 1000)}s</div>
+                    <div className={styles.quickStatLabel}>Completion Time</div>
+                  </>
+                ) : endState === "infiniteMode" ? (
+                  <>
+                    <div className={styles.quickStatValue}>{gameStats.longestStreak || 0}</div>
+                    <div className={styles.quickStatLabel}>Longest Streak ⚡</div>
+                  </>
                 ) : endState === "timeAttack" ? (
                   <>
-                    <div className={styles.quickStatValue}>{gameStats.totalAttempts}</div>
-                    <div className={styles.quickStatLabel}>Total Attempts</div>
-                  </>
-                ) : (infiniteMode || regionalInfiniteMode) ? (
-                  <>
-                    <div className={styles.quickStatValue}>{gameStats.totalAttempts}</div>
-                    <div className={styles.quickStatLabel}>Total Attempts</div>
+                    <div className={styles.quickStatValue}>{gameStats.averageTimePerGuess || 0}s</div>
+                    <div className={styles.quickStatLabel}>Avg Time per Guess ⏱️</div>
                   </>
                 ) : (
                   <>
@@ -2035,36 +2499,100 @@ const Site1 = () => {
                     <span className={styles.statValue}>{gameStats.totalAttempts}</span>
                   </div>
                 </div>
-                <div className={styles.statCard}>
-                  <div className={styles.statIcon}>⏱️</div>
-                  <div className={styles.statContent}>
-                    <span className={styles.statLabel}>Time Elapsed</span>
-                    <span className={styles.statValue}>
-                      {Math.floor(gameStats.timeElapsed / 1000)}s
-                    </span>
-                  </div>
-                </div>
-                {endState === "allCompleted" && (
-                  <div className={styles.statCard}>
-                    <div className={styles.statIcon}>🏁</div>
-                    <div className={styles.statContent}>
-                      <span className={styles.statLabel}>Completion Time</span>
-                      <span className={styles.statValue}>
-                        {Math.floor(gameStats.timeElapsed / 1000)}s
-                      </span>
+                
+                {/* Mode-specific statistics */}
+                {endState === "ranOutOfHearts" && (
+                  <>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon}>⏱️</div>
+                      <div className={styles.statContent}>
+                        <span className={styles.statLabel}>Time Elapsed</span>
+                        <span className={styles.statValue}>
+                          {Math.floor(gameStats.timeElapsed / 1000)}s
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                    {!(gameMode === "regional" ? regionalInfiniteMode : infiniteMode) && (
+                      <div className={styles.statCard}>
+                        <div className={styles.statIcon}>🚩</div>
+                        <div className={styles.statContent}>
+                          <span className={styles.statLabel}>Remaining</span>
+                          <span className={styles.statValue}>
+                            {gameStats.remainingFlags !== undefined ? gameStats.remainingFlags : 0}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
-                {!(gameMode === "regional" ? regionalInfiniteMode : infiniteMode) && endState === "ranOutOfHearts" && (
-                  <div className={styles.statCard}>
-                    <div className={styles.statIcon}>🚩</div>
-                    <div className={styles.statContent}>
-                      <span className={styles.statLabel}>Remaining</span>
-                      <span className={styles.statValue}>
-                        {gameStats.remainingFlags !== undefined ? gameStats.remainingFlags : getRemainingFlagsCount()}
-                      </span>
+                
+                {endState === "allCompleted" && (
+                  <>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon}>🏁</div>
+                      <div className={styles.statContent}>
+                        <span className={styles.statLabel}>Completion Time</span>
+                        <span className={styles.statValue}>
+                          {Math.floor(gameStats.timeElapsed / 1000)}s
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon}>⏱️</div>
+                      <div className={styles.statContent}>
+                        <span className={styles.statLabel}>Avg Time per Guess</span>
+                        <span className={styles.statValue}>
+                          {gameStats.averageTimePerGuess || 0}s
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )}
+                
+                {endState === "infiniteMode" && (
+                  <>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon}>⏱️</div>
+                      <div className={styles.statContent}>
+                        <span className={styles.statLabel}>Time Elapsed</span>
+                        <span className={styles.statValue}>
+                          {Math.floor(gameStats.timeElapsed / 1000)}s
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon}>⚡</div>
+                      <div className={styles.statContent}>
+                        <span className={styles.statLabel}>Longest Streak</span>
+                        <span className={styles.statValue}>
+                          {gameStats.longestStreak || 0}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )}
+                
+                {endState === "timeAttack" && (
+                  <>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon}>⏱️</div>
+                      <div className={styles.statContent}>
+                        <span className={styles.statLabel}>Avg Time per Guess</span>
+                        <span className={styles.statValue}>
+                          {gameStats.averageTimePerGuess || 0}s
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.statCard}>
+                      <div className={styles.statIcon}>🏃</div>
+                      <div className={styles.statContent}>
+                        <span className={styles.statLabel}>Fastest Guess</span>
+                        <span className={styles.statValue}>
+                          {gameStats.fastestGuess || 0}s
+                        </span>
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
@@ -2089,14 +2617,37 @@ const Site1 = () => {
                 className={`${styles.button} ${styles.mainButton}`}
                 onClick={async () => {
                   playMenuClickSound();
-                  // Hide the end screen and clear game state immediately
+                  
+                  // Hide the end screen immediately
                   setShowEndScreen(false);
                   setGameStats({});
                   setEndState(null);
-                  setGameStarted(false);
+                  
+                  // Restore the game state from the snapshot for the new game
+                  if (gameStateSnapshot.gameMode) {
+                    console.log('Play Again: Restoring game state from snapshot:', gameStateSnapshot);
+                    
+                    // Restore all the game settings
+                    setGameMode(gameStateSnapshot.gameMode);
+                    setTimeAttackMode(gameStateSnapshot.timeAttackMode);
+                    setRegionalInfiniteMode(gameStateSnapshot.regionalInfiniteMode);
+                    setInfiniteMode(gameStateSnapshot.infiniteMode);
+                    
+                    if (gameStateSnapshot.gameMode === "regional") {
+                      setRegionalGameType(gameStateSnapshot.gameType);
+                      setSelectedRegionalCountry(gameStateSnapshot.selectedRegionalCountry);
+                      setRegionalFlags(gameStateSnapshot.regionalFlags);
+                      setFilteredRegionalFlags(gameStateSnapshot.regionalFlags);
+                    } else {
+                      setGameType(gameStateSnapshot.gameType);
+                      setSelectedContinent(gameStateSnapshot.selectedContinent);
+                      setIncludeTerritories(gameStateSnapshot.includeTerritories);
+                      setFilteredFlags(gameStateSnapshot.filteredFlags);
+                    }
+                  }
                   
                   // Wait a moment to ensure state updates are processed
-                  await new Promise(resolve => setTimeout(resolve, 50));
+                  await new Promise(resolve => setTimeout(resolve, 100));
                   
                   // Start the new game (this will reset all game state)
                   await startGame();
@@ -2108,6 +2659,34 @@ const Site1 = () => {
           </div>
         </div>
       )}
+
+      {/* Modal Overlay */}
+      {showModal && (
+        <>
+          {modalType === 'feedback' && (
+            <FeedbackModal 
+              isOpen={showModal}
+              onClose={() => {
+                setShowModal(false);
+                setModalType(null);
+              }}
+              currentFlag={currentFlag}
+              gameContext={{
+                gameMode,
+                gameType: gameMode === "regional" ? regionalGameType : gameType,
+                selectedContinent,
+                includeTerritories,
+                timeAttackMode,
+                infiniteMode,
+                regionalInfiniteMode
+              }}
+            />
+          )}
+          {modalType === 'help' && <HelpModal />}
+        </>
+      )}
+      
+
     </div>
   );
 };

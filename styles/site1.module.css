@@ -2266,6 +2266,46 @@
   animation: sectionSlideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
 }
 
+.gameSettingsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.gameSettingsHeader:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(108, 92, 231, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.2);
+}
+
+.settingsInfo {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.settingsExpanded {
+  max-height: 500px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.settingsCollapsed {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  margin-bottom: 0;
+}
+
 @keyframes sectionSlideIn {
   from {
     opacity: 0;
@@ -2655,7 +2695,8 @@
   }
 
   .statsGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, auto);
     gap: 16px;
   }
 
@@ -2693,7 +2734,7 @@
 
 @media screen and (max-width: 480px) {
   .endScreenContent {
-    padding: 18px 2px;
+    padding: 18px 16px;
   }
 
   .endStateIcon {
@@ -2705,7 +2746,8 @@
   }
 
   .statsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, auto);
     gap: 12px;
   }
 
@@ -3649,6 +3691,7 @@
   max-height: 90vh;
   overflow-y: auto;
   animation: modalSlideIn 0.3s ease-out;
+  position: relative;
 }
 
 @keyframes modalSlideIn {
@@ -3666,7 +3709,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 24px 0 24px;
+  padding: 24px 24px 16px 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 24px;
 }
@@ -3980,5 +4023,343 @@
 
 .flagGuessButton {
   position: relative;
+}
+
+/* Floating Menu Styles */
+.floatingMenuContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.floatingMenuButton {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(21, 21, 21, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
   overflow: hidden;
+}
+
+.floatingMenuButton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.3),
+    rgba(108, 92, 231, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.floatingMenuButton:hover {
+  transform: scale(1.1);
+  border-color: var(--accent-color);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.3);
+}
+
+.floatingMenuButton:hover::before {
+  opacity: 1;
+}
+
+.floatingMenuDropdown {
+  background: rgba(21, 21, 21, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  margin-top: 8px;
+  padding: 8px;
+  min-width: 160px;
+  animation: dropdownSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.floatingMenuDropdown::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.2),
+    rgba(108, 92, 231, 0.05)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.floatingMenuItem {
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.floatingMenuItem::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.1),
+    rgba(108, 92, 231, 0.05)
+  );
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.floatingMenuItem:hover {
+  background: rgba(108, 92, 231, 0.1);
+  transform: translateX(4px);
+}
+
+.floatingMenuItem:hover::before {
+  opacity: 1;
+}
+
+.floatingMenuItem:active {
+  transform: translateX(4px) scale(0.98);
+}
+
+/* Mobile responsive styles for floating menu */
+@media screen and (max-width: 768px) {
+  .floatingMenuContainer {
+    top: 15px;
+    right: 15px;
+  }
+
+  .floatingMenuButton {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .floatingMenuDropdown {
+    min-width: 180px;
+    margin-top: 8px;
+    padding: 12px;
+  }
+
+  .floatingMenuItem {
+    padding: 14px 16px;
+    font-size: 15px;
+    min-height: 48px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .floatingMenuContainer {
+    top: 10px;
+    right: 10px;
+  }
+
+  .floatingMenuButton {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .floatingMenuDropdown {
+    min-width: 200px;
+    margin-top: 6px;
+    padding: 16px;
+  }
+
+  .floatingMenuItem {
+    padding: 16px 18px;
+    font-size: 16px;
+    min-height: 52px;
+  }
+}
+
+/* Modal Styles */
+.modal {
+  background: rgba(21, 21, 21, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.modalForm {
+  padding: 0 24px 24px;
+}
+
+.modalContent {
+  padding: 0 24px 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.modalContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modalContent::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+  background: rgba(108, 92, 231, 0.5);
+  border-radius: 3px;
+}
+
+.modalContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(108, 92, 231, 0.7);
+}
+
+.helpSection {
+  margin-bottom: 24px;
+}
+
+.helpSection h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.helpItem {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  padding-left: 16px;
+  position: relative;
+}
+
+.helpItem::before {
+  content: "•";
+  color: var(--accent-color);
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+.settingsSection {
+  margin-bottom: 24px;
+}
+
+.settingsSection h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settingCheckbox {
+  margin-right: 12px;
+  transform: scale(1.2);
+  accent-color: var(--accent-color);
+}
+
+.settingDescription {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* Mobile responsive styles for modals */
+@media screen and (max-width: 768px) {
+  .modal {
+    width: 95%;
+    max-height: 85vh;
+  }
+
+  .modalForm,
+  .modalContent {
+    padding: 0 20px 20px;
+  }
+
+  .helpSection h3,
+  .settingsSection h3 {
+    font-size: 16px;
+  }
+
+  .helpItem {
+    font-size: 13px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .modal {
+    width: 98%;
+    max-height: 90vh;
+  }
+
+  .modalForm,
+  .modalContent {
+    padding: 0 16px 16px;
+  }
+
+  .helpSection h3,
+  .settingsSection h3 {
+    font-size: 15px;
+  }
+
+  .helpItem {
+    font-size: 12px;
+  }
 }

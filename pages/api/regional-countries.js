@@ -40,8 +40,11 @@ export default async function handler(req, res) {
       })
     );
 
-    console.log(`Found ${countriesWithCounts?.length || 0} regional countries`);
-    return res.status(200).json(countriesWithCounts || []);
+    // Sort countries by total_regional_flags in descending order (highest first)
+    const sortedCountries = countriesWithCounts.sort((a, b) => b.total_regional_flags - a.total_regional_flags);
+
+    console.log(`Found ${sortedCountries?.length || 0} regional countries`);
+    return res.status(200).json(sortedCountries || []);
   } catch (error) {
     console.error('Public regional countries API error:', error);
     return res.status(500).json({ error: error.message });
