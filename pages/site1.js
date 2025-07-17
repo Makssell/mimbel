@@ -2422,10 +2422,22 @@ const Site1 = () => {
           // For Time Attack, higher score is better
           shouldUpdate = gameStats.score > currentBest.score;
         } else {
-          // For other modes, compare accuracy first, then score
-          if (gameStats.accuracy > currentBest.accuracy) {
+          // For other modes, use a more nuanced comparison
+          const currentAccuracy = parseFloat(currentBest.accuracy);
+          const newAccuracy = parseFloat(gameStats.accuracy);
+          const accuracyDiff = newAccuracy - currentAccuracy;
+          const scoreDiff = gameStats.score - currentBest.score;
+          
+          // Update if:
+          // 1. Accuracy is significantly higher (>5% difference)
+          // 2. Accuracy is similar (±5%) but score is higher
+          // 3. Score is significantly higher (>10 points) even with slightly lower accuracy
+          if (accuracyDiff > 5) {
             shouldUpdate = true;
-          } else if (gameStats.accuracy === currentBest.accuracy && gameStats.score > currentBest.score) {
+          } else if (Math.abs(accuracyDiff) <= 5 && scoreDiff > 0) {
+            shouldUpdate = true;
+          } else if (scoreDiff > 10 && newAccuracy >= 90) {
+            // Allow higher scores to replace lower scores if accuracy is still very good (≥90%)
             shouldUpdate = true;
           }
         }
