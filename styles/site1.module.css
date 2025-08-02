@@ -1071,7 +1071,7 @@
   font-weight: 500;
   width: 100%;
   height: 100%;
-  min-height: 0;
+  min-height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1100,10 +1100,15 @@
   height: 100%;
   object-fit: contain;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease, opacity 0.2s ease-in-out;
   background: rgba(255, 255, 255, 0.05);
   padding: 8px;
   box-sizing: border-box;
+  /* Prevent layout shifts during loading */
+  min-height: 60px;
+  /* Optimize rendering */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .flagGuessButton:hover img {
@@ -1121,6 +1126,30 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+/* Loading placeholder for flag buttons */
+.flagLoadingPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1) 25%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .correctButton {

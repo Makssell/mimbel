@@ -136,6 +136,41 @@ const Site1 = () => {
   const fastestGuessRef = useRef(fastestGuess);
   const totalAttemptsRef = useRef(totalAttempts);
 
+  // Add image cache for better performance
+  const imageCache = useRef(new Map());
+  const loadingFlags = useRef(new Set());
+  const updateTimeoutRef = useRef(null);
+  
+  // Preload images without blocking the UI
+  const preloadImages = (flags) => {
+    flags.forEach(flag => {
+      if (!imageCache.current.has(flag.image_url) && !loadingFlags.current.has(flag.image_url)) {
+        loadingFlags.current.add(flag.image_url);
+        const img = new Image();
+        img.onload = () => {
+          imageCache.current.set(flag.image_url, true);
+          loadingFlags.current.delete(flag.image_url);
+        };
+        img.onerror = () => {
+          // Still cache the attempt to avoid repeated failed loads
+          imageCache.current.set(flag.image_url, false);
+          loadingFlags.current.delete(flag.image_url);
+        };
+        img.src = flag.image_url;
+      }
+    });
+  };
+  
+  // Debounced update function to reduce re-renders
+  const debouncedUpdate = () => {
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
+    }
+    updateTimeoutRef.current = setTimeout(() => {
+      setFlagOptions(prev => [...prev]);
+    }, 50);
+  };
+
   // Keep refs in sync with state
   useEffect(() => {
     totalAttemptsRef.current = totalAttempts;
@@ -688,12 +723,39 @@ const Site1 = () => {
           
           <form className={styles.modalForm}>
             <div className={styles.helpSection}>
-              <h3>🎮 x</h3>
+              <h3>⌨️ Keyboard Shortcuts</h3>
               <div className={styles.helpItem}>
-                <strong>x:</strong> x
+                <strong>1, 2, 3, 4:</strong> Press number keys to quickly select answer options
               </div>
               <div className={styles.helpItem}>
-                <strong>x:</strong> x
+                <strong>Enter:</strong> Confirm your selection (same as clicking)
+              </div>
+              
+            </div>
+
+            <div className={styles.helpSection}>
+              <h3>🎯 Interactive Elements</h3>
+              <div className={styles.helpItem}>
+                <strong>Progress Circles:</strong> Click on any circle in the progress bar to jump to that step
+              </div>
+              <div className={styles.helpItem}>
+                <strong>Globe Menu:</strong> Access games history, feedback, and help from the top-right globe button
+              </div>
+              <div className={styles.helpItem}>
+                <strong>Active Games:</strong> Your progress is automatically saved - you can continue later
+              </div>
+            </div>
+
+            <div className={styles.helpSection}>
+              <h3>🎮 Game Modes</h3>
+              <div className={styles.helpItem}>
+                <strong>Standard:</strong> Classic flag guessing with lives or infinite mode
+              </div>
+              <div className={styles.helpItem}>
+                <strong>Time Attack:</strong> Race against the clock - 60 seconds to get as many correct as possible
+              </div>
+              <div className={styles.helpItem}>
+                <strong>Regional:</strong> Focus on specific countries and their administrative divisions
               </div>
             </div>
 
@@ -703,7 +765,7 @@ const Site1 = () => {
                 className={`${styles.button} ${styles.mainButton}`}
                 onClick={() => setShowModal(false)}
               >
-                Ok
+                Got it!
               </button>
             </div>
           </form>
@@ -1405,10 +1467,16 @@ const Site1 = () => {
     loadFlagsForMode();
   }, [gameMode]);
 
-  // Simple cleanup when component unmounts (Site4 style)
+  // Cleanup when component unmounts
   useEffect(() => {
     return () => {
-      // No complex timeout management needed
+      // Clear any pending timeouts
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+      if (flagLoadingTimeout) {
+        clearTimeout(flagLoadingTimeout);
+      }
     };
   }, []);
 
@@ -1690,38 +1758,25 @@ const Site1 = () => {
     setMessageTransitioning(false);
   };
 
+  // Optimized transition function for better performance
   const transitionToNextQuestion = async (currentScore = null) => {
     startTransition();
     // Wait for transition out animation
     await new Promise(resolve => setTimeout(resolve, 200));
     
     // Load next question and get the new flag options
-    // Don't reset usedFlags here - let it use the current state
     const newFlagOptions = await loadNextQuestion(currentScore, null);
     
-    // Preload flag images for country-to-flag mode before ending transition
+    // Preload flag images asynchronously without blocking
     const isRegionalMode = gameModeRef.current === "regional";
     const currentGameType = isRegionalMode ? regionalGameTypeRef.current : gameTypeRef.current;
     
     if ((currentGameType === "country-to-flag" || currentGameType === "region-to-flag") && newFlagOptions && newFlagOptions.length > 0) {
-      // Preload flag images using the new flag options
-      const preloadPromises = newFlagOptions.map(flag => {
-        return new Promise((resolve) => {
-          const img = new Image();
-          img.onload = () => resolve();
-          img.onerror = () => resolve(); // Don't block on errors
-          img.src = flag.image_url;
-        });
-      });
-      
-      // Wait for all flags to load (with a timeout)
-      await Promise.race([
-        Promise.all(preloadPromises),
-        new Promise(resolve => setTimeout(resolve, 1000)) // 1 second timeout
-      ]);
+      // Preload images in background without waiting
+      preloadImages(newFlagOptions);
     }
     
-    // End transition after flags are loaded
+    // End transition immediately for smoother experience
     setTimeout(() => {
       endTransition();
     }, 50);
@@ -1927,7 +1982,7 @@ const Site1 = () => {
     // This prevents the loading spinner from getting stuck when the same flag appears consecutively
     const loadingTimeout = setTimeout(() => {
       setIsFlagLoading(false);
-    }, 500); // 500ms fallback
+    }, 300); // Reduced to 300ms for faster response
     
     // Store the timeout ID to clear it if the flag loads normally
     setFlagLoadingTimeout(loadingTimeout);
@@ -1957,12 +2012,17 @@ const Site1 = () => {
       newFlagOptions = shuffledFlags; // Store for return
       setFlagOptions(shuffledFlags);
       setOptions([]); // Clear name options for this mode
+      
+      // Preload flag options immediately for better performance
+      if (newFlagOptions && newFlagOptions.length > 0) {
+        preloadImages(newFlagOptions);
+      }
     }
     
     return newFlagOptions;
   };
 
-  // Simple flag load handler (Site4 style)
+  // Optimized flag load handler with reduced state updates
   const handleFlagLoad = (flagId) => {
     console.log(`Flag loaded successfully: ${flagId}`);
     
@@ -1975,6 +2035,14 @@ const Site1 = () => {
         setFlagLoadingTimeout(null);
       }
       setIsFlagLoading(false);
+    }
+    
+    // Cache the successfully loaded image
+    const flag = currentFlag || flagOptions.find(f => f.id === flagId);
+    if (flag) {
+      imageCache.current.set(flag.image_url, true);
+      // Use debounced update to reduce re-renders
+      debouncedUpdate();
     }
   };
 
@@ -3351,20 +3419,30 @@ const Site1 = () => {
                 </button>
               ))
             ) : (
-              // Show flag images as buttons for country-to-flag or region-to-flag mode (Site4 style)
+              // Show flag images as buttons for country-to-flag or region-to-flag mode (optimized)
               <>
                 {flagOptions.map((flag, index) => (
                   <button
-                    key={index}
+                    key={`${flag.id}-${index}`}
                     onClick={() => checkAnswer(flag.id)}
                     className={`${styles.button} ${styles.flagGuessButton} ${styles.optionsTransition} ${buttonStyles[flag.id] || ''} ${optionsTransitioning ? styles.transitioning : ''}`}
                     disabled={buttonsDisabled}
                   >
+                    {!imageCache.current.has(flag.image_url) && (
+                      <div className={styles.flagLoadingPlaceholder} />
+                    )}
                     <img
                       src={flag.image_url}
                       alt={flag.name}
                       onLoad={() => handleFlagLoad(flag.id)}
                       onError={() => handleFlagError(flag.id, flag.name)}
+                      style={{
+                        opacity: imageCache.current.has(flag.image_url) ? 1 : 0,
+                        transition: 'opacity 0.3s ease-in-out',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0
+                      }}
                     />
                   </button>
                 ))}

@@ -1,125 +1,365 @@
-/* site3.module.css */
-
+/* Car Logo Quiz - Modern Car Theme */
 .container {
-  font-family: "Arial", sans-serif;
-  text-align: center;
-  margin: 0;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
-  background-color: #f4f7f6;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+.title {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 30px;
+  background: linear-gradient(45deg, #ff6b35, #f7931e, #ffd700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+}
+
+.gameHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.scoreBoard {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.score {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4caf50;
+  text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.timer {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ff9800;
+  text-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+}
+
+.healthBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.healthBar h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.heart {
+  font-size: 1.5rem;
+  color: #ff4444;
+  text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+  animation: pulse 1s infinite;
+}
+
+.heartDead {
+  font-size: 1.5rem;
+  color: #666;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.settings {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gameModeSection,
+.filterSection,
+.optionsSection {
+  margin-bottom: 25px;
+}
+
+.gameModeSection h3,
+.filterSection h3,
+.optionsSection h3 {
+  margin-bottom: 15px;
+  color: #ffd700;
+  font-size: 1.3rem;
+}
+
+.radioLabel,
+.checkboxLabel {
+  display: block;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 50%;
-  margin: 50px auto 0; /* Add margin-top here to move it down */
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.heading {
-  color: #4a90e2;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+.radioLabel:hover,
+.checkboxLabel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(5px);
 }
 
-.button {
-  background-color: #4a90e2;
+.radioLabel input,
+.checkboxLabel input {
+  margin-right: 10px;
+  transform: scale(1.2);
+}
+
+.select {
+  width: 100%;
+  max-width: 300px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.startButton {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto 30px;
+  padding: 15px 30px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  background: linear-gradient(45deg, #ff6b35, #f7931e);
   color: white;
   border: none;
-  padding: 10px 20px;
-  font-size: 1rem;
-  border-radius: 5px;
+  border-radius: 25px;
   cursor: pointer;
-  margin: 10px;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
 }
 
-.button:hover {
-  background-color: #357ab7;
+.startButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
 }
 
-.monkeyList {
-  list-style-type: none;
-  padding: 0;
-  margin-top: 20px;
+.gameArea {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.monkeyList li {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  margin: 5px 0;
-  padding: 10px;
-  font-size: 1.2rem;
+.logoContainer {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  display: inline-block;
 }
 
-.upgradeDisplay {
-  margin-top: 20px;
-  font-size: 1.2rem;
+.logo {
+  max-width: 300px;
+  max-height: 200px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.brandNameContainer {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  display: inline-block;
+}
+
+.brandName {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  margin: 0;
+}
+
+.question {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+  color: #ffffff;
+}
+
+.optionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.optionButton {
+  padding: 15px 20px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.optionButton:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #ffd700;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.logoOptionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.logoOptionButton {
   padding: 15px;
-  background-color: #e3f7e3;
-  border: 1px solid #6ecf6e;
-  border-radius: 5px;
-  color: #2d6a2f;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Mobile Responsive Styles */
-@media screen and (max-width: 750px) {
+.logoOptionButton:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #ffd700;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.logoOption {
+  max-width: 100px;
+  max-height: 60px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+}
+
+.message {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+}
+
+/* Answer feedback styles */
+.correct {
+  background: linear-gradient(45deg, #4caf50, #45a049) !important;
+  border-color: #4caf50 !important;
+  color: white !important;
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.5) !important;
+  transform: scale(1.05) !important;
+}
+
+.incorrect {
+  background: linear-gradient(45deg, #f44336, #d32f2f) !important;
+  border-color: #f44336 !important;
+  color: white !important;
+  box-shadow: 0 0 20px rgba(244, 67, 54, 0.5) !important;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
   .container {
-    width: 90%;
-    margin: 20px auto 0;
-    padding: 15px;
-    height: auto;
-    min-height: 100dvh;
-    overflow-y: auto;
+    padding: 10px;
   }
 
-  .heading {
+  .title {
     font-size: 2rem;
-    margin-bottom: 15px;
   }
 
-  .button {
-    padding: 12px 24px;
-    font-size: 1.1rem;
-    margin: 8px;
+  .gameHeader {
+    flex-direction: column;
+    gap: 15px;
   }
 
-  .monkeyList li {
-    font-size: 1.1rem;
-    padding: 12px;
+  .optionsGrid,
+  .logoOptionsGrid {
+    grid-template-columns: 1fr;
   }
 
-  .upgradeDisplay {
-    font-size: 1.1rem;
-    padding: 12px;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .container {
-    width: 95%;
-    margin: 10px auto 0;
-    padding: 10px;
-    height: auto;
-    min-height: 100dvh;
-    overflow-y: auto;
+  .brandName {
+    font-size: 2rem;
   }
 
-  .heading {
-    font-size: 1.8rem;
-    margin-bottom: 12px;
-  }
-
-  .button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    margin: 6px;
-  }
-
-  .monkeyList li {
-    font-size: 1rem;
-    padding: 10px;
-  }
-
-  .upgradeDisplay {
-    font-size: 1rem;
-    padding: 10px;
+  .logo {
+    max-width: 250px;
   }
 }
