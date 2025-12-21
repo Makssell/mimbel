@@ -1,14 +1,8 @@
 {
-  "node_modules\\next\\dist\\client\\index.js -> ../pages/_app": {
-    "id": "node_modules\\next\\dist\\client\\index.js -> ../pages/_app",
+  "components\\ChallengeScreen.js -> ../lib/flagLoader": {
+    "id": "components\\ChallengeScreen.js -> ../lib/flagLoader",
     "files": [
-      "static/chunks/node_modules_next_dist_pages__app_js.js"
-    ]
-  },
-  "node_modules\\next\\dist\\client\\index.js -> ../pages/_error": {
-    "id": "node_modules\\next\\dist\\client\\index.js -> ../pages/_error",
-    "files": [
-      "static/chunks/node_modules_next_dist_pages__error_js.js"
+      "static/chunks/lib_flagLoader_js.js"
     ]
   }
 }

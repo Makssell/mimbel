@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import styles from '../styles/site1.module.css';
+import sharedStyles from '../styles/shared.module.css';
+import modalsStyles from '../styles/modals.module.css';
 
 const FeedbackModal = ({ isOpen, onClose, currentFlag = null, gameContext = null }) => {
   const [category, setCategory] = useState('');
@@ -90,12 +91,12 @@ const FeedbackModal = ({ isOpen, onClose, currentFlag = null, gameContext = null
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={handleClose}>
-      <div className={styles.feedbackModal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
+    <div className={modalsStyles.modalOverlay} onClick={handleClose}>
+      <div className={modalsStyles.feedbackModal} onClick={(e) => e.stopPropagation()}>
+        <div className={modalsStyles.modalHeader}>
           <h2>📝 Send Feedback</h2>
           <button 
-            className={styles.closeButton}
+            className={modalsStyles.closeButton}
             onClick={handleClose}
             disabled={isSubmitting}
             aria-label="Close feedback modal"
@@ -104,23 +105,23 @@ const FeedbackModal = ({ isOpen, onClose, currentFlag = null, gameContext = null
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className={styles.feedbackForm}>
+        <form onSubmit={handleSubmit} className={modalsStyles.feedbackForm}>
           {/* Category Selection */}
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Category *</label>
-            <div className={styles.categoryGrid}>
+          <div className={modalsStyles.formGroup}>
+            <label className={modalsStyles.formLabel}>Category *</label>
+            <div className={modalsStyles.categoryGrid}>
               {categories.map((cat) => (
                 <button
                   key={cat.value}
                   type="button"
-                  className={`${styles.categoryButton} ${category === cat.value ? styles.selectedCategory : ''}`}
+                  className={`${modalsStyles.categoryButton} ${category === cat.value ? modalsStyles.selectedCategory : ''}`}
                   onClick={() => setCategory(cat.value)}
                   disabled={isSubmitting}
                 >
-                  <div className={styles.categoryIcon}>{cat.label.split(' ')[0]}</div>
-                  <div className={styles.categoryContent}>
-                    <div className={styles.categoryLabel}>{cat.label.split(' ').slice(1).join(' ')}</div>
-                    <div className={styles.categoryDescription}>{cat.description}</div>
+                  <div className={modalsStyles.categoryIcon}>{cat.label.split(' ')[0]}</div>
+                  <div className={modalsStyles.categoryContent}>
+                    <div className={modalsStyles.categoryLabel}>{cat.label.split(' ').slice(1).join(' ')}</div>
+                    <div className={modalsStyles.categoryDescription}>{cat.description}</div>
                   </div>
                 </button>
               ))}
@@ -128,58 +129,58 @@ const FeedbackModal = ({ isOpen, onClose, currentFlag = null, gameContext = null
           </div>
 
           {/* Description */}
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Your Feedback *</label>
+          <div className={modalsStyles.formGroup}>
+            <label className={modalsStyles.formLabel}>Your Feedback *</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Tell us what you think, report an issue, or suggest improvements..."
-              className={styles.formTextarea}
+              className={modalsStyles.formTextarea}
               rows={5}
               disabled={isSubmitting}
               maxLength={1000}
             />
-            <div className={styles.charCount}>
+            <div className={modalsStyles.charCount}>
               {description.length}/1000 characters
             </div>
           </div>
 
           {/* Email (Optional) */}
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>Email (Optional)</label>
+          <div className={modalsStyles.formGroup}>
+            <label className={modalsStyles.formLabel}>Email (Optional)</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your.email@example.com"
-              className={styles.formInput}
+              className={modalsStyles.formInput}
               disabled={isSubmitting}
             />
-            <div className={styles.formHelp}>
+            <div className={modalsStyles.formHelp}>
               We'll only use this to follow up on your feedback if needed
             </div>
           </div>
 
           {/* Submit Message */}
           {submitMessage && (
-            <div className={`${styles.submitMessage} ${submitMessage.includes('Thank you') ? styles.success : styles.error}`}>
+            <div className={`${modalsStyles.submitMessage} ${submitMessage.includes('Thank you') ? modalsStyles.success : modalsStyles.error}`}>
               {submitMessage}
             </div>
           )}
 
           {/* Form Actions */}
-          <div className={styles.formActions}>
+          <div className={modalsStyles.formActions}>
             <button
               type="button"
               onClick={handleClose}
-              className={`${styles.button} ${styles.secondaryButton}`}
+              className={`${sharedStyles.button} ${sharedStyles.secondaryButton}`}
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className={`${styles.button} ${styles.mainButton}`}
+              className={`${sharedStyles.button} ${modalsStyles.mainButton}`}
               disabled={isSubmitting || !category || !description}
             >
               {isSubmitting ? 'Sending...' : 'Send Feedback'}

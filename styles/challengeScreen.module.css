@@ -1,0 +1,828 @@
+/* CHALLENGE SCREEN MODULE CSS */
+/* Styles for the ChallengeScreen component */
+/* Extracted from game.module.css */
+
+.challengeCompletedMessage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.15),
+    rgba(108, 92, 231, 0.05)
+  );
+  border: 1px solid rgba(108, 92, 231, 0.3);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+.challengeCompletedIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  border-radius: 50%;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Challenge Screen Styles */
+.challengeScreen {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding-top: 120px; /* Space for floating menu */
+  padding-bottom: 40px;
+}
+
+.challengeContent {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  justify-content: flex-start;
+  padding-bottom: 120px; /* Space for fixed buttons at bottom */
+}
+
+/* Unified Challenge Info Card */
+.challengeInfoCard {
+  background: linear-gradient(
+    135deg,
+    rgba(21, 21, 21, 0.9),
+    rgba(15, 15, 15, 0.7)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 16px 20px;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  backdrop-filter: blur(15px);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.challengeInfoCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.4),
+    rgba(108, 92, 231, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.challengeInfoLayout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.challengeInfoLeft {
+  flex: 0 0 33.333%;
+  max-width: 33.333%;
+}
+
+.challengeInfoHeader {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(108, 92, 231, 0.2);
+}
+
+.challengeInfoMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.challengeCreatedText {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.challengeExpiresText {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+/* Compact Challenge Info Card */
+.challengeInfoCardCompact {
+  background: linear-gradient(
+    135deg,
+    rgba(21, 21, 21, 0.9),
+    rgba(15, 15, 15, 0.7)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 1rem;
+  width: 100%;
+  backdrop-filter: blur(15px);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.challengeInfoContentWrapper {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.challengeInfoContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.challengeInfoMetaCompact {
+  margin-bottom: 0;
+}
+
+.challengeFlagPreview {
+  flex-shrink: 0;
+  width: 80px;
+  min-height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid rgba(108, 92, 231, 0.3);
+  background: rgba(108, 92, 231, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  align-self: stretch;
+}
+
+.flagPreviewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.flagPreviewLoading {
+  font-size: 10px;
+  color: var(--text-secondary);
+  padding: 8px;
+}
+
+.challengeCreatedTextCompact {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.challengeSettingsPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.settingPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(108, 92, 231, 0.15);
+  border: 1px solid rgba(108, 92, 231, 0.2);
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.settingPillLabel {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.settingPillValue {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.challengeCreator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.challengeCreatorIcon {
+  font-size: 16px;
+  opacity: 0.7;
+}
+
+.challengeCreatorName {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.challengeDateInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.challengeDateIcon {
+  font-size: 16px;
+  opacity: 0.7;
+}
+
+.challengeDateText {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.challengeSettingsContainer {
+  flex: 0 0 66.666%;
+  max-width: 66.666%;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 16px;
+}
+
+.challengeSettingsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: auto;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.settingTopRow {
+  grid-column: span 3;
+}
+
+.settingBottomRow {
+  grid-column: span 2;
+}
+
+.settingFullWidth {
+  grid-column: span 6;
+}
+
+.settingLarge {
+  grid-column: span 4;
+}
+
+.settingMedium {
+  grid-column: span 3;
+}
+
+.settingSmall {
+  grid-column: span 2;
+}
+
+.settingItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(21, 21, 21, 0.8),
+    rgba(15, 15, 15, 0.6)
+  );
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.settingItem::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.settingItem:hover::before {
+  left: 100%;
+}
+
+.settingItem:hover {
+  transform: translateY(-2px);
+  border-color: rgba(108, 92, 231, 0.3);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.15);
+}
+
+.settingItem .settingLabel {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
+}
+
+.settingValue {
+  font-size: 15px;
+  color: #ffffff;
+  font-weight: 600;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 50%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.challengeLeaderboard {
+  margin-bottom: 2rem;
+  margin-top: 0.5rem;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 500px); /* Adjust based on other content height */
+  min-height: 400px; /* Ensure enough height to show empty rows */
+}
+
+.emptyLeaderboard {
+  text-align: center;
+}
+
+.emptyLeaderboard p {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.leaderboardColumns {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(21, 21, 21, 0.9),
+    rgba(15, 15, 15, 0.7)
+  );
+  border-radius: 18px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  position: relative;
+  max-height: 100%;
+  mask-image: linear-gradient(to bottom, black 0%, black 75%, transparent 100%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 75%,
+    transparent 100%
+  );
+}
+
+.leaderboardColumns::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.4),
+    rgba(108, 92, 231, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.leaderboardHeader {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px 100px 100px;
+  gap: 16px;
+  padding: 14px 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.15),
+    rgba(108, 92, 231, 0.05)
+  );
+  border-bottom: 1px solid rgba(108, 92, 231, 0.2);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.leaderboardRow {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px 100px 100px;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.leaderboardRow:hover {
+  background: rgba(108, 92, 231, 0.1);
+  transform: translateX(4px);
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.1);
+}
+
+.leaderboardRow:first-of-type {
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.2),
+    rgba(108, 92, 231, 0.1)
+  );
+  border-left: 3px solid rgba(108, 92, 231, 0.6);
+  box-shadow: 0 0 15px rgba(108, 92, 231, 0.2);
+}
+
+.leaderboardRow:nth-of-type(2) {
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.12),
+    rgba(108, 92, 231, 0.06)
+  );
+  border-left: 2px solid rgba(108, 92, 231, 0.4);
+}
+
+.leaderboardRow:nth-of-type(3) {
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.1),
+    rgba(108, 92, 231, 0.05)
+  );
+  border-left: 2px solid rgba(108, 92, 231, 0.3);
+}
+
+/* Subtle highlight for current session's row - just a lighter border */
+.leaderboardRowCurrent {
+  border-left: 2px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Override first-of-type styles when it's also current session */
+.leaderboardRowCurrent:first-of-type {
+  border-left: 3px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+.leaderboardRowEmpty {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px 100px 100px;
+  gap: 16px;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.colRank {
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+}
+
+.leaderboardRow:first-of-type .colRank::before {
+  content: "🥇 ";
+  margin-right: 4px;
+}
+
+.leaderboardRow:nth-of-type(2) .colRank::before {
+  content: "🥈 ";
+  margin-right: 4px;
+}
+
+.leaderboardRow:nth-of-type(3) .colRank::before {
+  content: "🥉 ";
+  margin-right: 4px;
+}
+
+.colName {
+  font-weight: 500;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+}
+
+.colScore {
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.colAccuracy {
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 14px;
+}
+
+.colTime {
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 14px;
+}
+
+.challengeScreen .challengeActions,
+.challengeContent .challengeActions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 20px;
+  background: transparent;
+  z-index: 100;
+}
+
+/* Mobile Responsive for Challenge Screen */
+@media screen and (max-width: 770px) {
+  .challengeScreen {
+    padding: 1rem;
+    padding-top: 100px;
+    padding-bottom: 20px;
+  }
+
+  .challengeInfoCard {
+    padding: 14px 16px;
+  }
+
+  .challengeInfoCardCompact {
+    padding: 10px 12px;
+    margin-bottom: 0.75rem;
+  }
+
+  .challengeInfoContentWrapper {
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .challengeFlagPreview {
+    width: 60px;
+    min-height: auto;
+  }
+
+  .challengeCreatedTextCompact {
+    font-size: 11px;
+  }
+
+  .challengeSettingsPills {
+    gap: 6px;
+  }
+
+  .settingPill {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+
+  .challengeInfoLayout {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .challengeInfoLeft {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .challengeSettingsContainer {
+    flex: 1 1 100%;
+    max-width: 100%;
+    width: 100%;
+    justify-content: flex-start;
+    padding-right: 0;
+  }
+
+  .challengeInfoMeta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .challengeSettingsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .settingTopRow,
+  .settingBottomRow,
+  .settingLarge,
+  .settingMedium,
+  .settingSmall {
+    grid-column: span 1;
+    width: 100%;
+  }
+
+  .settingFullWidth {
+    grid-column: span 2;
+    width: 100%;
+  }
+
+  .settingItem {
+    padding: 8px 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .leaderboardHeader,
+  .leaderboardRow,
+  .leaderboardRowEmpty {
+    grid-template-columns: 50px 1fr 80px 80px 80px;
+    gap: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+
+  .colRank,
+  .colName,
+  .colScore,
+  .colAccuracy,
+  .colTime {
+    font-size: 12px;
+  }
+
+  .challengeScreen .challengeActions,
+  .challengeContent .challengeActions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .challengeScreen .challengeActions .button,
+  .challengeContent .challengeActions .button {
+    min-width: auto;
+    box-sizing: border-box;
+  }
+
+  .challengeScreen .challengeActions .mainButton,
+  .challengeContent .challengeActions .mainButton {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+
+  .challengeScreen .challengeActions .secondaryButton,
+  .challengeContent .challengeActions .secondaryButton {
+    flex: 0 0 calc(50% - 6px);
+    width: calc(50% - 6px);
+    min-width: 0;
+  }
+
+  .challengeContent {
+    padding-bottom: 140px; /* More space on mobile for wrapped buttons */
+  }
+
+  .challengeLeaderboard {
+    max-height: calc(100vh - 400px);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .challengeScreen {
+    padding: 0.5rem;
+    padding-top: 90px;
+    padding-bottom: 20px;
+  }
+
+  .challengeScreen .challengeActions,
+  .challengeContent .challengeActions {
+    padding: 12px;
+  }
+
+  .challengeContent {
+    padding-bottom: 160px; /* Even more space on small mobile for stacked buttons */
+  }
+
+  .challengeLeaderboard {
+    max-height: calc(100vh - 380px);
+  }
+
+  .challengeInfoCard {
+    padding: 12px;
+  }
+
+  .challengeInfoCardCompact {
+    padding: 8px 10px;
+    margin-bottom: 0.5rem;
+  }
+
+  .challengeInfoContentWrapper {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .challengeFlagPreview {
+    width: 50px;
+    min-height: auto;
+  }
+
+  .challengeCreatedTextCompact {
+    font-size: 10px;
+  }
+
+  .challengeSettingsPills {
+    gap: 4px;
+  }
+
+  .settingPill {
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+
+  .challengeSettingsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .leaderboardHeader,
+  .leaderboardRow,
+  .leaderboardRowEmpty {
+    grid-template-columns: 40px 1fr 70px 70px 70px;
+    gap: 6px;
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+
+  .colRank,
+  .colName,
+  .colScore,
+  .colAccuracy,
+  .colTime {
+    font-size: 11px;
+  }
+
+  .challengeCompletedMessage {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .challengeCompletedIcon {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+}
+
+

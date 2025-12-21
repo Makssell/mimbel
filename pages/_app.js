@@ -1,13 +1,7 @@
-// pages/_app.js
-import '../styles/globals.css'; // Import global styles (if you have them)
-import Navbar from '../components/Navbar'; // Import your common Navbar (optional)
+import '../styles/globals.css';
 
-function MyApp({ Component, pageProps }) {
-  return (
-    <div>
-      <Component {...pageProps} /> {/* This renders the specific page component */}
-    </div>
-  );
+export default function App({ Component, pageProps }) {
+  return <Component {...pageProps} />;
 }
 
-export default MyApp;
+

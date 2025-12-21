@@ -1,28 +1,35 @@
 import React from 'react';
-import styles from '../styles/site1.module.css';
+import sharedStyles from '../styles/shared.module.css';
 
 const ActionButton = ({ 
   children, 
   onClick, 
   disabled = false, 
-  variant = 'primary', // 'primary', 'secondary'
-  className = ''
+  variant = 'primary', // 'primary', 'secondary', 'danger'
+  loading = false,
+  className = '',
+  ...props
 }) => {
-  const getButtonClass = () => {
-    const baseClass = styles.button;
-    const variantClass = variant === 'primary' ? styles.mainButton : styles.secondaryButton;
-    return `${baseClass} ${variantClass} ${className}`.trim();
-  };
+  const buttonClass = [
+    variant === 'primary' ? sharedStyles.mainButton : sharedStyles.secondaryButton,
+    className
+  ].filter(Boolean).join(' ');
 
   return (
     <button
-      className={getButtonClass()}
+      className={buttonClass}
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || loading}
+      {...props}
     >
-      {children}
+      {loading ? (
+        <span className={sharedStyles.loadingSpinner}></span>
+      ) : (
+        children
+      )}
     </button>
   );
 };
 
-export default ActionButton; 
+export default ActionButton;
+

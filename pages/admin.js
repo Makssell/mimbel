@@ -82,7 +82,7 @@ const AdminPage = () => {
   const [editingContinent, setEditingContinent] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddContinentForm, setShowAddContinentForm] = useState(false);
-  const [activeTab, setActiveTab] = useState('flags'); // 'flags', 'continents', 'regional-countries', 'division-types', 'regional-flags', 'feedback'
+  const [activeTab, setActiveTab] = useState('flags'); // 'flags', 'continents', 'regional-countries', 'division-types', 'regional-flags', 'feedback', 'challenges'
   const [newFlag, setNewFlag] = useState({
     name: '',
     territory: false,
@@ -137,6 +137,11 @@ const AdminPage = () => {
   const [feedbackStatusFilter, setFeedbackStatusFilter] = useState('all');
   const [feedbackCategoryFilter, setFeedbackCategoryFilter] = useState('all');
 
+  // Challenges management states
+  const [challenges, setChallenges] = useState([]);
+  const [challengeSearchTerm, setChallengeSearchTerm] = useState('');
+  const [challengeStatusFilter, setChallengeStatusFilter] = useState('all'); // 'all', 'active', 'expired'
+
   // JWT token for API requests
   const [authToken, setAuthToken] = useState('');
 
@@ -146,6 +151,7 @@ const AdminPage = () => {
       fetchContinents();
       fetchRegionalCountries();
       fetchFeedback();
+      fetchChallenges();
     }
   }, [isAuthenticated]);
 
@@ -234,6 +240,23 @@ const AdminPage = () => {
       const matchesCategory = feedbackCategoryFilter === 'all' || item.category === feedbackCategoryFilter;
       
       return matchesSearch && matchesStatus && matchesCategory;
+    })
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  // Filter challenges
+  const filteredChallenges = challenges
+    .filter(challenge => {
+      // Search filter
+      const matchesSearch = !challengeSearchTerm || 
+        challenge.challenge_code.toLowerCase().includes(challengeSearchTerm.toLowerCase()) ||
+        JSON.stringify(challenge.game_settings || {}).toLowerCase().includes(challengeSearchTerm.toLowerCase());
+      
+      // Status filter
+      const matchesStatus = challengeStatusFilter === 'all' || 
+        (challengeStatusFilter === 'active' && challenge.is_active) ||
+        (challengeStatusFilter === 'expired' && !challenge.is_active);
+      
+      return matchesSearch && matchesStatus;
     })
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
@@ -373,6 +396,50 @@ const AdminPage = () => {
       setFeedback(data || []);
     } catch (error) {
       setMessage('Error fetching feedback: ' + error.message);
+    }
+  };
+
+  // Challenges management API functions
+  const fetchChallenges = async () => {
+    try {
+      const response = await fetch('/api/admin/challenges', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch challenges');
+      
+      const data = await response.json();
+      setChallenges(data || []);
+    } catch (error) {
+      setMessage('Error fetching challenges: ' + error.message);
+    }
+  };
+
+  const handleDeleteChallenge = async (challengeId) => {
+    if (!confirm('Are you sure you want to delete this challenge? This will also delete all its results.')) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/admin/challenges?id=${challengeId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete challenge');
+      }
+
+      setMessage('Challenge deleted successfully!');
+      fetchChallenges();
+    } catch (error) {
+      setMessage('Error deleting challenge: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1111,6 +1178,11 @@ const AdminPage = () => {
     setFeedbackSearchTerm('');
     setFeedbackStatusFilter('all');
     setFeedbackCategoryFilter('all');
+    
+    // Reset challenges states
+    setChallenges([]);
+    setChallengeSearchTerm('');
+    setChallengeStatusFilter('all');
   };
 
   if (!isAuthenticated) {
@@ -1183,6 +1255,12 @@ const AdminPage = () => {
           onClick={() => setActiveTab('feedback')}
         >
           Feedback ({filteredFeedback.length}/{feedback.length})
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'challenges' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('challenges')}
+        >
+          Challenges ({filteredChallenges.length}/{challenges.length})
         </button>
       </div>
 
@@ -2172,6 +2250,161 @@ const AdminPage = () => {
                 {filteredFeedback.length === 0 && (
                   <div className={styles.noResults}>
                     No feedback found matching your filters.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {activeTab === 'challenges' && (
+        <>
+          <div className={styles.flagsList}>
+            <div className={styles.filtersSection}>
+              <div className={styles.filtersRow}>
+                <input
+                  type="text"
+                  placeholder="Search challenges by code or settings..."
+                  value={challengeSearchTerm}
+                  onChange={(e) => setChallengeSearchTerm(e.target.value)}
+                  className={styles.searchInput}
+                />
+                <select
+                  value={challengeStatusFilter}
+                  onChange={(e) => setChallengeStatusFilter(e.target.value)}
+                  className={styles.filterSelect}
+                >
+                  <option value="all">All Challenges</option>
+                  <option value="active">Active Only</option>
+                  <option value="expired">Expired Only</option>
+                </select>
+              </div>
+              <div className={styles.filterStats}>
+                Showing {filteredChallenges.length} of {challenges.length} challenges
+                {challengeSearchTerm && ` matching "${challengeSearchTerm}"`}
+              </div>
+            </div>
+
+            <h2>Challenges</h2>
+            {loading ? (
+              <div className={styles.loading}>Loading...</div>
+            ) : (
+              <div className={styles.challengesContainer}>
+                {filteredChallenges.map(challenge => {
+                  const settings = challenge.game_settings || {};
+                  const createdDate = new Date(challenge.created_at);
+                  const expiresDate = new Date(challenge.expires_at);
+                  const now = new Date();
+                  const isExpired = now > expiresDate;
+                  const daysUntilExpiry = Math.ceil((expiresDate - now) / (1000 * 60 * 60 * 24));
+                  
+                  return (
+                    <div key={challenge.id} className={styles.challengeCard}>
+                      <div className={styles.challengeHeader}>
+                        <div className={styles.challengeMeta}>
+                          <h3>Code: {challenge.challenge_code}</h3>
+                          <span className={`${styles.statusBadge} ${isExpired ? styles.statusClosed : styles.statusNew}`}>
+                            {isExpired ? 'Expired' : 'Active'}
+                          </span>
+                          {!isExpired && (
+                            <span className={styles.dateBadge}>
+                              Expires in {daysUntilExpiry} day{daysUntilExpiry !== 1 ? 's' : ''}
+                            </span>
+                          )}
+                        </div>
+                        <div className={styles.challengeActions}>
+                          <button
+                            onClick={() => {
+                              const url = `${window.location.origin}/?challenge=${challenge.challenge_code}`;
+                              navigator.clipboard.writeText(url);
+                              setMessage('Challenge URL copied to clipboard!');
+                              setTimeout(() => setMessage(''), 3000);
+                            }}
+                            className={styles.button}
+                            style={{ marginRight: '10px' }}
+                          >
+                            Copy URL
+                          </button>
+                          <button
+                            onClick={() => handleDeleteChallenge(challenge.id)}
+                            className={styles.deleteButton}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.challengeContent}>
+                        <div className={styles.challengeInfo}>
+                          <div className={styles.infoRow}>
+                            <strong>Created:</strong> {createdDate.toLocaleString()}
+                          </div>
+                          <div className={styles.infoRow}>
+                            <strong>Expires:</strong> {expiresDate.toLocaleString()}
+                          </div>
+                          <div className={styles.infoRow}>
+                            <strong>Results:</strong> {challenge.result_count || 0} submission{challenge.result_count !== 1 ? 's' : ''}
+                          </div>
+                        </div>
+                        
+                        <div className={styles.challengeSettings}>
+                          <h4>Game Settings:</h4>
+                          <div className={styles.settingsGrid}>
+                            {settings.gameMode && (
+                              <div className={styles.settingItem}>
+                                <strong>Game Mode:</strong> {settings.gameMode}
+                              </div>
+                            )}
+                            {settings.gameType && (
+                              <div className={styles.settingItem}>
+                                <strong>Game Type:</strong> {settings.gameType}
+                              </div>
+                            )}
+                            {settings.country && (
+                              <div className={styles.settingItem}>
+                                <strong>Country:</strong> {settings.country}
+                              </div>
+                            )}
+                            {settings.region && (
+                              <div className={styles.settingItem}>
+                                <strong>Region:</strong> {settings.region}
+                              </div>
+                            )}
+                            {settings.territories !== undefined && (
+                              <div className={styles.settingItem}>
+                                <strong>Territories:</strong> {settings.territories ? 'Yes' : 'No'}
+                              </div>
+                            )}
+                            {settings.mode && (
+                              <div className={styles.settingItem}>
+                                <strong>Mode:</strong> {settings.mode}
+                              </div>
+                            )}
+                            {settings.difficulty && (
+                              <div className={styles.settingItem}>
+                                <strong>Difficulty:</strong> {settings.difficulty}
+                              </div>
+                            )}
+                            {settings.timeLimit && (
+                              <div className={styles.settingItem}>
+                                <strong>Time Limit:</strong> {Math.floor(settings.timeLimit / 1000)}s
+                              </div>
+                            )}
+                            {settings.totalQuestions && (
+                              <div className={styles.settingItem}>
+                                <strong>Total Questions:</strong> {settings.totalQuestions}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+                {filteredChallenges.length === 0 && (
+                  <div className={styles.noResults}>
+                    No challenges found matching your filters.
                   </div>
                 )}
               </div>

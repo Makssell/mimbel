@@ -1,16 +1,20 @@
-import styles from '../styles/site1.module.css';
+import React from 'react';
+import startScreenStyles from '../styles/startScreen.module.css';
 
 const ContinentButton = ({ 
   label, 
-  value, 
   isSelected, 
   onClick 
 }) => {
+  const buttonClass = [
+    startScreenStyles.continentButton,
+    isSelected ? startScreenStyles.selectedContinent : ''
+  ].filter(Boolean).join(' ');
+
   return (
     <button
-      className={`${styles.continentButton} ${isSelected ? styles.selectedContinent : ''}`}
+      className={buttonClass}
       onClick={onClick}
-      aria-label={label}
     >
       {label}
     </button>
@@ -19,4 +23,3 @@ const ContinentButton = ({
 
 export default ContinentButton;
 
- 

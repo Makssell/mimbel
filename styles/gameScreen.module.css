@@ -1,0 +1,1098 @@
+/* GAME SCREEN MODULE CSS */
+/* Styles for the GameScreen component */
+/* Extracted from game.module.css */
+
+/* Game wrapper - controls fullscreen vs minimized layout */
+.gameWrapper {
+  width: 100%;
+  min-height: 100vh;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gameWrapper.minimized {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.gameWrapper.minimized .flagContainer,
+.gameWrapper.minimized .optionsContainer {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gameWrapper.minimized .flagContainer {
+  height: 400px;
+  min-height: 400px;
+  max-height: 400px;
+  margin-top: 65px;
+  margin-bottom: 20px;
+}
+
+.gameWrapper.minimized .optionsContainer {
+  height: auto;
+  min-height: 300px;
+  max-height: 400px;
+}
+
+/* Game info (score and health) */
+.gameInfo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(21, 21, 21, 0.85);
+  color: var(--text-primary);
+  padding: 12px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  height: 65px;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.gameInfo::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(108, 92, 231, 0.3) 50%,
+    transparent 100%
+  );
+}
+
+.score {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: rgba(108, 92, 231, 0.1);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(108, 92, 231, 0.2);
+  transition: all 0.3s ease;
+}
+
+.score::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.5),
+    rgba(108, 92, 231, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.scoreLabel {
+  opacity: 0.7;
+  margin-right: 6px;
+  font-size: 0.9em;
+  background: linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.scoreValue {
+  background: linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: inline-block;
+}
+
+.scoreValue.increase {
+  animation: scoreGlow 0.5s ease-out;
+}
+
+@keyframes scoreGlow {
+  0% {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(108, 92, 231, 0.5);
+  }
+  100% {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Timer styles for Time Attack mode */
+.timer {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: rgba(255, 193, 7, 0.1);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.timer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 193, 7, 0.5),
+    rgba(255, 193, 7, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.timerLabel {
+  opacity: 0.7;
+  font-size: 0.9em;
+  background: linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.timerValue {
+  background: linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: inline-block;
+  font-weight: 700;
+}
+
+.timerWarning {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  animation: timerPulse 1s ease-in-out infinite;
+}
+
+.timerCritical {
+  background: linear-gradient(135deg, #ff0000 0%, #ff4444 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  animation: timerCriticalPulse 0.5s ease-in-out infinite;
+  font-weight: 900 !important;
+}
+
+.timerCountdown {
+  font-size: 16px;
+  margin-left: 8px;
+  animation: countdownBlink 0.5s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+  0%,
+  100% {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+  }
+}
+
+@keyframes timerCriticalPulse {
+  0%,
+  100% {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: scale(1);
+  }
+  50% {
+    text-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+    transform: scale(1.1);
+  }
+}
+
+@keyframes countdownBlink {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+.health {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  position: relative;
+}
+
+/* Game controls container (for toggle and end buttons) */
+.gameControls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* View toggle button */
+.viewToggleButton {
+  background: rgba(108, 92, 231, 0.2);
+  color: #ffffff;
+  font-size: 18px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(108, 92, 231, 0.3);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-weight: 600;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.viewToggleButton:hover {
+  background: rgba(108, 92, 231, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+}
+
+.viewToggleButton:active {
+  transform: translateY(0);
+}
+
+.health span {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.heart {
+  font-size: 20px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  display: inline-block;
+}
+
+.heart::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(108, 92, 231, 0.1);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.activeHeart {
+  color: #6c5ce7;
+  animation: floatGlobe 2s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
+}
+
+.activeHeart::before {
+  opacity: 1;
+  animation: pulseGlobe 2s ease-in-out infinite;
+  background: rgba(108, 92, 231, 0.15);
+}
+
+.inactiveHeart {
+  color: rgba(102, 102, 102, 0.2);
+  transform: scale(0.9);
+  filter: blur(0.5px);
+}
+
+.inactiveHeart::before {
+  background: rgba(102, 102, 102, 0.1);
+}
+
+@keyframes floatGlobe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes pulseGlobe {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.2;
+  }
+}
+
+/* Flag container */
+.flagContainer {
+  width: 100%;
+  height: calc(50vh - 65px);
+  min-height: calc(50vh - 65px);
+  max-height: calc(50vh - 65px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 65px;
+  background: rgba(21, 21, 21, 0.7);
+  padding: 20px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.flagImage {
+  max-height: calc(100% - 40px);
+  max-width: calc(100% - 40px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transition: opacity 0.3s ease;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  position: relative;
+  display: block;
+  margin: 0 auto;
+}
+
+.flagImage:hover {
+  transform: scale(1.02);
+}
+
+/* Options container */
+.optionsContainer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+  height: calc(50vh - 20px);
+  padding: 20px;
+  background: rgba(21, 21, 21, 0.7);
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Options container for typing mode - single column layout */
+.optionsContainer:has(.typingInputContainer) {
+  display: flex;
+  grid-template-columns: none;
+  grid-template-rows: none;
+  align-items: center;
+  justify-content: center;
+  height: calc(50vh - 20px); /* Match the height of multiple choice buttons */
+  min-height: 200px;
+}
+
+.guessButton {
+  background: rgba(21, 21, 21, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: clamp(18px, 2.5vw, 24px);
+  font-weight: 500;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  word-wrap: break-word;
+  overflow: hidden;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
+}
+
+.guessButton:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-color);
+  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.2);
+}
+
+.guessButton:active {
+  transform: translateY(1px);
+}
+
+.flagGuessButton {
+  background: rgba(21, 21, 21, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: clamp(18px, 2.5vw, 24px);
+  font-weight: 500;
+  width: 100%;
+  height: 100%;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  word-wrap: break-word;
+  overflow: hidden;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.flagGuessButton.correctButton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(46, 204, 113, 0.45); /* green overlay */
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  transition: background 0.2s;
+}
+
+.flagGuessButton.incorrectButton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(231, 76, 60, 0.45); /* red overlay */
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  transition: background 0.2s;
+}
+
+.flagGuessButton:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-color);
+  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.2);
+}
+
+.flagGuessButton:active {
+  transform: translateY(1px);
+}
+
+.flagGuessButton img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  transition: all 0.3s ease, opacity 0.2s ease-in-out;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px;
+  box-sizing: border-box;
+  /* Prevent layout shifts during loading */
+  min-height: 60px;
+  /* Optimize rendering */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.flagGuessButton:hover img {
+  transform: scale(1.05);
+}
+
+.flagLoadingSpinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid #6c5ce7;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Loading placeholder for flag buttons */
+.flagLoadingPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1) 25%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.correctButton {
+  background: linear-gradient(145deg, #00c49a 0%, #00a884 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 6px 20px rgba(0, 196, 154, 0.3) !important;
+}
+
+.incorrectButton {
+  background: linear-gradient(145deg, #ff4c4c 0%, #ff3333 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 6px 20px rgba(255, 76, 76, 0.3) !important;
+}
+
+.skipButton {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffffff;
+  font-size: 16px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.skipButton:hover {
+  background: rgba(255, 193, 7, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+}
+
+.flagErrorPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  gap: 8px;
+}
+
+.flagErrorText {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4px;
+}
+
+.message {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(21, 21, 21, 0.7);
+  color: var(--text-primary);
+  padding: 15px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s ease-out;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.gameOver {
+  color: #ff4c4c;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 76, 76, 0.1) 0%,
+    rgba(255, 51, 51, 0.1) 100%
+  );
+  font-weight: 700;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 76, 76, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 76, 76, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 76, 76, 0);
+  }
+}
+
+/* Loading spinner - positioned absolutely within flagContainer */
+.flagContainer .loadingSpinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #4361ee;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0;
+  z-index: 1;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Country text animation for country-to-flag mode */
+.countryText {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  margin: 0;
+  box-sizing: border-box;
+  animation: countryTextAppear 0.6s ease-out;
+  position: relative;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+@keyframes countryTextAppear {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Transition classes for smooth animations */
+.transitioning {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Flag → Country/Region Mode Animations */
+.flagContainer.transitioning {
+  opacity: 0.6;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flagImage.transitioning {
+  opacity: 0;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Country/Region → Flag Mode Animations */
+.countryText.transitioning {
+  opacity: 0;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Flag → Country/Region: Smooth fade for answer buttons */
+.guessButton.transitioning {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Country/Region → Flag: Simple fade for flag buttons */
+.flagGuessButton.transitioning {
+  opacity: 0;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flagGuessButton.transitioning img {
+  opacity: 0;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.optionsContainer.transitioning {
+  opacity: 0.6;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Typing input container */
+.typingInputContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100%; /* Take up full height of parent container */
+}
+
+.typingInput {
+  width: 100%;
+  padding: 20px 24px;
+  background: rgba(21, 21, 21, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  color: var(--text-primary);
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.typingInput::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 400;
+}
+
+.typingInput:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  background: rgba(21, 21, 21, 0.8);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2),
+    0 8px 20px rgba(108, 92, 231, 0.15);
+  transform: translateY(-2px);
+}
+
+.typingInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.typingInput.transitioning {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Correct answer styling for typing input */
+.correctInput {
+  background: linear-gradient(145deg, #00c49a 0%, #00a884 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 6px 20px rgba(0, 196, 154, 0.3) !important;
+}
+
+.correctInput::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Incorrect answer styling for typing input */
+.incorrectInput {
+  background: linear-gradient(145deg, #ff4c4c 0%, #ff3333 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 6px 20px rgba(255, 76, 76, 0.3) !important;
+}
+
+.incorrectInput::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.submitButton {
+  padding: 16px 48px;
+  background: rgba(108, 92, 231, 0.2);
+  border: 2px solid rgba(108, 92, 231, 0.3);
+  border-radius: 12px;
+  color: var(--accent-color);
+  font-size: clamp(18px, 2vw, 22px);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.submitButton:hover:not(:disabled) {
+  background: rgba(108, 92, 231, 0.3);
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.25);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.message.transitioning {
+  opacity: 0.6;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animation classes for smooth transitions */
+.optionsTransition {
+  animation: optionsSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.optionsTransition:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.optionsTransition:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.optionsTransition:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.optionsTransition:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+@keyframes optionsSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Preload indicator */
+.preloadIndicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(108, 92, 231, 0.9);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(108, 92, 231, 0.3);
+  z-index: 1000;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.endGameButton {
+  background: rgba(255, 76, 76, 0.2);
+  color: #ffffff;
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 76, 76, 0.3);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.endGameButton:hover {
+  background: rgba(255, 76, 76, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 76, 76, 0.3);
+}
+
+.flagErrorActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.flagErrorActions .skipButton {
+  font-size: 12px;
+  padding: 6px 12px;
+  min-width: auto;
+  height: auto;
+}
+
+.retryButton {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+}
+
+.retryButton:hover {
+  color: #6c5ce7;
+  background: rgba(108, 92, 231, 0.1);
+  transform: scale(1.1);
+}
+
+.retryButton:active {
+  transform: scale(0.95);
+}
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 750px) {
+  .heart {
+    font-size: 20px;
+  }
+
+  .gameInfo {
+    padding: 8px 20px;
+    height: 55px;
+  }
+
+  .score {
+    font-size: 16px;
+    padding: 4px 10px;
+  }
+
+  .endGameButton {
+    font-size: 12px;
+    padding: 6px 12px;
+    min-width: 60px;
+  }
+
+  .flagContainer {
+    height: calc(50vh - 50px);
+    min-height: calc(50vh - 50px);
+    max-height: calc(50vh - 50px);
+    margin-top: 50px;
+    padding: 10px;
+  }
+
+  .optionsContainer {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .guessButton {
+    font-size: clamp(20px, 3vw, 24px);
+  }
+
+  .message {
+    padding: 12px;
+    font-size: 18px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .gameInfo {
+    padding: 8px 12px;
+    height: 45px;
+  }
+
+  .endGameButton {
+    font-size: 11px;
+    padding: 4px 8px;
+    min-width: 50px;
+  }
+
+  .heart {
+    font-size: 20px;
+  }
+
+  .flagContainer {
+    height: calc(50vh - 45px);
+    min-height: calc(50vh - 45px);
+    max-height: calc(50vh - 45px);
+    margin-top: 45px;
+    padding: 8px;
+  }
+
+  .optionsContainer {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .guessButton {
+    font-size: clamp(18px, 4vw, 24px);
+  }
+
+  .message {
+    padding: 10px;
+    font-size: 16px;
+  }
+}

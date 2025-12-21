@@ -1,0 +1,2057 @@
+/* MODALS MODULE CSS */
+/* Styles for modal components (HelpModal, GamesModal, ChallengesModal, BrowseAllCountriesModal, FeedbackModal, FloatingMenu) */
+/* Extracted from game.module.css */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.feedbackModal {
+  background: var(--card-bg);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  max-width: 600px;
+  width: 100%;
+  max-height: 70vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease-out;
+  position: relative;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 24px;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.closeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.feedbackForm {
+  padding: 0 24px 24px 24px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.formGroup {
+  margin-bottom: 24px;
+}
+
+.formLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.formInput,
+.formTextarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+
+.formInput:disabled,
+.formTextarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.charCount {
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.formHelp {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.categoryButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.categoryButton:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.categoryButton.selectedCategory {
+  border-color: var(--accent-color);
+  background: rgba(108, 92, 231, 0.1);
+}
+
+.categoryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.categoryIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.categoryContent {
+  flex: 1;
+}
+
+.categoryLabel {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.categoryDescription {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.submitMessage {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.submitMessage.success {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  color: #4caf50;
+}
+
+.submitMessage.error {
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  color: #f44336;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+/* Feedback Button Styles */
+.feedbackButton {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(108, 92, 231, 0.1);
+  border: 1px solid rgba(108, 92, 231, 0.3);
+  color: var(--accent-color);
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+.feedbackButton:hover {
+  background: rgba(108, 92, 231, 0.2);
+  border-color: rgba(108, 92, 231, 0.5);
+  transform: translateY(-1px);
+}
+
+.feedbackButton.gameInfo {
+  position: static;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  font-size: 0.7rem;
+}
+
+.feedbackButton.gameInfo:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.feedbackButton.endScreen {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  margin-top: 16px;
+}
+
+.feedbackButton.endScreen:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Floating Menu Styles */
+.floatingMenuContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.floatingMenuButton {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(21, 21, 21, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.floatingMenuButton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.3),
+    rgba(108, 92, 231, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.floatingMenuButton:hover {
+  transform: scale(1.1);
+  border-color: var(--accent-color);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.3);
+}
+
+.floatingMenuButton:hover::before {
+  opacity: 1;
+}
+
+.floatingMenuDropdown {
+  background: rgba(21, 21, 21, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  margin-top: 8px;
+  padding: 8px;
+  min-width: 160px;
+  animation: dropdownSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.floatingMenuDropdown::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.2),
+    rgba(108, 92, 231, 0.05)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.floatingMenuItem {
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.floatingMenuItem::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.1),
+    rgba(108, 92, 231, 0.05)
+  );
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.floatingMenuItem:hover {
+  background: rgba(108, 92, 231, 0.1);
+  transform: translateX(4px);
+}
+
+.floatingMenuItem:hover::before {
+  opacity: 1;
+}
+
+.floatingMenuItem:active {
+  transform: translateX(4px) scale(0.98);
+}
+
+/* Modal Styles */
+.modal {
+  background: rgba(21, 21, 21, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalForm {
+  padding: 0 24px 24px;
+}
+
+.modalContent {
+  padding: 0 24px 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.modalContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modalContent::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+  background: rgba(108, 92, 231, 0.5);
+  border-radius: 3px;
+}
+
+.modalContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(108, 92, 231, 0.7);
+}
+
+.helpSection {
+  margin-bottom: 24px;
+}
+
+.helpSection h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.helpItem {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  padding-left: 16px;
+  position: relative;
+}
+
+.helpItem::before {
+  content: "•";
+  color: var(--accent-color);
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+.settingsSection {
+  margin-bottom: 24px;
+}
+
+.settingsSection h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settingCheckbox {
+  margin-right: 12px;
+  transform: scale(1.2);
+  accent-color: var(--accent-color);
+}
+
+.settingDescription {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* Games Modal Styles */
+.gamesModalContent {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.gamesViewTabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+}
+
+.gamesViewTab {
+  flex: 1;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+  position: relative;
+}
+
+.gamesViewTab:hover {
+  background: rgba(108, 92, 231, 0.1);
+  color: var(--accent-color);
+}
+
+.gamesViewTab.activeTab {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+  background: rgba(108, 92, 231, 0.1);
+}
+
+.gamesViewContent {
+  padding: 0 20px 20px 20px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.gamesViewContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gamesViewContent::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.gamesViewContent::-webkit-scrollbar-thumb {
+  background: rgba(108, 92, 231, 0.5);
+  border-radius: 3px;
+}
+
+.gamesViewContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(108, 92, 231, 0.7);
+}
+
+.gamesModalActions {
+  display: flex;
+  justify-content: center;
+}
+
+.gamesModalActions:not(:empty) {
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Challenges Modal Styles */
+.challengesContent {
+  padding: 0 24px 24px 24px;
+}
+
+.challengesSection {
+  margin-bottom: 32px;
+}
+
+.challengesSection:last-child {
+  margin-bottom: 0;
+}
+
+.challengesSection h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(108, 92, 231, 0.2);
+}
+
+.challengesList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.challengeItem {
+  background: linear-gradient(
+    135deg,
+    rgba(21, 21, 21, 0.9),
+    rgba(15, 15, 15, 0.7)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(15px);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.challengeItem::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.4),
+    rgba(108, 92, 231, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.challengeItem:hover {
+  border-color: rgba(108, 92, 231, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.2),
+    0 0 0 1px rgba(108, 92, 231, 0.2);
+}
+
+.challengeItem:hover::before {
+  opacity: 0.6;
+}
+
+.challengeInfo {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: calc(100% - 200px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.challengeCode {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.challengeDate {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.challengeSettings {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  margin-bottom: 4px;
+}
+
+.challengeScore {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 50%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+.challengeScore::before {
+  content: "Score: ";
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.challengeItem .challengeActions,
+.challengesContent .challengeActions {
+  display: flex;
+  gap: 12px;
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  margin-left: auto;
+  position: static;
+}
+
+.challengeActions .button {
+  min-width: 100px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.challengeActions .secondaryButton {
+  background: rgba(21, 21, 21, 0.7);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.challengeActions .secondaryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.2);
+}
+
+.challengeActions .mainButton {
+  background: rgba(108, 92, 231, 0.2);
+  color: var(--text-primary);
+  border: 1px solid rgba(108, 92, 231, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.challengeActions .mainButton:hover {
+  transform: translateY(-2px);
+  background: rgba(108, 92, 231, 0.3);
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3);
+}
+
+.deleteButton {
+  background: rgba(220, 53, 69, 0.2);
+  color: #ff6b7a;
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.deleteButton:hover {
+  background: rgba(220, 53, 69, 0.3);
+  border-color: rgba(220, 53, 69, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.2);
+}
+
+/* Game History Styles */
+.gameHistoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gameHistoryContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.completedGamesSection h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Active Game Styles */
+.activeGameSection {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 193, 7, 0.1),
+    rgba(255, 193, 7, 0.05)
+  );
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.activeGameSection::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ffc107, rgba(255, 193, 7, 0.5));
+  animation: activeGamePulse 2s ease-in-out infinite;
+}
+
+@keyframes activeGamePulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.activeGameHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.activeGameHeader h3 {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.activeGameBadge {
+  background: #ffc107;
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: badgePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.activeGameItem {
+  background: rgba(21, 21, 21, 0.8);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.activeGameItem:hover {
+  border-color: rgba(255, 193, 7, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 193, 7, 0.1);
+}
+
+.activeGameMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.activeGamePrimary {
+  flex: 1;
+  min-width: 0;
+}
+
+.activeGameMode {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffc107;
+  margin-bottom: 4px;
+  text-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+}
+
+.activeGameType {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.activeGameSecondary {
+  text-align: right;
+  min-width: 120px;
+}
+
+.activeGameRegion {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.activeGamePaused {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.activeGameStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255, 193, 7, 0.2);
+  border-bottom: 1px solid rgba(255, 193, 7, 0.2);
+  margin-bottom: 16px;
+}
+
+.activeGameStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.activeGameStatValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.activeGameStatLabel {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.activeGameActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.activeGameActions .button {
+  flex: 1;
+  max-width: 120px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Game History Item Styles */
+.gameHistoryItem {
+  background: rgba(21, 21, 21, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.gameHistoryItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.1);
+}
+
+.gameHistoryMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.gameHistoryPrimary {
+  flex: 1;
+  min-width: 0;
+}
+
+.gameHistoryMode {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-bottom: 4px;
+}
+
+.gameHistoryType {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.gameHistorySecondary {
+  text-align: right;
+  min-width: 120px;
+}
+
+.gameHistoryRegion {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.gameHistoryDate {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.gameHistoryStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gameHistoryStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.gameHistoryStatValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.gameHistoryStatLabel {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Best Scores Styles */
+.bestScoresList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bestScoreItem {
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.1),
+    rgba(108, 92, 231, 0.05)
+  );
+  border: 1px solid rgba(108, 92, 231, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.bestScoreItem::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-color),
+    rgba(108, 92, 231, 0.5)
+  );
+}
+
+.bestScoreItem:hover {
+  border-color: rgba(108, 92, 231, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.2);
+}
+
+.bestScoreMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.bestScorePrimary {
+  flex: 1;
+  min-width: 0;
+}
+
+.bestScoreMode {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bestScoreBadge {
+  font-size: 16px;
+  animation: trophyGlow 2s ease-in-out infinite;
+}
+
+@keyframes trophyGlow {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3) drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
+  }
+}
+
+.bestScoreType {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.bestScoreSecondary {
+  text-align: right;
+  min-width: 120px;
+}
+
+.bestScoreRegion {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.bestScoreDate {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.bestScoreStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(108, 92, 231, 0.2);
+}
+
+.bestScoreStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.bestScoreStatValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.bestScoreStatLabel {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Territories indicators for games modal */
+.gameHistoryTerritories,
+.bestScoreTerritories,
+.activeGameTerritories {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 0.9em;
+  opacity: 0.8;
+  vertical-align: middle;
+}
+
+.gameHistoryTerritories {
+  color: var(--text-secondary);
+}
+
+.bestScoreTerritories {
+  color: var(--text-secondary);
+}
+
+.activeGameTerritories {
+  color: rgba(255, 193, 7, 0.8);
+}
+
+/* Division types indicators for games modal */
+.gameHistoryDivisionTypes,
+.bestScoreDivisionTypes,
+.activeGameDivisionTypes {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8em;
+  color: var(--text-secondary);
+  opacity: 0.9;
+  font-style: italic;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 4px;
+  border-radius: 4px;
+  border-left: 2px solid var(--accent-color);
+}
+
+.gameHistoryDivisionTypes {
+  color: var(--text-secondary);
+}
+
+.bestScoreDivisionTypes {
+  color: var(--text-secondary);
+}
+
+.activeGameDivisionTypes {
+  color: rgba(255, 193, 7, 0.7);
+}
+
+/* Browse All Modal Styles */
+.browseAllModal {
+  background: linear-gradient(
+    135deg,
+    rgba(21, 21, 21, 0.98),
+    rgba(15, 15, 15, 0.95)
+  );
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+}
+
+.browseAllModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.browseAllModalHeader h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 50%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.modalCloseButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
+}
+
+.modalCloseButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modalCloseButton:active {
+  transform: scale(0.95);
+}
+
+.browseAllModalBody {
+  padding: 0 24px 24px 24px;
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.browseAllModalBody::-webkit-scrollbar {
+  width: 8px;
+}
+
+.browseAllModalBody::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.browseAllModalBody::-webkit-scrollbar-thumb {
+  background: rgba(108, 92, 231, 0.3);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.browseAllModalBody::-webkit-scrollbar-thumb:hover {
+  background: rgba(108, 92, 231, 0.5);
+}
+
+/* Regional Country List Styles (for BrowseAllCountriesModal) */
+.regionalCountryList {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 10px;
+  max-height: 60vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(108, 92, 231, 0.3) transparent;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.regionalCountryList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.regionalCountryList::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.regionalCountryList::-webkit-scrollbar-thumb {
+  background: rgba(108, 92, 231, 0.3);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.regionalCountryList::-webkit-scrollbar-thumb:hover {
+  background: rgba(108, 92, 231, 0.5);
+}
+
+.regionalCountryItem {
+  background: rgba(21, 21, 21, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.regionalCountryItem::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.3),
+    rgba(108, 92, 231, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.regionalCountryItem:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.2);
+}
+
+.regionalCountryItem:hover::before {
+  opacity: 1;
+}
+
+.regionalCountryFlag {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.regionalCountryItem:hover .regionalCountryFlag {
+  transform: scale(1.05);
+}
+
+.regionalCountryFlagFallback {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  background: rgba(108, 92, 231, 0.1);
+  border: 2px solid rgba(108, 92, 231, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.regionalCountryItem:hover .regionalCountryFlagFallback {
+  background: rgba(108, 92, 231, 0.2);
+  border-color: rgba(108, 92, 231, 0.5);
+  transform: scale(1.05);
+}
+
+.regionalCountryInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.regionalCountryName {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.regionalCountryCount {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.regionalCountryArrow {
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.regionalCountryItem:hover .regionalCountryArrow {
+  color: var(--accent-color);
+  transform: translateX(4px);
+}
+
+/* Empty State Styles (for BrowseAllCountriesModal) */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background: rgba(21, 21, 21, 0.7);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  margin: 20px 0;
+  min-height: 200px;
+  position: relative;
+  overflow: hidden;
+  grid-column: 1 / -1;
+}
+
+.emptyState::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(108, 92, 231, 0.3),
+    rgba(108, 92, 231, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+}
+
+.emptyStateIcon {
+  font-size: 48px;
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+.emptyStateTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.emptyStateDescription {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .modalOverlay {
+    padding: 10px;
+  }
+
+  .feedbackModal {
+    max-height: 70vh;
+  }
+
+  .modalHeader {
+    padding: 20px 20px 16px 20px;
+    margin-bottom: 24px;
+  }
+
+  .feedbackForm {
+    padding: 0 20px 20px 20px;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  .categoryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .feedbackButton {
+    top: 15px;
+    right: 15px;
+    padding: 8px;
+    font-size: 1rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .feedbackButton:not(.gameInfo):not(.endScreen) {
+    /* Hide text on mobile for fixed position button */
+    font-size: 1.2rem;
+  }
+
+  .feedbackButton:not(.gameInfo):not(.endScreen)::after {
+    content: "📝";
+    display: block;
+  }
+
+  .feedbackButton:not(.gameInfo):not(.endScreen) > * {
+    display: none;
+  }
+
+  .feedbackText {
+    display: none;
+  }
+
+  .floatingMenuContainer {
+    top: 15px;
+    right: 15px;
+  }
+
+  .floatingMenuButton {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .floatingMenuDropdown {
+    min-width: 180px;
+    margin-top: 8px;
+    padding: 12px;
+  }
+
+  .floatingMenuItem {
+    padding: 14px 16px;
+    font-size: 15px;
+    min-height: 48px;
+  }
+
+  .modal {
+    width: 95%;
+    max-height: 85vh;
+  }
+
+  .modalForm,
+  .modalContent {
+    padding: 0 20px 20px;
+  }
+
+  .helpSection h3,
+  .settingsSection h3 {
+    font-size: 16px;
+  }
+
+  .helpItem {
+    font-size: 13px;
+  }
+
+  .gamesViewTabs {
+    margin-bottom: 16px;
+  }
+
+  .gamesViewTab {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  .gamesViewContent {
+    padding: 0 16px 16px 16px;
+    max-height: 45vh;
+  }
+
+  .challengesContent {
+    padding: 0 20px 20px 20px;
+  }
+
+  .gamesModalActions {
+    padding: 16px;
+  }
+
+  .gameHistoryItem,
+  .bestScoreItem,
+  .challengeItem {
+    padding: 14px;
+  }
+
+  .challengeItem {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .challengeActions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .challengeActions .button {
+    flex: 1;
+  }
+
+  .gameHistoryMain,
+  .bestScoreMain,
+  .activeGameMain {
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .gameHistoryStats,
+  .bestScoreStats,
+  .activeGameStats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding-top: 10px;
+  }
+
+  .gameHistoryMode,
+  .bestScoreMode {
+    font-size: 15px;
+  }
+
+  .gameHistoryType,
+  .bestScoreType {
+    font-size: 13px;
+  }
+
+  .gameHistoryStatValue,
+  .bestScoreStatValue,
+  .activeGameStatValue {
+    font-size: 16px;
+  }
+
+  .gameHistoryStatLabel,
+  .bestScoreStatLabel,
+  .activeGameStatLabel {
+    font-size: 11px;
+  }
+
+  .gameHistoryTerritories,
+  .bestScoreTerritories,
+  .activeGameTerritories {
+    margin-left: 2px;
+    font-size: 0.85em;
+  }
+
+  .gameHistoryDivisionTypes,
+  .bestScoreDivisionTypes,
+  .activeGameDivisionTypes {
+    font-size: 0.75em;
+    margin-top: 1px;
+  }
+
+  .browseAllModal {
+    width: 95%;
+    max-height: 85vh;
+    border-radius: 16px;
+  }
+
+  .browseAllModalHeader {
+    padding: 20px 20px 16px 20px;
+  }
+
+  .browseAllModalHeader h2 {
+    font-size: 1.5rem;
+  }
+
+  .browseAllModalBody {
+    padding: 0 20px 20px 20px;
+    flex: 1;
+  }
+
+  .modalCloseButton {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .regionalCountryList {
+    max-height: 50vh;
+    gap: 10px;
+    padding: 5px;
+  }
+
+  .regionalCountryItem {
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .regionalCountryFlag,
+  .regionalCountryFlagFallback {
+    width: 50px;
+    height: 50px;
+  }
+
+  .regionalCountryName {
+    font-size: 18px;
+  }
+
+  .regionalCountryCount {
+    font-size: 13px;
+  }
+
+  .regionalCountryArrow {
+    font-size: 20px;
+  }
+
+  .emptyState {
+    padding: 40px 15px;
+    min-height: 150px;
+    margin: 15px 0;
+  }
+
+  .emptyStateIcon {
+    font-size: 36px;
+    margin-bottom: 15px;
+  }
+
+  .emptyStateTitle {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .emptyStateDescription {
+    font-size: 14px;
+    max-width: 300px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .floatingMenuContainer {
+    top: 10px;
+    right: 10px;
+  }
+
+  .floatingMenuButton {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .floatingMenuDropdown {
+    min-width: 200px;
+    margin-top: 6px;
+    padding: 16px;
+  }
+
+  .floatingMenuItem {
+    padding: 16px 18px;
+    font-size: 16px;
+    min-height: 52px;
+  }
+
+  .modal {
+    width: 98%;
+    max-height: 90vh;
+  }
+
+  .modalForm,
+  .modalContent {
+    padding: 0 16px 16px;
+  }
+
+  .helpSection h3,
+  .settingsSection h3 {
+    font-size: 15px;
+  }
+
+  .helpItem {
+    font-size: 12px;
+  }
+
+  .gamesViewTab {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .gamesViewContent {
+    padding: 0 12px 12px 12px;
+    max-height: 40vh;
+  }
+
+  .challengesContent {
+    padding: 0 16px 16px 16px;
+  }
+
+  .gameHistoryItem,
+  .bestScoreItem,
+  .activeGameItem,
+  .challengeItem {
+    padding: 12px;
+  }
+
+  .challengeItem {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .challengeCode {
+    font-size: 16px;
+  }
+
+  .challengeActions {
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .challengeActions .button {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .gameHistoryStats,
+  .bestScoreStats,
+  .activeGameStats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding-top: 12px;
+  }
+
+  .gameHistoryStat,
+  .bestScoreStat,
+  .activeGameStat {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .gameHistoryStatValue,
+  .bestScoreStatValue,
+  .activeGameStatValue {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .gameHistoryStatLabel,
+  .bestScoreStatLabel,
+  .activeGameStatLabel {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 0;
+    margin-right: 0;
+  }
+
+  .gameHistoryTerritories,
+  .bestScoreTerritories,
+  .activeGameTerritories {
+    margin-left: 1px;
+    font-size: 0.8em;
+  }
+
+  .gameHistoryDivisionTypes,
+  .bestScoreDivisionTypes,
+  .activeGameDivisionTypes {
+    font-size: 0.7em;
+    margin-top: 1px;
+  }
+
+  .browseAllModal {
+    width: 98%;
+    max-height: 90vh;
+    border-radius: 12px;
+  }
+
+  .browseAllModalHeader {
+    padding: 16px 16px 12px 16px;
+  }
+
+  .browseAllModalHeader h2 {
+    font-size: 1.3rem;
+  }
+
+  .browseAllModalBody {
+    padding: 0 16px 16px 16px;
+    flex: 1;
+  }
+
+  .modalCloseButton {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .regionalCountryList {
+    grid-template-columns: 1fr;
+    max-height: 50vh;
+    gap: 8px;
+    padding: 4px;
+  }
+
+  .regionalCountryItem {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .regionalCountryFlag,
+  .regionalCountryFlagFallback {
+    width: 45px;
+    height: 45px;
+  }
+
+  .regionalCountryName {
+    font-size: 16px;
+  }
+
+  .regionalCountryCount {
+    font-size: 12px;
+  }
+
+  .regionalCountryArrow {
+    font-size: 18px;
+  }
+
+  .emptyState {
+    padding: 30px 12px;
+    min-height: 120px;
+    margin: 10px 0;
+  }
+
+  .emptyStateIcon {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .emptyStateTitle {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .emptyStateDescription {
+    font-size: 13px;
+    max-width: 280px;
+  }
+}

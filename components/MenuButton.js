@@ -1,5 +1,6 @@
 import React from 'react';
-import styles from '../styles/site1.module.css';
+import sharedStyles from '../styles/shared.module.css';
+import startScreenStyles from '../styles/startScreen.module.css';
 
 const MenuButton = ({ 
   icon, 
@@ -10,38 +11,26 @@ const MenuButton = ({
   disabled = false,
   type = 'default' // 'mode', 'gameType', 'continent', 'setting'
 }) => {
-  const getButtonClass = () => {
-    let baseClass;
-    
-    // Use settingOption class for setting type buttons to get proper mobile styling
-    if (type === 'setting') {
-      baseClass = styles.settingOption;
-      const selectedClass = isSelected ? styles.settingOptionActive : '';
-      return `${baseClass} ${selectedClass}`.trim();
-    } else {
-      baseClass = styles.menuButton;
-      const selectedClass = isSelected ? styles.selectedGameType : '';
-      return `${baseClass} ${selectedClass}`.trim();
-    }
-  };
-
-  // Unified icon, label, and description classes for all button types
-  const iconClass = styles.settingIcon;
-  const labelClass = styles.settingLabel;
-  const descriptionClass = styles.settingDescription;
+  const buttonClass = [
+    startScreenStyles.menuButton,
+    isSelected ? startScreenStyles.selectedGameType : '',
+    disabled ? '' : '' // disabled state is handled by :disabled pseudo-class
+  ].filter(Boolean).join(' ');
 
   return (
     <button
-      className={getButtonClass()}
+      className={buttonClass}
       onClick={onClick}
       disabled={disabled}
-      aria-label={label}
     >
-      {icon && <span className={iconClass}>{icon}</span>}
-      <span className={labelClass}>{label}</span>
-      {description && <span className={descriptionClass}>{description}</span>}
+      {icon && <span style={{ fontSize: '56px', marginBottom: '10px' }}>{icon}</span>}
+      <span style={{ fontSize: '26px', fontWeight: 'bold', marginBottom: description ? '8px' : '0' }}>{label}</span>
+      {description && (
+        <span className={startScreenStyles.settingDescription}>{description}</span>
+      )}
     </button>
   );
 };
 
-export default MenuButton; 
+export default MenuButton;
+

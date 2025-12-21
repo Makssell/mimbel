@@ -1083,3 +1083,128 @@
     gap: 8px;
   }
 }
+
+/* Challenges Management Styles */
+.challengesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.challengeCard {
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.challengeCard:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.challengeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.challengeMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.challengeMeta h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.challengeActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.challengeContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.challengeInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infoRow {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.infoRow strong {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.challengeSettings {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.challengeSettings h4 {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.settingsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.settingItem {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.settingItem strong {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+/* Mobile responsive for challenges */
+@media (max-width: 768px) {
+  .challengeHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .challengeMeta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .challengeActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .settingsGrid {
+    grid-template-columns: 1fr;
+  }
+}

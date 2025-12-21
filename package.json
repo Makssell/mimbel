@@ -1,20 +1,24 @@
 {
-  "dependencies": {
-    "next": "^15.1.6",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
+  "name": "mimbel-flag-game",
+  "version": "1.0.0",
+  "description": "Flag guessing quiz game built with Next.js",
+  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "@supabase/supabase-js": "^2.48.1",
-    "jsonwebtoken": "^9.0.2",
-    "next": "^15.1.6",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "styled-components": "^6.1.15"
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.0"
   }
 }
+
