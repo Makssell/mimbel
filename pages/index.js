@@ -215,6 +215,9 @@ const Site1 = () => {
   const [hasActiveGame, setHasActiveGame] = useState(false);
   const [resumedQuestionFlagId, setResumedQuestionFlagId] = useState(null);
 
+  // Track GamesModal last opened state for notifications
+  const [gamesModalLastOpened, setGamesModalLastOpened] = useState(null);
+
   // Refs to track current state values for keyboard handler
   const timeRemainingRef = useRef(timeRemaining);
   const buttonsDisabledRef = useRef(buttonsDisabled);
@@ -2051,6 +2054,11 @@ const Site1 = () => {
           setModalType={setModalType}
           setShowModal={setShowModal}
           setGamesView={setGamesView}
+          gameHistory={gameHistory}
+          bestScores={bestScores}
+          hasActiveGame={hasActiveGame}
+          activeGame={activeGame}
+          gamesModalLastOpened={gamesModalLastOpened}
           getProgressSteps={getProgressSteps}
           getCurrentStepIndex={getCurrentStepIndex}
           getCompletedSteps={getCompletedSteps}
@@ -2184,6 +2192,7 @@ const Site1 = () => {
               continueActiveGame={continueActiveGame}
               playMenuClickSound={playMenuClickSound}
               setModalType={setModalType}
+              setGamesModalLastOpened={setGamesModalLastOpened}
             />
           )}
           {modalType === 'challenges' && <ChallengesModal setShowModal={setShowModal} setMessage={setMessage} />}

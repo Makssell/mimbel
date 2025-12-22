@@ -108,6 +108,14 @@ export const startGame = async (params) => {
   // Load regional flags if in regional mode
   let loadedFlags = null;
   if (gameMode === "regional" && regionalFlags.length === 0) {
+    // Safety check: ensure selectedRegionalCountry exists before accessing its id
+    if (!selectedRegionalCountry || !selectedRegionalCountry.id) {
+      console.error('Error loading regional flags: selectedRegionalCountry is null or missing id');
+      setMessage("Regional country not selected. Please select a country first.");
+      setGameStarted(false);
+      return;
+    }
+    
     try {
       loadedFlags = await fetchRegionalFlags(selectedRegionalCountry.id, selectedDivisionTypes);
     } catch (error) {

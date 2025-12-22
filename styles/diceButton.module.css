@@ -13,10 +13,7 @@
   backdrop-filter: blur(10px);
   padding: 0;
   margin: 0;
-  position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   overflow: hidden;
   z-index: 10;
 }
@@ -38,7 +35,7 @@
 .diceButton:hover {
   background: rgba(21, 21, 21, 0.7);
   border-color: rgba(255, 255, 255, 0.2);
-  transform: translateX(-50%) scale(1.1);
+  transform: scale(1.1);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
@@ -47,13 +44,13 @@
 }
 
 .diceButton:active {
-  transform: translateX(-50%) scale(0.95);
+  transform: scale(0.95);
 }
 
 .diceButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: translateX(-50%);
+  transform: none;
 }
 
 .diceIcon {
@@ -67,6 +64,129 @@
   transform: rotate(15deg);
 }
 
+.diceButton.animating:hover .diceIcon {
+  transform: none;
+}
+
 .diceButton:active .diceIcon {
   transform: rotate(-15deg) scale(0.9);
+}
+
+/* Animation styles */
+.diceButton.animating {
+  animation: diceButtonPulse 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.diceButton.animating:hover {
+  transform: scale(1);
+  border-color: rgba(255, 255, 255, 0);
+}
+
+.diceIconAnimating {
+  animation: diceRoll 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Keyframe animations */
+@keyframes diceRoll {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  10% {
+    transform: rotate(90deg) scale(1.1);
+  }
+  20% {
+    transform: rotate(180deg) scale(0.9);
+  }
+  30% {
+    transform: rotate(270deg) scale(1.1);
+  }
+  40% {
+    transform: rotate(360deg) scale(0.9);
+  }
+  50% {
+    transform: rotate(450deg) scale(1.1);
+  }
+  60% {
+    transform: rotate(540deg) scale(0.9);
+  }
+  70% {
+    transform: rotate(630deg) scale(1.1);
+  }
+  80% {
+    transform: rotate(720deg) scale(0.9);
+  }
+  90% {
+    transform: rotate(810deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(900deg) scale(1);
+  }
+}
+
+@keyframes diceButtonPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* Mobile positioning - center between stacked cards */
+@media screen and (max-width: 750px) {
+  .diceButton {
+    z-index: 20;
+    background: rgba(21, 21, 21, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 8px rgba(21, 21, 21, 0.8),
+      0 0 0 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .diceButton:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(108, 92, 231, 0.4),
+      0 0 0 8px rgba(21, 21, 21, 0.8), 0 0 0 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .diceButton:active {
+    transform: scale(0.95);
+  }
+
+  .diceButton:disabled {
+    transform: none;
+  }
+
+  .diceButton.animating {
+    animation: diceButtonPulseMobile 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .diceButton.animating:hover {
+    transform: scale(1);
+  }
+
+  @keyframes diceButtonPulseMobile {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 8px rgba(21, 21, 21, 0.8),
+        0 0 0 12px rgba(0, 0, 0, 0.3), 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+    50% {
+      transform: scale(1.15);
+      box-shadow: 0 6px 25px rgba(108, 92, 231, 0.4),
+        0 0 0 8px rgba(21, 21, 21, 0.8), 0 0 0 12px rgba(0, 0, 0, 0.3),
+        0 0 0 15px rgba(255, 255, 255, 0);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 8px rgba(21, 21, 21, 0.8),
+        0 0 0 12px rgba(0, 0, 0, 0.3), 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+  }
 }

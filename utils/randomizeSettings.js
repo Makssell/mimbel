@@ -77,11 +77,12 @@ export const randomizeSettings = async (params) => {
       const flags = await fetchGlobalFlags(randomContinent, includeTerritories);
       setFilteredFlags(flags);
       
-      // Wait a moment for state to update, then start the game
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait longer for React state to update (state updates are batched and async)
+      await new Promise(resolve => setTimeout(resolve, 200));
       await startGame();
     } catch (error) {
       console.error("Error loading flags:", error);
+      setMessage("Error loading flags. Please try again.");
     }
   } else {
     // Regional mode randomization
@@ -135,11 +136,14 @@ export const randomizeSettings = async (params) => {
       setRegionalFlags(flags);
       setFilteredRegionalFlags(flags);
       
-      // Wait a moment for state to update, then start the game
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait longer for React state to update (state updates are batched and async)
+      // This ensures selectedRegionalCountry and regionalFlags are set before startGame runs
+      await new Promise(resolve => setTimeout(resolve, 200));
       await startGame();
     } catch (error) {
       console.error("Error loading regional flags:", error);
+      setMessage("Error loading regional flags. Please try again.");
     }
   }
 };
+

@@ -3,6 +3,7 @@
  * Displays the active game UI with score, timer, health, flag/name, and options
  */
 
+import { useEffect } from "react";
 import sharedStyles from "../styles/shared.module.css";
 import gameScreenStyles from "../styles/gameScreen.module.css";
 
@@ -47,6 +48,58 @@ export default function GameScreen({
   isMinimized,
   setIsMinimized
 }) {
+  // Disable body scrolling when GameScreen is active
+  useEffect(() => {
+    // Store original overflow values
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    const originalBodyHeight = document.body.style.height;
+    const originalHtmlHeight = document.documentElement.style.height;
+    const originalBodyPosition = document.body.style.position;
+    
+    // Disable scrolling
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.height = '100vh';
+    document.documentElement.style.height = '100vh';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    
+    // Prevent touch scrolling on mobile devices
+    const preventTouchMove = (e) => {
+      // Allow touch events on interactive elements (buttons, inputs, etc.)
+      const target = e.target;
+      const isInteractive = target.tagName === 'BUTTON' || 
+                           target.tagName === 'INPUT' || 
+                           target.tagName === 'TEXTAREA' ||
+                           target.isContentEditable ||
+                           target.closest('button') ||
+                           target.closest('input') ||
+                           target.closest('textarea');
+      
+      // Only prevent default if it's not an interactive element
+      // This prevents scrolling while still allowing button clicks and input interactions
+      if (!isInteractive) {
+        e.preventDefault();
+      }
+    };
+    
+    // Add touch event listener to prevent scrolling
+    // Using passive: false allows us to call preventDefault()
+    document.addEventListener('touchmove', preventTouchMove, { passive: false });
+    
+    // Cleanup: restore original values when component unmounts
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+      document.body.style.height = originalBodyHeight;
+      document.documentElement.style.height = originalHtmlHeight;
+      document.body.style.position = originalBodyPosition;
+      document.body.style.width = '';
+      document.removeEventListener('touchmove', preventTouchMove);
+    };
+  }, []);
+
   return (
     <div className={`${gameScreenStyles.gameWrapper} ${isMinimized ? gameScreenStyles.minimized : ''}`}>
       <div className={gameScreenStyles.gameInfo}>

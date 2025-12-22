@@ -30,6 +30,24 @@
   position: relative;
 }
 
+.feedbackModal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.feedbackModal::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.feedbackModal::-webkit-scrollbar-thumb {
+  background: rgba(108, 92, 231, 0.5);
+  border-radius: 3px;
+}
+
+.feedbackModal::-webkit-scrollbar-thumb:hover {
+  background: rgba(108, 92, 231, 0.7);
+}
+
 @keyframes modalSlideIn {
   from {
     opacity: 0;
@@ -328,13 +346,42 @@
 }
 
 .floatingMenuButton:hover {
-  transform: scale(1.1);
   border-color: var(--accent-color);
   box-shadow: 0 8px 25px rgba(108, 92, 231, 0.3);
 }
 
 .floatingMenuButton:hover::before {
   opacity: 1;
+}
+
+.floatingMenuButton:active {
+  transform: scale(0.95);
+}
+
+.floatingMenuNotification {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background: #ffc107;
+  border-radius: 50%;
+  border: 2px solid rgba(21, 21, 21, 0.9);
+  box-shadow: 0 0 0 2px rgba(21, 21, 21, 0.9), 0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: notificationPulse 2s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes notificationPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
 }
 
 .floatingMenuDropdown {

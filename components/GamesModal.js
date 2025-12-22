@@ -3,7 +3,7 @@
  * Modal for viewing game history and best scores
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import sharedStyles from "../styles/shared.module.css";
 import modalsStyles from "../styles/modals.module.css";
 import { formatGameDate, formatTimeDisplay, getDivisionTypeNames, areAllDivisionsSelected } from "../utils/gameUtils";
@@ -21,8 +21,33 @@ const GamesModal = ({
   clearActiveGame,
   continueActiveGame,
   playMenuClickSound,
-  setModalType
+  setModalType,
+  setGamesModalLastOpened
 }) => {
+  // Update snapshot when modal opens (only on mount since modal is conditionally rendered)
+  useEffect(() => {
+    // Create a snapshot of current state
+    const snapshot = {
+      gameHistory: gameHistory.map(g => ({ id: g.id, timestamp: g.timestamp })),
+      bestScores: Object.keys(bestScores).reduce((acc, key) => {
+        acc[key] = {
+          score: bestScores[key].score,
+          achievedAt: bestScores[key].achievedAt
+        };
+        return acc;
+      }, {}),
+      hasActiveGame,
+      activeGame: activeGame ? {
+        id: activeGame.id,
+        timestamp: activeGame.timestamp,
+        gameStats: {
+          score: activeGame.gameStats.score
+        }
+      } : null
+    };
+    setGamesModalLastOpened(snapshot);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount (when modal opens)
   const handleViewChange = (view) => {
     playMenuClickSound();
     setGamesView(view);

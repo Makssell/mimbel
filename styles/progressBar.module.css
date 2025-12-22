@@ -223,3 +223,59 @@
   }
 }
 
+/* Landscape orientation and short screens - reduce progress bar height */
+@media screen and (max-height: 500px) and (orientation: landscape),
+  screen and (max-height: 500px) {
+  .progressBarContainer {
+    padding: 8px 20px;
+    margin-bottom: 0;
+  }
+
+  .progressStep {
+    width: 12px;
+    height: 12px;
+  }
+
+  .progressLine {
+    width: 25px;
+  }
+
+  .progressArrow {
+    display: none; /* Hide arrows on short screens */
+  }
+}
+
+/* Very short landscape screens (like S20 Ultra landscape) */
+@media screen and (max-height: 450px) and (orientation: landscape),
+  screen and (max-height: 450px) {
+  .progressBarContainer {
+    padding: 6px 15px;
+    margin-bottom: 0;
+  }
+
+  .progressStep {
+    width: 11px;
+    height: 11px;
+  }
+
+  .progressLine {
+    width: 22px;
+  }
+}
+
+/* Extra short screens */
+@media screen and (max-height: 400px) {
+  .progressBarContainer {
+    padding: 4px 12px;
+    margin-bottom: 0;
+  }
+
+  .progressStep {
+    width: 10px;
+    height: 10px;
+  }
+
+  .progressLine {
+    width: 20px;
+  }
+}

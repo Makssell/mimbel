@@ -3,6 +3,7 @@
  * Floating menu button with dropdown for games, feedback, help, and challenges
  */
 
+import { useMemo } from "react";
 import sharedStyles from "../styles/shared.module.css";
 import modalsStyles from "../styles/modals.module.css";
 
@@ -12,7 +13,12 @@ const FloatingMenu = ({
   setModalType,
   setShowModal,
   setGamesView,
-  playMenuClickSound
+  playMenuClickSound,
+  gameHistory,
+  bestScores,
+  hasActiveGame,
+  activeGame,
+  gamesModalLastOpened
 }) => {
   const handleFeedback = () => {
     console.log('Feedback clicked');
@@ -27,6 +33,31 @@ const FloatingMenu = ({
     setModalType('help');
     setShowModal(true);
   };
+
+  // Check if there are active game changes since GamesModal was last opened
+  const hasGamesChanges = useMemo(() => {
+    // Only show notification if there's currently an active game
+    if (!hasActiveGame) {
+      return false;
+    }
+
+    if (!gamesModalLastOpened) {
+      // If modal was never opened and there's an active game, show notification
+      return true;
+    }
+
+    // Compare current active game state with snapshot
+    const snapshot = gamesModalLastOpened;
+    
+    // Check for active game changes
+    const hasActiveGameChange = hasActiveGame !== snapshot.hasActiveGame ||
+      (hasActiveGame && activeGame && snapshot.activeGame && 
+       (activeGame.id !== snapshot.activeGame.id || 
+        activeGame.gameStats.score !== snapshot.activeGame.gameStats.score ||
+        activeGame.timestamp !== snapshot.activeGame.timestamp));
+
+    return hasActiveGameChange;
+  }, [hasActiveGame, activeGame, gamesModalLastOpened]);
 
   const handleGames = () => {
     console.log('Games clicked');
@@ -56,6 +87,9 @@ const FloatingMenu = ({
         title="Menu"
       >
         🌍
+        {hasGamesChanges && (
+          <span className={modalsStyles.floatingMenuNotification} aria-label="New games updates"></span>
+        )}
       </button>
       
       {/* Dropdown menu */}

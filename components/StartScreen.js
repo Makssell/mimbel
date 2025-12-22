@@ -55,6 +55,12 @@ export default function StartScreen({
   setModalType,
   setShowModal,
   setGamesView,
+  // Game data for notifications
+  gameHistory,
+  bestScores,
+  hasActiveGame,
+  activeGame,
+  gamesModalLastOpened,
   // Functions
   getProgressSteps,
   getCurrentStepIndex,
@@ -119,11 +125,13 @@ export default function StartScreen({
                     setMenuStep("regional-1");
                   }}
                 />
+                <div className={startScreenStyles.diceButtonWrapper}>
+                  <DiceButton
+                    onClick={handleRandomize}
+                    disabled={isLoadingFeaturedCountries || isLoadingRegionalCountries}
+                  />
+                </div>
               </div>
-              <DiceButton
-                onClick={handleRandomize}
-                disabled={isLoadingFeaturedCountries || isLoadingRegionalCountries}
-              />
             </div>
           )}
           {menuStep === 1 && (
@@ -555,6 +563,11 @@ export default function StartScreen({
         setShowModal={setShowModal}
         setGamesView={setGamesView}
         playMenuClickSound={playMenuClickSound}
+        gameHistory={gameHistory}
+        bestScores={bestScores}
+        hasActiveGame={hasActiveGame}
+        activeGame={activeGame}
+        gamesModalLastOpened={gamesModalLastOpened}
       />
     </div>
   );
