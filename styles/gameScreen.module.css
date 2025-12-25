@@ -17,6 +17,8 @@
   overscroll-behavior: none;
   -webkit-overflow-scrolling: none;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Prevent scrolling gestures but allow tap/click interactions */
+  touch-action: manipulation;
 }
 
 .gameWrapper.minimized {
@@ -473,9 +475,10 @@
 
   /* Typing mode in landscape */
   .gameWrapper .optionsContainer:has(.typingInputContainer) {
-    height: calc(100vh - 65px) !important;
-    min-height: calc(100vh - 65px) !important;
-    max-height: calc(100vh - 65px) !important;
+    /* Use dynamic viewport height for mobile when keyboard is visible */
+    height: calc(var(--vh, 100vh) - 65px) !important;
+    min-height: calc(var(--vh, 100vh) - 65px) !important;
+    max-height: calc(var(--vh, 100vh) - 65px) !important;
   }
 }
 
@@ -535,7 +538,8 @@
   grid-template-rows: none;
   align-items: center;
   justify-content: center;
-  height: calc(50vh - 20px); /* Match the height of multiple choice buttons */
+  /* Use CSS custom property for mobile viewport height when keyboard is visible */
+  height: calc(var(--vh, 50vh) * 50 - 20px);
   min-height: 200px;
 }
 
@@ -951,6 +955,11 @@
   max-width: 600px;
   margin: 0 auto;
   min-height: 100%; /* Take up full height of parent container */
+  padding: 20px;
+  box-sizing: border-box;
+  /* Ensure container can scroll into view on mobile */
+  position: relative;
+  z-index: 10;
 }
 
 .typingInput {
@@ -967,6 +976,13 @@
   text-align: center;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  /* Mobile-specific improvements */
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
+  /* Ensure input is easily tappable on mobile */
+  min-height: 56px; /* Minimum touch target size */
+  box-sizing: border-box;
 }
 
 .typingInput::placeholder {
@@ -1031,6 +1047,13 @@
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  /* Mobile-specific improvements */
+  min-height: 48px; /* Minimum touch target size */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(108, 92, 231, 0.3);
+  /* Ensure button stays accessible when keyboard is open */
+  position: relative;
+  z-index: 10;
 }
 
 .submitButton:hover:not(:disabled) {
@@ -1280,6 +1303,48 @@
     padding: 12px;
     font-size: 18px;
   }
+
+  /* Mobile typing mode improvements */
+  .typingInputContainer {
+    padding: 15px;
+    gap: 15px;
+    /* Use dynamic viewport height when keyboard is visible */
+    min-height: auto;
+    max-height: calc(var(--vh, 50vh) * 50 - 20px);
+    justify-content: flex-start;
+    padding-top: 20px;
+  }
+
+  .typingInput {
+    font-size: clamp(18px, 4vw, 24px);
+    padding: 16px 20px;
+    min-height: 56px;
+    /* Ensure input is visible above keyboard */
+    position: relative;
+    z-index: 100;
+  }
+
+  .submitButton {
+    padding: 14px 32px;
+    font-size: clamp(16px, 3vw, 20px);
+    min-height: 48px;
+    width: 100%;
+    max-width: 300px;
+    /* Ensure button stays accessible */
+    position: relative;
+    z-index: 100;
+  }
+
+  /* Adjust options container height for typing mode on mobile */
+  .optionsContainer:has(.typingInputContainer) {
+    height: auto;
+    min-height: calc(var(--vh, 50vh) * 50 - 20px);
+    max-height: calc(var(--vh, 50vh) * 50 - 20px);
+    padding: 10px;
+    overflow-y: auto;
+    /* Allow scrolling if keyboard covers content */
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 @media screen and (max-width: 480px) {
@@ -1383,5 +1448,24 @@
   .message {
     padding: 10px;
     font-size: 16px;
+  }
+
+  /* Mobile typing mode improvements for small screens */
+  .typingInputContainer {
+    padding: 12px;
+    gap: 12px;
+    padding-top: 15px;
+  }
+
+  .typingInput {
+    font-size: clamp(16px, 4vw, 22px);
+    padding: 14px 18px;
+    min-height: 52px;
+  }
+
+  .submitButton {
+    padding: 12px 28px;
+    font-size: clamp(15px, 3vw, 18px);
+    min-height: 44px;
   }
 }

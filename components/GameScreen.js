@@ -48,24 +48,14 @@ export default function GameScreen({
   isMinimized,
   setIsMinimized
 }) {
-  // Disable body scrolling when GameScreen is active
+  // Prevent scrolling within game area only (not globally)
+  // This allows scrolling on StartScreen and other screens
   useEffect(() => {
-    // Store original overflow values
-    const originalBodyOverflow = document.body.style.overflow;
-    const originalHtmlOverflow = document.documentElement.style.overflow;
-    const originalBodyHeight = document.body.style.height;
-    const originalHtmlHeight = document.documentElement.style.height;
-    const originalBodyPosition = document.body.style.position;
+    const gameWrapper = document.querySelector(`.${gameScreenStyles.gameWrapper}`);
     
-    // Disable scrolling
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.height = '100vh';
-    document.documentElement.style.height = '100vh';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
+    if (!gameWrapper) return;
     
-    // Prevent touch scrolling on mobile devices
+    // Prevent touch scrolling only within the game wrapper
     const preventTouchMove = (e) => {
       // Allow touch events on interactive elements (buttons, inputs, etc.)
       const target = e.target;
@@ -77,26 +67,38 @@ export default function GameScreen({
                            target.closest('input') ||
                            target.closest('textarea');
       
-      // Only prevent default if it's not an interactive element
-      // This prevents scrolling while still allowing button clicks and input interactions
-      if (!isInteractive) {
+      // Only prevent default if the touch is within the game wrapper and not on interactive elements
+      // This prevents scrolling within the game while still allowing button clicks and input interactions
+      if (!isInteractive && gameWrapper.contains(target)) {
         e.preventDefault();
       }
     };
     
-    // Add touch event listener to prevent scrolling
+    // Add touch event listener to prevent scrolling within game area
     // Using passive: false allows us to call preventDefault()
-    document.addEventListener('touchmove', preventTouchMove, { passive: false });
+    gameWrapper.addEventListener('touchmove', preventTouchMove, { passive: false });
     
-    // Cleanup: restore original values when component unmounts
+    // Handle viewport height changes on mobile when keyboard appears/disappears
+    const handleResize = () => {
+      // On mobile, adjust viewport height when keyboard appears
+      if (window.innerWidth <= 750) {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      }
+    };
+    
+    // Set initial viewport height
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    
+    // Cleanup: remove event listeners when component unmounts
     return () => {
-      document.body.style.overflow = originalBodyOverflow;
-      document.documentElement.style.overflow = originalHtmlOverflow;
-      document.body.style.height = originalBodyHeight;
-      document.documentElement.style.height = originalHtmlHeight;
-      document.body.style.position = originalBodyPosition;
-      document.body.style.width = '';
-      document.removeEventListener('touchmove', preventTouchMove);
+      gameWrapper.removeEventListener('touchmove', preventTouchMove);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+      // Reset viewport height
+      document.documentElement.style.removeProperty('--vh');
     };
   }, []);
 
@@ -200,10 +202,24 @@ export default function GameScreen({
                     checkAnswer(typedAnswer.trim());
                   }
                 }}
+                onFocus={(e) => {
+                  // Scroll input into view on mobile when keyboard appears
+                  if (window.innerWidth <= 750) {
+                    setTimeout(() => {
+                      e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                    }, 300); // Delay to allow keyboard animation
+                  }
+                }}
                 placeholder="Type the answer..."
                 className={`${gameScreenStyles.typingInput} ${optionsTransitioning ? sharedStyles.transitioning : ''} ${typingInputStyle}`}
                 disabled={buttonsDisabled}
                 autoFocus
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="words"
+                spellCheck="false"
+                inputMode="text"
+                enterKeyHint="send"
               />
               <button
                 onClick={() => {
@@ -213,6 +229,7 @@ export default function GameScreen({
                 }}
                 className={`${sharedStyles.button} ${gameScreenStyles.submitButton}`}
                 disabled={buttonsDisabled || !typedAnswer.trim()}
+                type="button"
               >
                 Submit
               </button>

@@ -17,8 +17,11 @@
     var(--background-light) 100%
   );
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   font-family: "Inter", sans-serif;
+  /* Allow scrolling on mobile to enable browser bar hiding */
+  -webkit-overflow-scrolling: touch;
 }
 
 .container::before {
@@ -345,7 +348,11 @@
     min-height: 100dvh;
     box-sizing: border-box;
     display: block;
+    overflow-x: hidden;
     overflow-y: auto;
+    /* Ensure smooth scrolling on mobile */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 
   .title {
@@ -361,7 +368,11 @@
     min-height: 100dvh;
     box-sizing: border-box;
     display: block;
+    overflow-x: hidden;
     overflow-y: auto;
+    /* Ensure smooth scrolling on mobile */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 
   .title {
