@@ -228,6 +228,14 @@ export default function EndScreen({
                 </span>
               </div>
             )}
+            {gameStats.gameSettings?.flashMode && (
+              <div className={endScreenStyles.settingItem}>
+                <span className={endScreenStyles.endScreenSettingLabel}>Flash Mode:</span>
+                <span className={endScreenStyles.endScreenSettingValue}>
+                  Enabled
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

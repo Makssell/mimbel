@@ -25,9 +25,11 @@ export default function StartScreen({
   timeAttackMode,
   infiniteMode,
   typingMode,
+  flashMode,
   regionalGameType,
   regionalInfiniteMode,
   regionalTypingMode,
+  regionalFlashMode,
   selectedRegionalCountry,
   selectedDivisionTypes,
   isLoadingFeaturedCountries,
@@ -45,9 +47,11 @@ export default function StartScreen({
   setTimeAttackMode,
   setInfiniteMode,
   setTypingMode,
+  setFlashMode,
   setRegionalGameType,
   setRegionalInfiniteMode,
   setRegionalTypingMode,
+  setRegionalFlashMode,
   setSelectedRegionalCountry,
   setSelectedDivisionTypes,
   setShowAllCountriesModal,
@@ -96,8 +100,18 @@ export default function StartScreen({
       </div>
       
       {/* Consistent Content Area */}
-      <div className={startScreenStyles.contentArea}>
-        <div className={startScreenStyles.menuContainer}>
+      <div className={`${startScreenStyles.contentArea} ${
+        (menuStep === 3 && gameType === "flag-to-country") || 
+        (menuStep === "regional-4" && regionalGameType === "flag-to-region")
+          ? startScreenStyles.hasFiveCards 
+          : ""
+      }`}>
+        <div className={`${startScreenStyles.menuContainer} ${
+          (menuStep === 3 && gameType === "flag-to-country") || 
+          (menuStep === "regional-4" && regionalGameType === "flag-to-region")
+            ? startScreenStyles.hasFiveCards 
+            : ""
+        }`}>
           {menuStep === 0 && (
             <div className={startScreenStyles.modeSelectionSection}>
               <div className={startScreenStyles.modeSelectionGrid}>
@@ -276,17 +290,30 @@ export default function StartScreen({
                   disabled={timeAttackMode} // Disable when time attack is enabled
                 />
                 {gameType === "flag-to-country" && (
-                  <MenuButton
-                    type="setting"
-                    icon="⌨️"
-                    label="Typing Mode"
-                    description="Type the answer instead of multiple choice"
-                    isSelected={typingMode}
-                    onClick={() => {
-                      playMenuClickSound();
-                      setTypingMode(!typingMode);
-                    }}
-                  />
+                  <>
+                    <MenuButton
+                      type="setting"
+                      icon="⌨️"
+                      label="Typing Mode"
+                      description="Type the answer instead of multiple choice"
+                      isSelected={typingMode}
+                      onClick={() => {
+                        playMenuClickSound();
+                        setTypingMode(!typingMode);
+                      }}
+                    />
+                    <MenuButton
+                      type="setting"
+                      icon="⚡"
+                      label="Flash Mode"
+                      description="Flag shows for 0.5 seconds then disappears"
+                      isSelected={flashMode}
+                      onClick={() => {
+                        playMenuClickSound();
+                        setFlashMode(!flashMode);
+                      }}
+                    />
+                  </>
                 )}
               </div>
               <div className={startScreenStyles.settingsButtons}>
@@ -529,17 +556,30 @@ export default function StartScreen({
                   disabled={timeAttackMode} // Disable when time attack is enabled
                 />
                 {regionalGameType === "flag-to-region" && (
-                  <MenuButton
-                    type="setting"
-                    icon="⌨️"
-                    label="Typing Mode"
-                    description="Type the answer instead of multiple choice"
-                    isSelected={regionalTypingMode}
-                    onClick={() => {
-                      playMenuClickSound();
-                      setRegionalTypingMode(!regionalTypingMode);
-                    }}
-                  />
+                  <>
+                    <MenuButton
+                      type="setting"
+                      icon="⌨️"
+                      label="Typing Mode"
+                      description="Type the answer instead of multiple choice"
+                      isSelected={regionalTypingMode}
+                      onClick={() => {
+                        playMenuClickSound();
+                        setRegionalTypingMode(!regionalTypingMode);
+                      }}
+                    />
+                    <MenuButton
+                      type="setting"
+                      icon="⚡"
+                      label="Flash Mode"
+                      description="Flag shows for 0.5 seconds then disappears"
+                      isSelected={regionalFlashMode}
+                      onClick={() => {
+                        playMenuClickSound();
+                        setRegionalFlashMode(!regionalFlashMode);
+                      }}
+                    />
+                  </>
                 )}
               </div>
               <div className={startScreenStyles.settingsButtons}>

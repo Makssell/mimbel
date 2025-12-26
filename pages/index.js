@@ -107,6 +107,8 @@ const Site1 = () => {
   const [timeAttackMode, setTimeAttackMode] = useState(false);
   const [typingMode, setTypingMode] = useState(false);
   const [regionalTypingMode, setRegionalTypingMode] = useState(false);
+  const [flashMode, setFlashMode] = useState(false);
+  const [regionalFlashMode, setRegionalFlashMode] = useState(false);
   const [typedAnswer, setTypedAnswer] = useState("");
   const typingInputRef = useRef(null);
   const [usedFlags, setUsedFlags] = useState([]);
@@ -675,6 +677,7 @@ const Site1 = () => {
         setRegionalGameType(shareSettings.gameType);
         setRegionalInfiniteMode(shareSettings.regionalInfiniteMode);
         setRegionalTypingMode(shareSettings.regionalTypingMode);
+        setRegionalFlashMode(shareSettings.regionalFlashMode || false);
 
         // Find and set the regional country
         if (shareSettings.selectedRegionalCountryId) {
@@ -723,6 +726,7 @@ const Site1 = () => {
         setIncludeTerritories(shareSettings.includeTerritories);
         setInfiniteMode(shareSettings.infiniteMode);
         setTypingMode(shareSettings.typingMode);
+        setFlashMode(shareSettings.flashMode || false);
 
         // Load flags for the continent
         try {
@@ -867,6 +871,8 @@ const Site1 = () => {
       infiniteMode,
       typingMode,
       regionalTypingMode,
+      flashMode,
+      regionalFlashMode,
       regionalFlags,
       filteredFlags,
       usedFlags,
@@ -922,6 +928,8 @@ const Site1 = () => {
       infiniteMode,
       typingMode,
       regionalTypingMode,
+      flashMode,
+      regionalFlashMode,
       regionalFlags,
       filteredFlags,
       usedFlags,
@@ -1070,6 +1078,8 @@ const Site1 = () => {
       infiniteMode,
       typingMode,
       regionalTypingMode,
+      flashMode,
+      regionalFlashMode,
       regionalFlags,
       filteredFlags,
       selectedContinent,
@@ -1189,6 +1199,8 @@ const Site1 = () => {
       filteredFlags,
       typingMode,
       regionalTypingMode,
+      flashMode,
+      regionalFlashMode,
       gameStartTime,
       totalAttempts,
       gameMode,
@@ -1269,7 +1281,9 @@ const Site1 = () => {
       regionalInfiniteMode,
       infiniteMode,
       typingMode,
-      regionalTypingMode
+      regionalTypingMode,
+      flashMode,
+      regionalFlashMode
     });
   };
 
@@ -1618,6 +1632,8 @@ const Site1 = () => {
         regionalInfiniteMode: settings.mode === "Infinite",
         typingMode: settings.typingMode || false,
         regionalTypingMode: settings.typingMode || false,
+        flashMode: settings.flashMode || false,
+        regionalFlashMode: settings.flashMode || false,
         country: settings.country,
         divisionTypes: settings.divisionTypes
       });
@@ -1630,6 +1646,8 @@ const Site1 = () => {
       setInfiniteMode(settings.mode === "Infinite" && !isRegional);
       setTypingMode(settings.typingMode && !isRegional);
       setRegionalTypingMode(settings.typingMode && isRegional);
+      setFlashMode(settings.flashMode && !isRegional);
+      setRegionalFlashMode(settings.flashMode && isRegional);
       
       if (isRegional && settings.country) {
         // Find country by name
@@ -1758,6 +1776,8 @@ const Site1 = () => {
       infiniteMode,
       typingMode,
       regionalTypingMode,
+      flashMode,
+      regionalFlashMode,
       regionalFlags,
       filteredFlags,
       usedFlags,
@@ -1808,6 +1828,8 @@ const Site1 = () => {
       setInfiniteMode(gameState.infiniteMode);
       setTypingMode(gameState.typingMode || false);
       setRegionalTypingMode(gameState.regionalTypingMode || false);
+      setFlashMode(gameState.flashMode || false);
+      setRegionalFlashMode(gameState.regionalFlashMode || false);
       
       if (gameState.gameMode === "regional") {
         setRegionalGameType(gameState.gameType);
@@ -2025,9 +2047,11 @@ const Site1 = () => {
           timeAttackMode={timeAttackMode}
           infiniteMode={infiniteMode}
           typingMode={typingMode}
+          flashMode={flashMode}
           regionalGameType={regionalGameType}
           regionalInfiniteMode={regionalInfiniteMode}
           regionalTypingMode={regionalTypingMode}
+          regionalFlashMode={regionalFlashMode}
           selectedRegionalCountry={selectedRegionalCountry}
           selectedDivisionTypes={selectedDivisionTypes}
           isLoadingFeaturedCountries={isLoadingFeaturedCountries}
@@ -2044,9 +2068,11 @@ const Site1 = () => {
           setTimeAttackMode={setTimeAttackMode}
           setInfiniteMode={setInfiniteMode}
           setTypingMode={setTypingMode}
+          setFlashMode={setFlashMode}
           setRegionalGameType={setRegionalGameType}
           setRegionalInfiniteMode={setRegionalInfiniteMode}
           setRegionalTypingMode={setRegionalTypingMode}
+          setRegionalFlashMode={setRegionalFlashMode}
           setSelectedRegionalCountry={setSelectedRegionalCountry}
           setSelectedDivisionTypes={setSelectedDivisionTypes}
           setShowAllCountriesModal={setShowAllCountriesModal}
@@ -2091,6 +2117,8 @@ const Site1 = () => {
           gameMode={gameMode}
           typingMode={typingMode}
           regionalTypingMode={regionalTypingMode}
+          flashMode={flashMode}
+          regionalFlashMode={regionalFlashMode}
           options={options}
           flagOptions={flagOptions}
           optionsTransitioning={optionsTransitioning}

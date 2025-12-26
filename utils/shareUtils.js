@@ -37,6 +37,9 @@ export const generateShareUrl = (gameStateSnapshot) => {
     if (gameStateSnapshot.regionalTypingMode) {
       params.set('typing', '1');
     }
+    if (gameStateSnapshot.regionalFlashMode) {
+      params.set('flash', '1');
+    }
   } else {
     // Standard mode parameters
     params.set('type', gameStateSnapshot.gameType || 'flag-to-country');
@@ -51,6 +54,9 @@ export const generateShareUrl = (gameStateSnapshot) => {
     }
     if (gameStateSnapshot.typingMode) {
       params.set('typing', '1');
+    }
+    if (gameStateSnapshot.flashMode) {
+      params.set('flash', '1');
     }
   }
   
@@ -92,6 +98,7 @@ export const parseShareUrl = (searchParams) => {
     }
     settings.regionalInfiniteMode = searchParams.get('infinite') === '1';
     settings.regionalTypingMode = searchParams.get('typing') === '1';
+    settings.regionalFlashMode = searchParams.get('flash') === '1';
   } else {
     // Standard mode settings
     settings.gameType = searchParams.get('type') || 'flag-to-country';
@@ -99,6 +106,7 @@ export const parseShareUrl = (searchParams) => {
     settings.includeTerritories = searchParams.get('territories') === '1';
     settings.infiniteMode = searchParams.get('infinite') === '1';
     settings.typingMode = searchParams.get('typing') === '1';
+    settings.flashMode = searchParams.get('flash') === '1';
   }
   
   return settings;

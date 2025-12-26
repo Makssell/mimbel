@@ -31,7 +31,8 @@ export const buildGameSettings = (state) => {
     territories: !isRegionalMode ? (state.includeTerritories ? "Included" : "Excluded") : null,
     divisionTypes: isRegionalMode && state.selectedDivisionTypes.length > 0 ? state.selectedDivisionTypes : null,
     mode: state.timeAttackMode ? "Time Attack" : (isRegionalMode ? state.regionalInfiniteMode : state.infiniteMode) ? "Infinite" : "Standard",
-    typingMode: isRegionalMode ? state.regionalTypingMode : state.typingMode
+    typingMode: isRegionalMode ? state.regionalTypingMode : state.typingMode,
+    flashMode: isRegionalMode ? state.regionalFlashMode : state.flashMode
   };
 };
 
@@ -63,7 +64,8 @@ export const buildGameSettingsFromSnapshot = (gameState) => {
     territories: !isRegionalMode ? (gameState.includeTerritories ? "Included" : "Excluded") : null,
     divisionTypes: isRegionalMode && gameState.selectedDivisionTypes && gameState.selectedDivisionTypes.length > 0 ? gameState.selectedDivisionTypes : null,
     mode: gameState.timeAttackMode ? "Time Attack" : (isRegionalMode ? gameState.regionalInfiniteMode : gameState.infiniteMode) ? "Infinite" : "Standard",
-    typingMode: isRegionalMode ? (gameState.regionalTypingMode || false) : (gameState.typingMode || false)
+    typingMode: isRegionalMode ? (gameState.regionalTypingMode || false) : (gameState.typingMode || false),
+    flashMode: isRegionalMode ? (gameState.regionalFlashMode || false) : (gameState.flashMode || false)
   };
 };
 

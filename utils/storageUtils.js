@@ -222,6 +222,8 @@ export const saveActiveGame = (
         infiniteMode: gameState.infiniteMode,
         typingMode: gameState.typingMode,
         regionalTypingMode: gameState.regionalTypingMode,
+        flashMode: gameState.flashMode,
+        regionalFlashMode: gameState.regionalFlashMode,
         regionalFlags: gameState.regionalFlags,
         filteredFlags: gameState.filteredFlags,
         usedFlags: gameState.usedFlags,

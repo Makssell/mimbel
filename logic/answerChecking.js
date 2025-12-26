@@ -42,6 +42,8 @@ export const checkAnswer = (params, selectedAnswer) => {
     timeAttackMode,
     regionalInfiniteMode,
     infiniteMode,
+    flashMode,
+    regionalFlashMode,
     regionalFlags,
     usedFlags,
     longestStreak,
@@ -297,6 +299,8 @@ export const checkAnswer = (params, selectedAnswer) => {
           infiniteMode: infiniteMode,
           typingMode: typingMode,
           regionalTypingMode: regionalTypingMode,
+          flashMode: flashMode,
+          regionalFlashMode: regionalFlashMode,
           regionalFlags: regionalFlags,
           filteredFlags: filteredFlags,
           usedFlags: usedFlags // Include usedFlags in the snapshot

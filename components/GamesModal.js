@@ -69,6 +69,9 @@ const GamesModal = ({
                 {activeGame.gameStats.gameSettings.typingMode && (
                   <span>, Typing</span>
                 )}
+                {activeGame.gameStats.gameSettings.flashMode && (
+                  <span>, Flash</span>
+                )}
               </div>
               <div className={modalsStyles.activeGameType}>
                 {activeGame.gameStats.gameSettings.gameType}
@@ -175,6 +178,9 @@ const GamesModal = ({
                         {game.gameStats.gameSettings.typingMode && (
                           <span>, Typing</span>
                         )}
+                        {game.gameStats.gameSettings.flashMode && (
+                          <span>, Flash</span>
+                        )}
                       </div>
                       <div className={modalsStyles.gameHistoryType}>
                         {game.gameStats.gameSettings.gameType}
@@ -269,6 +275,9 @@ const GamesModal = ({
                     {bestScore.gameSettings.mode}
                     {bestScore.gameSettings.typingMode && (
                       <span>, Typing</span>
+                    )}
+                    {bestScore.gameSettings.flashMode && (
+                      <span>, Flash</span>
                     )}
                     <span className={modalsStyles.bestScoreBadge}>🏆</span>
                   </div>

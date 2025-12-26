@@ -3,7 +3,7 @@
  * Displays the active game UI with score, timer, health, flag/name, and options
  */
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import sharedStyles from "../styles/shared.module.css";
 import gameScreenStyles from "../styles/gameScreen.module.css";
 
@@ -25,6 +25,8 @@ export default function GameScreen({
   gameMode,
   typingMode,
   regionalTypingMode,
+  flashMode,
+  regionalFlashMode,
   options,
   flagOptions,
   optionsTransitioning,
@@ -48,6 +50,120 @@ export default function GameScreen({
   isMinimized,
   setIsMinimized
 }) {
+  // Flash mode: hide flag after 0.5 seconds
+  const [isFlagHidden, setIsFlagHidden] = useState(false);
+  const flashTimeoutRef = useRef(null);
+  const currentFlagIdRef = useRef(null);
+  
+  // Log flash mode props when they change
+  useEffect(() => {
+    console.log('⚡ Flash Mode Props:', {
+      gameMode,
+      gameType,
+      regionalGameType,
+      flashMode,
+      regionalFlashMode,
+      currentFlagId: currentFlag?.id,
+      isFlagLoading,
+      isFlagHidden
+    });
+  }, [flashMode, regionalFlashMode, gameMode, gameType, regionalGameType]);
+  
+  // Main flash mode effect - triggers when currentFlag.id changes (new question)
+  useEffect(() => {
+    // Check if flash mode is enabled for current game type
+    const isFlashModeEnabled = (gameMode === "standard" && flashMode && gameType === "flag-to-country") ||
+                               (gameMode === "regional" && regionalFlashMode && regionalGameType === "flag-to-region");
+    
+    // Detect when a new flag/question appears by tracking currentFlag.id
+    const currentFlagId = currentFlag?.id;
+    const isNewFlag = currentFlagId && currentFlagId !== currentFlagIdRef.current;
+    
+    console.log('⚡ Flash Mode Check:', {
+      isFlashModeEnabled,
+      currentFlagId,
+      previousFlagId: currentFlagIdRef.current,
+      isNewFlag,
+      isFlagLoading,
+      isFlagHidden,
+      gameMode,
+      gameType,
+      regionalGameType,
+      flashMode,
+      regionalFlashMode
+    });
+    
+    // When a new flag/question appears, reset visibility and start flash timer
+    if (isNewFlag && currentFlag) {
+      console.log('🔄 NEW QUESTION DETECTED! Resetting flash mode for new flag:', {
+        currentFlagId: currentFlag.id,
+        previousFlagId: currentFlagIdRef.current,
+        isFlashModeEnabled
+      });
+      
+      // Reset flag visibility for new question
+      setIsFlagHidden(false);
+      currentFlagIdRef.current = currentFlagId;
+      
+      // Clear any existing timeout
+      if (flashTimeoutRef.current) {
+        console.log('🧹 Clearing existing flash timeout');
+        clearTimeout(flashTimeoutRef.current);
+        flashTimeoutRef.current = null;
+      }
+      
+      // Start flash timer if flash mode is enabled
+      if (isFlashModeEnabled) {
+        const startFlashTimer = () => {
+          console.log('⚡ Flash mode ACTIVE - Setting timeout to hide flag in 500ms');
+          flashTimeoutRef.current = setTimeout(() => {
+            console.log('⚡ Flash timeout FIRED - Hiding flag now!');
+            setIsFlagHidden(true);
+            flashTimeoutRef.current = null;
+          }, 500);
+        };
+        
+        // If flag is already loaded, start timer immediately
+        // Otherwise, wait for it to load (handled in next useEffect)
+        if (!isFlagLoading) {
+          startFlashTimer();
+        } else {
+          console.log('⏳ Flag still loading, will start timer when load completes');
+        }
+      } else {
+        console.log('❌ Flash mode NOT enabled for this game type');
+      }
+    }
+    
+    // Cleanup timeout on unmount
+    return () => {
+      if (flashTimeoutRef.current) {
+        clearTimeout(flashTimeoutRef.current);
+        flashTimeoutRef.current = null;
+      }
+    };
+  }, [currentFlag?.id, isFlagLoading, flashMode, regionalFlashMode, gameMode, gameType, regionalGameType]);
+  
+  // Start flash timer when flag finishes loading (if it was loading when new flag appeared)
+  useEffect(() => {
+    const isFlashModeEnabled = (gameMode === "standard" && flashMode && gameType === "flag-to-country") ||
+                               (gameMode === "regional" && regionalFlashMode && regionalGameType === "flag-to-region");
+    
+    // Only start timer if: flash mode enabled, flag exists, not loading, not hidden, timer not already started
+    if (isFlashModeEnabled && currentFlag && !isFlagLoading && !isFlagHidden && !flashTimeoutRef.current) {
+      console.log('⚡ Flag finished loading - Starting flash timer now', {
+        flagId: currentFlag.id,
+        isFlashModeEnabled,
+        isFlagHidden
+      });
+      flashTimeoutRef.current = setTimeout(() => {
+        console.log('⚡ Flash timeout FIRED (from load) - Hiding flag now!');
+        setIsFlagHidden(true);
+        flashTimeoutRef.current = null;
+      }, 500);
+    }
+  }, [isFlagLoading, currentFlag, isFlagHidden, flashMode, regionalFlashMode, gameMode, gameType, regionalGameType]);
+
   // Prevent scrolling within game area only (not globally)
   // This allows scrolling on StartScreen and other screens
   useEffect(() => {
@@ -172,9 +288,20 @@ export default function GameScreen({
                 src={currentFlag.image_url}
                 alt={currentFlag.name}
                 className={`${gameScreenStyles.flagImage} ${flagTransitioning ? sharedStyles.transitioning : ''}`}
-                onLoad={() => handleFlagLoad(lastFlagId)}
+                onLoad={() => {
+                  console.log('🖼️ Flag image loaded:', {
+                    flagId: lastFlagId,
+                    isFlagHidden,
+                    isFlagLoading
+                  });
+                  handleFlagLoad(lastFlagId);
+                }}
                 onError={() => handleFlagError(lastFlagId, currentFlag.name)}
-                style={{ display: isFlagLoading ? 'none' : 'block' }}
+                style={{ 
+                  display: (isFlagLoading || isFlagHidden) ? 'none' : 'block',
+                  opacity: isFlagHidden ? 0 : 1,
+                  transition: 'opacity 0.1s ease-out'
+                }}
               />
             </>
           ) : (
@@ -203,12 +330,8 @@ export default function GameScreen({
                   }
                 }}
                 onFocus={(e) => {
-                  // Scroll input into view on mobile when keyboard appears
-                  if (window.innerWidth <= 750) {
-                    setTimeout(() => {
-                      e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-                    }, 300); // Delay to allow keyboard animation
-                  }
+                  // Don't scroll - let CSS handle layout adjustments
+                  // The viewport height tracking will handle keyboard appearance
                 }}
                 placeholder="Type the answer..."
                 className={`${gameScreenStyles.typingInput} ${optionsTransitioning ? sharedStyles.transitioning : ''} ${typingInputStyle}`}

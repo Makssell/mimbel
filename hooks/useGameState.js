@@ -30,6 +30,8 @@ export const useGameState = () => {
   const [timeAttackMode, setTimeAttackMode] = useState(false);
   const [typingMode, setTypingMode] = useState(false);
   const [regionalTypingMode, setRegionalTypingMode] = useState(false);
+  const [flashMode, setFlashMode] = useState(false);
+  const [regionalFlashMode, setRegionalFlashMode] = useState(false);
   const [typedAnswer, setTypedAnswer] = useState("");
   const typingInputRef = useRef(null);
   const [usedFlags, setUsedFlags] = useState([]);
@@ -178,6 +180,8 @@ export const useGameState = () => {
     timeAttackMode, setTimeAttackMode,
     typingMode, setTypingMode,
     regionalTypingMode, setRegionalTypingMode,
+    flashMode, setFlashMode,
+    regionalFlashMode, setRegionalFlashMode,
     typedAnswer, setTypedAnswer,
     typingInputRef,
     usedFlags, setUsedFlags,
