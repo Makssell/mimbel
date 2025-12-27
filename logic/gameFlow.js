@@ -7,6 +7,7 @@ import { fetchRegionalFlags } from "../services/flagService";
 import { clearActiveGame } from "../utils/storageUtils";
 import { calculateAverageTime } from "../utils/gameUtils";
 import { buildGameSettingsFromSnapshot, getTotalFlagsCountFromSnapshot, getRemainingFlagsCountFromSnapshot } from "./gameSettings";
+import { filterFlagsWithOutlines } from "../utils/mapUtils";
 
 /**
  * Start a new game
@@ -131,7 +132,12 @@ export const startGame = async (params) => {
   
   // Ensure we have flags loaded before proceeding
   const isRegionalMode = gameMode === "regional";
-  const currentFlags = isRegionalMode ? (loadedFlags || regionalFlags) : filteredFlags;
+  let currentFlags = isRegionalMode ? (loadedFlags || regionalFlags) : filteredFlags;
+  
+  // For map game types, filter to only flags with map outlines
+  // Note: gameType is not in params, so we need to check it from the calling context
+  // This check will be done again in loadNextQuestion, but we do a preliminary check here
+  // to give better error messages
   
   if (!currentFlags || currentFlags.length === 0) {
     console.error('No flags available when starting game');
@@ -451,7 +457,7 @@ export const transitionToNextQuestion = async (params, currentScore = null) => {
   const isRegionalMode = gameModeRef.current === "regional";
   const currentGameType = isRegionalMode ? regionalGameTypeRef.current : gameTypeRef.current;
   
-  if ((currentGameType === "country-to-flag" || currentGameType === "region-to-flag") && newFlagOptions && newFlagOptions.length > 0) {
+  if ((currentGameType === "country-to-flag" || currentGameType === "region-to-flag" || currentGameType === "map-to-flag") && newFlagOptions && newFlagOptions.length > 0) {
     // Preload images in background without waiting
     preloadImages(newFlagOptions);
   }
@@ -522,10 +528,11 @@ export const loadNextQuestion = async (params, currentScore = null, resetUsedFla
     setTypedAnswer,
     setUsedFlags,
     setLastGuessTime,
-    setFlagLoadingTimeout,
-    setOptions,
-    setFlagOptions,
-    setGameStats,
+     setFlagLoadingTimeout,
+     setOptions,
+     setFlagOptions,
+     setMapOutlineOptions,
+     setGameStats,
     setGameStateSnapshot,
     setEndState,
     setShowEndScreen,
@@ -542,9 +549,17 @@ export const loadNextQuestion = async (params, currentScore = null, resetUsedFla
   console.log(`loadNextQuestion: called with currentScore=${currentScore}, resetUsedFlags=${resetUsedFlags}, current scoreRef=${scoreRef.current}, gameStarted=${gameStartedRef.current}`);
   
   // Safety check: if game is not started and this is not the initial load, return
-  if (!gameStartedRef.current && resetUsedFlags === null) {
+  // Allow initial load when resetUsedFlags is [] (from startGame) - this indicates startGame is calling
+  // Only skip if resetUsedFlags is null AND game is not started (meaning it's a mid-game call)
+  const isInitialLoad = Array.isArray(resetUsedFlags) && resetUsedFlags.length === 0;
+  if (!gameStartedRef.current && !isInitialLoad && resetUsedFlags === null) {
     console.log('loadNextQuestion: Game not started, skipping');
     return null;
+  }
+  
+  // If this is an initial load from startGame, proceed even if ref isn't updated yet
+  if (isInitialLoad) {
+    console.log('loadNextQuestion: Initial load from startGame, proceeding');
   }
   
   // Update score if provided (for correct answers)
@@ -559,6 +574,13 @@ export const loadNextQuestion = async (params, currentScore = null, resetUsedFla
   let currentFlags;
   let currentInfiniteMode;
   let currentGameType;
+  
+  console.log('loadNextQuestion: Determining game type', {
+    isRegionalMode,
+    gameMode: gameModeRef.current,
+    gameType: gameTypeRef.current,
+    regionalGameType: regionalGameTypeRef.current
+  });
   
   if (isRegionalMode) {
     // For regional mode, ensure we have flags loaded
@@ -599,10 +621,34 @@ export const loadNextQuestion = async (params, currentScore = null, resetUsedFla
     currentGameType = gameTypeRef.current;
   }
   
+  // For map game types, filter to only flags with map outlines
+  if (currentGameType === "map-to-flag" || currentGameType === "flag-to-map") {
+    console.log(`Filtering flags for map game type: ${currentGameType}, total flags: ${currentFlags.length}`);
+    const flagsWithOutlines = filterFlagsWithOutlines(currentFlags);
+    console.log(`Flags with outlines: ${flagsWithOutlines.length}`);
+    if (flagsWithOutlines.length === 0) {
+      console.error('No flags with map outlines available for map game type');
+      setMessage("No flags with map outlines available. Please assign map outlines in admin.");
+      setGameStarted(false);
+      setIsFlagLoading(false);
+      return null;
+    }
+    // Need at least 4 flags for multiple choice (1 correct + 3 incorrect)
+    if (flagsWithOutlines.length < 4) {
+      console.error(`Not enough flags with outlines: ${flagsWithOutlines.length}, need at least 4`);
+      setMessage(`Not enough flags with map outlines (found ${flagsWithOutlines.length}, need at least 4). Please assign more map outlines in admin.`);
+      setGameStarted(false);
+      setIsFlagLoading(false);
+      return null;
+    }
+    currentFlags = flagsWithOutlines;
+  }
+  
   currentGameFlagsRef.current = currentFlags; // Store for use in checkAnswer
   
   if (currentFlags.length === 0) {
     setMessage("No flags available for selected filters.");
+    setIsFlagLoading(false);
     return null;
   }
 
@@ -623,7 +669,9 @@ export const loadNextQuestion = async (params, currentScore = null, resetUsedFla
   });
   
   // Check if we have enough available flags
-  if (availableFlags.length === 0 && gameStarted) {
+  // Only check for completion if game is actually started (not initial load)
+  // On initial load, if availableFlags is 0, it means no flags match the criteria (error case)
+  if (availableFlags.length === 0 && gameStartedRef.current && !isInitialLoad) {
     // No more flags available - game is actually complete
     playVictorySound(); // Play victory sound for completing all flags
     
@@ -701,12 +749,23 @@ export const loadNextQuestion = async (params, currentScore = null, resetUsedFla
     return null;
   }
   
-  // Ensure we have available flags before proceeding (only if game is started)
-  if (availableFlags.length === 0 && gameStarted) {
-    console.error('No available flags found. This should not happen after the previous check.');
-    setMessage("Error: No flags available. Please try again.");
-    setGameStarted(false);
-    return null;
+  // Ensure we have available flags before proceeding
+  // On initial load, this is a real error (no flags match criteria)
+  // On mid-game, this means we've run out of flags
+  if (availableFlags.length === 0) {
+    if (isInitialLoad) {
+      console.error('No available flags found on initial load - this is an error');
+      setMessage("Error: No flags available for selected game type. Please check your settings.");
+      setGameStarted(false);
+      setIsFlagLoading(false);
+      return null;
+    } else if (gameStartedRef.current) {
+      console.error('No available flags found. This should not happen after the previous check.');
+      setMessage("Error: No flags available. Please try again.");
+      setGameStarted(false);
+      setIsFlagLoading(false);
+      return null;
+    }
   }
   
   const randomFlag = availableFlags[Math.floor(Math.random() * availableFlags.length)];
@@ -769,6 +828,53 @@ export const loadNextQuestion = async (params, currentScore = null, resetUsedFla
   
     setOptions(shuffledNames);
     setFlagOptions([]); // Clear flag options for this mode
+    setMapOutlineOptions([]); // Clear map outline options
+  } else if (currentGameType === "map-to-flag") {
+    // Show map outline, guess flag
+    // TODO: Typing mode for map-to-flag (commented out for now)
+    // Check if typing mode is active
+    // const isTypingMode = (gameModeRef.current === "standard" && typingMode) || 
+    //                     (gameModeRef.current === "regional" && regionalTypingMode);
+    // 
+    // if (isTypingMode) {
+    //   // In typing mode, don't generate flag options - user will type the country name
+    //   setFlagOptions([]);
+    //   setOptions([]); // Clear name options for this mode
+    //   setMapOutlineOptions([]); // Clear map outline options
+    //   newFlagOptions = null; // No flag options needed in typing mode
+    // } else {
+      // In multiple choice mode, generate flag options
+      const correctFlag = randomFlag;
+      let incorrectFlags = currentFlags.filter((flag) => flag.id !== correctFlag.id);
+      incorrectFlags = incorrectFlags.sort(() => Math.random() - 0.5).slice(0, 3);
+    
+      const allFlags = [correctFlag, ...incorrectFlags];
+      const shuffledFlags = allFlags.sort(() => Math.random() - 0.5);
+      
+      newFlagOptions = shuffledFlags; // Store for return
+      setFlagOptions(shuffledFlags);
+      setOptions([]); // Clear name options for this mode
+      setMapOutlineOptions([]); // Clear map outline options
+      
+      // Preload flag options immediately for better performance
+      if (newFlagOptions && newFlagOptions.length > 0) {
+        preloadImages(newFlagOptions);
+      }
+    // }
+  } else if (currentGameType === "flag-to-map") {
+    // Show flag, guess map outline
+    const correctFlag = randomFlag;
+    let incorrectFlags = currentFlags.filter((flag) => flag.id !== correctFlag.id);
+    incorrectFlags = incorrectFlags.sort(() => Math.random() - 0.5).slice(0, 3);
+  
+    const allFlags = [correctFlag, ...incorrectFlags];
+    const shuffledFlags = allFlags.sort(() => Math.random() - 0.5);
+    
+    setMapOutlineOptions(shuffledFlags); // Set map outline options
+    setFlagOptions([]); // Clear flag options for this mode
+    setOptions([]); // Clear name options for this mode
+    
+    // No need to preload images for map outlines
   } else {
     // Show name, guess flag (country-to-flag or region-to-flag)
     const correctFlag = randomFlag;
@@ -781,6 +887,7 @@ export const loadNextQuestion = async (params, currentScore = null, resetUsedFla
     newFlagOptions = shuffledFlags; // Store for return
     setFlagOptions(shuffledFlags);
     setOptions([]); // Clear name options for this mode
+    setMapOutlineOptions([]); // Clear map outline options
     
     // Preload flag options immediately for better performance
     if (newFlagOptions && newFlagOptions.length > 0) {
@@ -871,3 +978,5 @@ export const retryFlagLoad = (loadNextQuestion, flagId) => {
   // Simple approach: just load the next question
   loadNextQuestion(null, null);
 };
+
+

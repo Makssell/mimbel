@@ -226,7 +226,9 @@ export const useGameEffects = ({
     if (gameStarted && currentFlag && typingInputRef?.current) {
       const isTypingMode = (gameMode === "standard" && typingMode) || 
                           (gameMode === "regional" && regionalTypingMode);
+      // TODO: Typing mode for map-to-flag (commented out for now)
       const isTypingGameType = (gameMode === "standard" && gameType === "flag-to-country") ||
+                               // (gameMode === "standard" && gameType === "map-to-flag") ||
                                (gameMode === "regional" && regionalGameType === "flag-to-region");
       
       if (isTypingMode && isTypingGameType && !buttonsDisabled) {

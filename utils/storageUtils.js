@@ -230,6 +230,7 @@ export const saveActiveGame = (
         currentFlag: gameState.currentFlag,
         options: gameState.options,
         flagOptions: gameState.flagOptions,
+        mapOutlineOptions: gameState.mapOutlineOptions || [],
         health: gameState.health,
         timeRemaining: gameState.timeRemaining,
         timerStarted: gameState.timerStarted,

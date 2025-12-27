@@ -4,5 +4,25 @@
     "files": [
       "static/chunks/lib_flagLoader_js.js"
     ]
+  },
+  "components\\MapOutlineButton.js -> ../utils/regionUtils": {
+    "id": "components\\MapOutlineButton.js -> ../utils/regionUtils",
+    "files": []
+  },
+  "pages\\admin.js -> ../components/MapOutlineSelector": {
+    "id": "pages\\admin.js -> ../components/MapOutlineSelector",
+    "files": [
+      "static/chunks/components_MapOutlineSelector_js.js"
+    ]
+  },
+  "pages\\admin.js -> ../components/MapOutlineViewer": {
+    "id": "pages\\admin.js -> ../components/MapOutlineViewer",
+    "files": [
+      "static/chunks/components_MapOutlineViewer_js.js"
+    ]
+  },
+  "utils\\regionUtils.js -> ./mapUtils": {
+    "id": "utils\\regionUtils.js -> ./mapUtils",
+    "files": []
   }
 }

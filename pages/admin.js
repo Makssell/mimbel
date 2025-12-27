@@ -1,5 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import styles from '../styles/admin.module.css';
+
+// Dynamically import MapOutlineSelector and MapOutlineViewer to avoid SSR issues
+const MapOutlineSelector = dynamic(() => import('../components/MapOutlineSelector'), {
+  ssr: false,
+  loading: () => <div style={{ padding: '20px', textAlign: 'center' }}>Loading map...</div>
+});
+
+const MapOutlineViewer = dynamic(() => import('../components/MapOutlineViewer'), {
+  ssr: false,
+  loading: () => <div style={{ padding: '20px', textAlign: 'center' }}>Loading map...</div>
+});
 
 // Image compression function
 const compressImage = (file) => {
@@ -82,12 +94,13 @@ const AdminPage = () => {
   const [editingContinent, setEditingContinent] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddContinentForm, setShowAddContinentForm] = useState(false);
-  const [activeTab, setActiveTab] = useState('flags'); // 'flags', 'continents', 'regional-countries', 'division-types', 'regional-flags', 'feedback', 'challenges'
+  const [activeTab, setActiveTab] = useState('flags'); // 'flags', 'continents', 'subregions', 'regional-countries', 'division-types', 'regional-flags', 'feedback', 'challenges', 'map-outlines', 'geojson-editor'
   const [newFlag, setNewFlag] = useState({
     name: '',
     territory: false,
     image_url: '',
-    continent_id: ''
+    continent_id: '',
+    subregion: ''
   });
   const [newContinent, setNewContinent] = useState({
     name: ''
@@ -100,8 +113,9 @@ const AdminPage = () => {
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedContinentFilter, setSelectedContinentFilter] = useState('all');
+  const [selectedSubregionFilter, setSelectedSubregionFilter] = useState('all');
   const [territoryFilter, setTerritoryFilter] = useState('all'); // 'all', 'countries', 'territories'
-  const [sortBy, setSortBy] = useState('name'); // 'name', 'continent', 'territory'
+  const [sortBy, setSortBy] = useState('name'); // 'name', 'continent', 'territory', 'subregion'
 
   // Regional management states
   const [regionalCountries, setRegionalCountries] = useState([]);
@@ -142,6 +156,22 @@ const AdminPage = () => {
   const [challengeSearchTerm, setChallengeSearchTerm] = useState('');
   const [challengeStatusFilter, setChallengeStatusFilter] = useState('all'); // 'all', 'active', 'expired'
 
+  // Map outlines management states
+  const [mapOutlines, setMapOutlines] = useState([]);
+  const [editingMapOutline, setEditingMapOutline] = useState(null);
+  const [viewingMapOutline, setViewingMapOutline] = useState(null);
+  const [showMapTester, setShowMapTester] = useState(false);
+  const [showMapViewer, setShowMapViewer] = useState(false);
+  const [mapOutlineSearchTerm, setMapOutlineSearchTerm] = useState('');
+  const [mapOutlineFilter, setMapOutlineFilter] = useState('all'); // 'all', 'with-outline', 'without-outline'
+
+  // GeoJSON features editor states
+  const [geojsonFeatures, setGeojsonFeatures] = useState([]);
+  const [editingGeojsonFeature, setEditingGeojsonFeature] = useState(null);
+  const [geojsonSearchTerm, setGeojsonSearchTerm] = useState('');
+  const [geojsonFilter, setGeojsonFilter] = useState('all'); // 'all', 'missing-iso', 'has-iso'
+  const [geojsonFileName, setGeojsonFileName] = useState('');
+
   // JWT token for API requests
   const [authToken, setAuthToken] = useState('');
 
@@ -152,8 +182,15 @@ const AdminPage = () => {
       fetchRegionalCountries();
       fetchFeedback();
       fetchChallenges();
+      fetchMapOutlines();
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated && activeTab === 'geojson-editor') {
+      fetchGeojsonFeatures();
+    }
+  }, [isAuthenticated, activeTab]);
 
   useEffect(() => {
     if (selectedCountry) {
@@ -167,6 +204,9 @@ const AdminPage = () => {
     }
   }, [selectedDivisionType]);
 
+  // Get unique subregions from flags
+  const uniqueSubregions = [...new Set(flags.map(f => f.subregion).filter(Boolean))].sort();
+
   // Filter and sort flags
   const filteredAndSortedFlags = flags
     .filter(flag => {
@@ -177,12 +217,17 @@ const AdminPage = () => {
       const matchesContinent = selectedContinentFilter === 'all' || 
         flag.country_continent?.some(cc => cc.continent_id.toString() === selectedContinentFilter);
       
+      // Subregion filter
+      const matchesSubregion = selectedSubregionFilter === 'all' || 
+        (selectedSubregionFilter === 'none' && !flag.subregion) ||
+        (selectedSubregionFilter !== 'none' && flag.subregion === selectedSubregionFilter);
+      
       // Territory filter
       const matchesTerritory = territoryFilter === 'all' || 
         (territoryFilter === 'countries' && !flag.territory) ||
         (territoryFilter === 'territories' && flag.territory);
       
-      return matchesSearch && matchesContinent && matchesTerritory;
+      return matchesSearch && matchesContinent && matchesSubregion && matchesTerritory;
     })
     .sort((a, b) => {
       switch (sortBy) {
@@ -192,6 +237,13 @@ const AdminPage = () => {
           const continentA = a.continents?.[0]?.name || 'Unknown';
           const continentB = b.continents?.[0]?.name || 'Unknown';
           return continentA.localeCompare(continentB);
+        case 'subregion':
+          const subregionA = a.subregion || 'zzz';
+          const subregionB = b.subregion || 'zzz';
+          if (subregionA === subregionB) {
+            return a.name.localeCompare(b.name);
+          }
+          return subregionA.localeCompare(subregionB);
         case 'territory':
           if (a.territory === b.territory) {
             return a.name.localeCompare(b.name);
@@ -212,6 +264,16 @@ const AdminPage = () => {
           groups[continentName] = [];
         }
         groups[continentName].push(flag);
+      });
+      return groups;
+    } else if (sortBy === 'subregion') {
+      const groups = {};
+      filteredAndSortedFlags.forEach(flag => {
+        const subregionName = flag.subregion || 'No Subregion';
+        if (!groups[subregionName]) {
+          groups[subregionName] = [];
+        }
+        groups[subregionName].push(flag);
       });
       return groups;
     } else if (sortBy === 'territory') {
@@ -417,6 +479,133 @@ const AdminPage = () => {
     }
   };
 
+  // Map outlines management API functions
+  const fetchMapOutlines = async () => {
+    try {
+      const response = await fetch('/api/admin/map-outlines', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch map outlines');
+      
+      const data = await response.json();
+      setMapOutlines(data || []);
+    } catch (error) {
+      setMessage('Error fetching map outlines: ' + error.message);
+    }
+  };
+
+  // GeoJSON features editor API functions
+  const fetchGeojsonFeatures = async () => {
+    try {
+      const response = await fetch('/api/admin/geojson-features', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch GeoJSON features');
+      
+      const data = await response.json();
+      setGeojsonFeatures(data.features || []);
+      setGeojsonFileName(data.fileName || '');
+    } catch (error) {
+      setMessage('Error fetching GeoJSON features: ' + error.message);
+    }
+  };
+
+  const handleUpdateGeojsonFeature = async (featureIndex, updates) => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/geojson-features', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          featureIndex,
+          ...updates,
+          fileName: geojsonFileName
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update GeoJSON feature');
+      }
+
+      setMessage('GeoJSON feature updated successfully!');
+      setEditingGeojsonFeature(null);
+      fetchGeojsonFeatures();
+    } catch (error) {
+      setMessage('Error updating GeoJSON feature: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAssignMapOutline = async (flagId, mapOutlineMatch) => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/map-outlines', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          flag_id: flagId,
+          map_outline_match: mapOutlineMatch
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to assign map outline');
+      }
+
+      setMessage('Map outline assigned successfully!');
+      setEditingMapOutline(null);
+      setShowMapTester(false);
+      fetchMapOutlines();
+      fetchFlags(); // Refresh flags to get updated data
+    } catch (error) {
+      setMessage('Error assigning map outline: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveMapOutline = async (flagId) => {
+    if (!confirm('Are you sure you want to remove the map outline assignment?')) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/admin/map-outlines?flag_id=${flagId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to remove map outline');
+      }
+
+      setMessage('Map outline removed successfully!');
+      fetchMapOutlines();
+      fetchFlags();
+    } catch (error) {
+      setMessage('Error removing map outline: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteChallenge = async (challengeId) => {
     if (!confirm('Are you sure you want to delete this challenge? This will also delete all its results.')) return;
 
@@ -614,6 +803,7 @@ const AdminPage = () => {
     setEditingFlag({
       ...flag,
       continent_id: flag.country_continent?.[0]?.continent_id || '',
+      subregion: flag.subregion || '',
       fileName: flag.fileName || null
     });
   };
@@ -637,7 +827,8 @@ const AdminPage = () => {
           name: editingFlag.name,
           territory: editingFlag.territory,
           image_url: editingFlag.image_url,
-          continent_id: editingFlag.continent_id
+          continent_id: editingFlag.continent_id,
+          subregion: editingFlag.subregion || null
         })
       });
 
@@ -710,7 +901,7 @@ const AdminPage = () => {
       }
 
       setMessage('Flag added successfully!');
-      setNewFlag({ name: '', territory: false, image_url: '', continent_id: '', fileName: null });
+      setNewFlag({ name: '', territory: false, image_url: '', continent_id: '', subregion: '', fileName: null });
       setShowAddForm(false);
       fetchFlags();
     } catch (error) {
@@ -1153,6 +1344,7 @@ const AdminPage = () => {
     setActiveTab('flags');
     setSearchTerm('');
     setSelectedContinentFilter('all');
+    setSelectedSubregionFilter('all');
     setTerritoryFilter('all');
     setSortBy('name');
     
@@ -1183,6 +1375,22 @@ const AdminPage = () => {
     setChallenges([]);
     setChallengeSearchTerm('');
     setChallengeStatusFilter('all');
+    
+    // Reset map outlines states
+    setMapOutlines([]);
+    setEditingMapOutline(null);
+    setViewingMapOutline(null);
+    setShowMapTester(false);
+    setShowMapViewer(false);
+    setMapOutlineSearchTerm('');
+    setMapOutlineFilter('all');
+    
+    // Reset GeoJSON editor states
+    setGeojsonFeatures([]);
+    setEditingGeojsonFeature(null);
+    setGeojsonSearchTerm('');
+    setGeojsonFilter('all');
+    setGeojsonFileName('');
   };
 
   if (!isAuthenticated) {
@@ -1233,6 +1441,12 @@ const AdminPage = () => {
           Continents ({continents.length})
         </button>
         <button
+          className={`${styles.tab} ${activeTab === 'subregions' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('subregions')}
+        >
+          Subregions ({uniqueSubregions.length})
+        </button>
+        <button
           className={`${styles.tab} ${activeTab === 'regional-countries' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('regional-countries')}
         >
@@ -1261,6 +1475,18 @@ const AdminPage = () => {
           onClick={() => setActiveTab('challenges')}
         >
           Challenges ({filteredChallenges.length}/{challenges.length})
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'map-outlines' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('map-outlines')}
+        >
+          Map Outlines ({mapOutlines.filter(m => m.map_outline_match).length}/{mapOutlines.length})
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'geojson-editor' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('geojson-editor')}
+        >
+          GeoJSON Editor ({geojsonFeatures.filter(f => f.properties.ISO_A2 === '-99' || f.properties.ISO_A3 === '-99' || !f.properties.ISO_A2 || !f.properties.ISO_A3).length} need fixes)
         </button>
       </div>
 
@@ -1336,6 +1562,22 @@ const AdminPage = () => {
                     </option>
                   ))}
                 </select>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: 1 }}>
+                  <label style={{ fontSize: '12px', color: '#666' }}>Subregion (optional)</label>
+                  <input
+                    type="text"
+                    list="subregion-list"
+                    value={newFlag.subregion}
+                    onChange={(e) => setNewFlag({ ...newFlag, subregion: e.target.value })}
+                    placeholder="Type or select subregion"
+                    className={styles.input}
+                  />
+                  <datalist id="subregion-list">
+                    {uniqueSubregions.map(subregion => (
+                      <option key={subregion} value={subregion} />
+                    ))}
+                  </datalist>
+                </div>
                 <label className={styles.checkbox}>
                   <input
                     type="checkbox"
@@ -1374,6 +1616,19 @@ const AdminPage = () => {
                   ))}
                 </select>
                 <select
+                  value={selectedSubregionFilter}
+                  onChange={(e) => setSelectedSubregionFilter(e.target.value)}
+                  className={styles.filterSelect}
+                >
+                  <option value="all">All Subregions</option>
+                  <option value="none">No Subregion</option>
+                  {uniqueSubregions.map(subregion => (
+                    <option key={subregion} value={subregion}>
+                      {subregion} ({flags.filter(f => f.subregion === subregion).length})
+                    </option>
+                  ))}
+                </select>
+                <select
                   value={territoryFilter}
                   onChange={(e) => setTerritoryFilter(e.target.value)}
                   className={styles.filterSelect}
@@ -1389,6 +1644,7 @@ const AdminPage = () => {
                 >
                   <option value="name">Sort by Name</option>
                   <option value="continent">Sort by Continent</option>
+                  <option value="subregion">Sort by Subregion</option>
                   <option value="territory">Sort by Type</option>
                 </select>
               </div>
@@ -1465,6 +1721,22 @@ const AdminPage = () => {
                                   </option>
                                 ))}
                               </select>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: 1 }}>
+                                <label style={{ fontSize: '12px', color: '#666' }}>Subregion (optional)</label>
+                                <input
+                                  type="text"
+                                  list="subregion-list-edit"
+                                  value={editingFlag.subregion || ''}
+                                  onChange={(e) => setEditingFlag({ ...editingFlag, subregion: e.target.value })}
+                                  placeholder="Type or select subregion"
+                                  className={styles.input}
+                                />
+                                <datalist id="subregion-list-edit">
+                                  {uniqueSubregions.map(subregion => (
+                                    <option key={subregion} value={subregion} />
+                                  ))}
+                                </datalist>
+                              </div>
                               <label className={styles.checkbox}>
                                 <input
                                   type="checkbox"
@@ -1494,6 +1766,7 @@ const AdminPage = () => {
                               <div className={styles.flagInfo}>
                                 <h3>{flag.name}</h3>
                                 <p>Continent: {flag.continents?.[0]?.name || 'Unknown'}</p>
+                                {flag.subregion && <p>Subregion: {flag.subregion}</p>}
                                 {flag.territory && <span className={styles.territoryBadge}>Territory</span>}
                               </div>
                               <div className={styles.flagActions}>
@@ -1516,6 +1789,68 @@ const AdminPage = () => {
                     No flags found matching your filters.
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {activeTab === 'subregions' && (
+        <>
+          <div className={styles.flagsList}>
+            <h2>Subregions</h2>
+            <p style={{ marginBottom: '20px', color: '#666', fontSize: '14px' }}>
+              Subregions are used for better map display bounds calculation. Countries can be assigned to subregions like "middle-east", "caribbean", "southeast-asia", etc.
+            </p>
+            {loading ? (
+              <div className={styles.loading}>Loading...</div>
+            ) : (
+              <div className={styles.continentsGrid}>
+                {uniqueSubregions.length > 0 ? (
+                  uniqueSubregions.map(subregion => {
+                    const countriesInSubregion = flags.filter(f => f.subregion === subregion);
+                    return (
+                      <div key={subregion} className={styles.continentCard}>
+                        <div className={styles.continentInfo}>
+                          <h3>{subregion}</h3>
+                          <p>{countriesInSubregion.length} countr{countriesInSubregion.length === 1 ? 'y' : 'ies'}</p>
+                        </div>
+                        <div className={styles.flagActions}>
+                          <button
+                            onClick={() => {
+                              setSelectedSubregionFilter(subregion);
+                              setActiveTab('flags');
+                            }}
+                            className={styles.button}
+                          >
+                            View Countries
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className={styles.noResults}>
+                    No subregions assigned yet. Assign subregions to countries in the Flags tab.
+                  </div>
+                )}
+                <div className={styles.continentCard} style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                  <div className={styles.continentInfo}>
+                    <h3>No Subregion</h3>
+                    <p>{flags.filter(f => !f.subregion).length} countr{flags.filter(f => !f.subregion).length === 1 ? 'y' : 'ies'}</p>
+                  </div>
+                  <div className={styles.flagActions}>
+                    <button
+                      onClick={() => {
+                        setSelectedSubregionFilter('none');
+                        setActiveTab('flags');
+                      }}
+                      className={styles.button}
+                    >
+                      View Countries
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -2405,6 +2740,495 @@ const AdminPage = () => {
                 {filteredChallenges.length === 0 && (
                   <div className={styles.noResults}>
                     No challenges found matching your filters.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {activeTab === 'map-outlines' && (
+        <>
+          <div className={styles.flagsList}>
+            <div className={styles.filtersSection}>
+              <div className={styles.filtersRow}>
+                <input
+                  type="text"
+                  placeholder="Search countries..."
+                  value={mapOutlineSearchTerm}
+                  onChange={(e) => setMapOutlineSearchTerm(e.target.value)}
+                  className={styles.searchInput}
+                />
+                <select
+                  value={mapOutlineFilter}
+                  onChange={(e) => setMapOutlineFilter(e.target.value)}
+                  className={styles.filterSelect}
+                >
+                  <option value="all">All Countries</option>
+                  <option value="with-outline">With Outline</option>
+                  <option value="without-outline">Without Outline</option>
+                </select>
+              </div>
+              <div className={styles.filterStats}>
+                Showing {mapOutlines.filter(flag => {
+                  const matchesSearch = !mapOutlineSearchTerm || 
+                    flag.name.toLowerCase().includes(mapOutlineSearchTerm.toLowerCase());
+                  const hasOutline = flag.map_outline_match !== null;
+                  const matchesFilter = mapOutlineFilter === 'all' ||
+                    (mapOutlineFilter === 'with-outline' && hasOutline) ||
+                    (mapOutlineFilter === 'without-outline' && !hasOutline);
+                  return matchesSearch && matchesFilter;
+                }).length} of {mapOutlines.length} countries
+                {mapOutlineFilter === 'all' && ` (${mapOutlines.filter(m => m.map_outline_match).length} with outlines)`}
+              </div>
+            </div>
+
+            <h2>Map Outline Assignments</h2>
+            <p style={{ marginBottom: '20px', color: '#666', fontSize: '14px' }}>
+              Assign vector map outlines (from GeoJSON) to countries. These outlines can be used in game modes that display country shapes.
+            </p>
+
+            {loading ? (
+              <div className={styles.loading}>Loading...</div>
+            ) : (
+              <div className={styles.flagsGrid}>
+                {mapOutlines
+                  .filter(flag => {
+                    // Search filter
+                    const matchesSearch = !mapOutlineSearchTerm || 
+                      flag.name.toLowerCase().includes(mapOutlineSearchTerm.toLowerCase());
+                    
+                    // Outline status filter
+                    const hasOutline = flag.map_outline_match !== null;
+                    const matchesFilter = mapOutlineFilter === 'all' ||
+                      (mapOutlineFilter === 'with-outline' && hasOutline) ||
+                      (mapOutlineFilter === 'without-outline' && !hasOutline);
+                    
+                    return matchesSearch && matchesFilter;
+                  })
+                  .map(flag => {
+                    const hasOutline = flag.map_outline_match !== null;
+                    const matchData = hasOutline ? (typeof flag.map_outline_match === 'string' 
+                      ? JSON.parse(flag.map_outline_match) 
+                      : flag.map_outline_match) : null;
+
+                    return (
+                      <div key={flag.id} className={styles.flagCard}>
+                        <div className={styles.flagInfo}>
+                          <h3>{flag.name}</h3>
+                          {hasOutline ? (
+                            <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#d4edda', borderRadius: '4px' }}>
+                              <p style={{ margin: '0 0 5px 0', fontWeight: 'bold', color: '#155724' }}>
+                                ✓ Map Outline Assigned
+                              </p>
+                              <div style={{ fontSize: '12px', color: '#155724' }}>
+                                {matchData?.ISO_A3 && <div>ISO A3: {matchData.ISO_A3}</div>}
+                                {matchData?.ISO_A2 && <div>ISO A2: {matchData.ISO_A2}</div>}
+                                {matchData?.NAME && <div>Name: {matchData.NAME}</div>}
+                                {matchData?.ADMIN && <div>Admin: {matchData.ADMIN}</div>}
+                              </div>
+                            </div>
+                          ) : (
+                            <p style={{ marginTop: '10px', color: '#666', fontSize: '14px' }}>
+                              No map outline assigned
+                            </p>
+                          )}
+                        </div>
+                        <div className={styles.flagActions}>
+                          {hasOutline && (
+                            <button
+                              onClick={() => {
+                                setViewingMapOutline(flag);
+                                setShowMapViewer(true);
+                              }}
+                              className={styles.button}
+                              style={{ marginRight: '8px' }}
+                            >
+                              View Outline
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              setEditingMapOutline(flag);
+                              setShowMapTester(true);
+                            }}
+                            className={styles.editButton}
+                          >
+                            {hasOutline ? 'Change' : 'Assign'} Outline
+                          </button>
+                          {hasOutline && (
+                            <button
+                              onClick={() => handleRemoveMapOutline(flag.id)}
+                              className={styles.deleteButton}
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                {mapOutlines.filter(flag => {
+                  const matchesSearch = !mapOutlineSearchTerm || 
+                    flag.name.toLowerCase().includes(mapOutlineSearchTerm.toLowerCase());
+                  const hasOutline = flag.map_outline_match !== null;
+                  const matchesFilter = mapOutlineFilter === 'all' ||
+                    (mapOutlineFilter === 'with-outline' && hasOutline) ||
+                    (mapOutlineFilter === 'without-outline' && !hasOutline);
+                  return matchesSearch && matchesFilter;
+                }).length === 0 && (
+                  <div className={styles.noResults}>
+                    No countries found matching your filters.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Map Tester Modal */}
+          {showMapTester && editingMapOutline && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              zIndex: 10000,
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <div style={{
+                backgroundColor: 'white',
+                margin: '20px',
+                borderRadius: '8px',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  padding: '20px',
+                  borderBottom: '1px solid #ddd',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <h2 style={{ margin: 0 }}>
+                    Assign Map Outline: {editingMapOutline.name}
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setShowMapTester(false);
+                      setEditingMapOutline(null);
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
+                <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+                  <MapOutlineSelector
+                    countryName={editingMapOutline.name}
+                    onSelect={(matchData) => {
+                      handleAssignMapOutline(editingMapOutline.id, matchData);
+                    }}
+                    currentMatch={editingMapOutline.map_outline_match}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Map Viewer Modal */}
+          {showMapViewer && viewingMapOutline && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              zIndex: 10000,
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <div style={{
+                backgroundColor: 'white',
+                margin: '20px',
+                borderRadius: '8px',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  padding: '20px',
+                  borderBottom: '1px solid #ddd',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <h2 style={{ margin: 0 }}>
+                    View Map Outline: {viewingMapOutline.name}
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setShowMapViewer(false);
+                      setViewingMapOutline(null);
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#6c757d',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
+                <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+                  <MapOutlineViewer
+                    countryName={viewingMapOutline.name}
+                    mapOutlineMatch={viewingMapOutline.map_outline_match}
+                    flagId={viewingMapOutline.id}
+                    continents={viewingMapOutline.continents || []}
+                    allFlags={flags}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {activeTab === 'geojson-editor' && (
+        <>
+          <div className={styles.flagsList}>
+            <div className={styles.filtersSection}>
+              <div className={styles.filtersRow}>
+                <input
+                  type="text"
+                  placeholder="Search countries..."
+                  value={geojsonSearchTerm}
+                  onChange={(e) => setGeojsonSearchTerm(e.target.value)}
+                  className={styles.searchInput}
+                />
+                <select
+                  value={geojsonFilter}
+                  onChange={(e) => setGeojsonFilter(e.target.value)}
+                  className={styles.filterSelect}
+                >
+                  <option value="all">All Features</option>
+                  <option value="missing-iso">Missing ISO Codes (-99 or empty)</option>
+                  <option value="has-iso">Has ISO Codes</option>
+                </select>
+              </div>
+              <div className={styles.filterStats}>
+                Editing: <strong>{geojsonFileName}</strong> | 
+                {geojsonFeatures.length} total features | 
+                {geojsonFeatures.filter(f => f.properties.ISO_A2 === '-99' || f.properties.ISO_A3 === '-99' || !f.properties.ISO_A2 || !f.properties.ISO_A3).length} need ISO code fixes
+              </div>
+            </div>
+
+            <h2>GeoJSON Features Editor</h2>
+            <p style={{ marginBottom: '20px', color: '#666', fontSize: '14px' }}>
+              Edit ISO A2 and ISO A3 codes for vector map features. Countries with -99 or missing values need to be fixed.
+            </p>
+
+            {loading && geojsonFeatures.length === 0 ? (
+              <div className={styles.loading}>Loading GeoJSON features...</div>
+            ) : (
+              <div style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+                  <thead style={{ position: 'sticky', top: 0, backgroundColor: '#f8f9fa', zIndex: 10 }}>
+                    <tr style={{ borderBottom: '2px solid #ddd' }}>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold' }}>Name</th>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold' }}>ISO A2</th>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold' }}>ISO A3</th>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold' }}>Admin</th>
+                      <th style={{ padding: '12px', textAlign: 'left', fontWeight: 'bold' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {geojsonFeatures
+                      .filter(feature => {
+                        const matchesSearch = !geojsonSearchTerm || 
+                          feature.name.toLowerCase().includes(geojsonSearchTerm.toLowerCase()) ||
+                          (feature.properties.ISO_A2 && feature.properties.ISO_A2.toLowerCase().includes(geojsonSearchTerm.toLowerCase())) ||
+                          (feature.properties.ISO_A3 && feature.properties.ISO_A3.toLowerCase().includes(geojsonSearchTerm.toLowerCase()));
+                        
+                        const hasMissingISO = feature.properties.ISO_A2 === '-99' || 
+                          feature.properties.ISO_A3 === '-99' || 
+                          !feature.properties.ISO_A2 || 
+                          !feature.properties.ISO_A3;
+                        
+                        const matchesFilter = geojsonFilter === 'all' ||
+                          (geojsonFilter === 'missing-iso' && hasMissingISO) ||
+                          (geojsonFilter === 'has-iso' && !hasMissingISO);
+                        
+                        return matchesSearch && matchesFilter;
+                      })
+                      .map((feature) => {
+                        const hasMissingISO = feature.properties.ISO_A2 === '-99' || 
+                          feature.properties.ISO_A3 === '-99' || 
+                          !feature.properties.ISO_A2 || 
+                          !feature.properties.ISO_A3;
+                        
+                        return (
+                          <tr 
+                            key={feature.index} 
+                            style={{ 
+                              borderBottom: '1px solid #eee',
+                              backgroundColor: hasMissingISO ? '#fff3cd' : 'white'
+                            }}
+                          >
+                            <td style={{ padding: '12px' }}>
+                              <strong>{feature.name}</strong>
+                              {hasMissingISO && (
+                                <span style={{ 
+                                  marginLeft: '8px', 
+                                  padding: '2px 6px', 
+                                  backgroundColor: '#ffc107', 
+                                  color: '#000',
+                                  borderRadius: '3px',
+                                  fontSize: '11px',
+                                  fontWeight: 'bold'
+                                }}>
+                                  NEEDS FIX
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ padding: '12px' }}>
+                              {editingGeojsonFeature?.index === feature.index ? (
+                                <input
+                                  type="text"
+                                  value={editingGeojsonFeature.properties.ISO_A2 || ''}
+                                  onChange={(e) => setEditingGeojsonFeature({
+                                    ...editingGeojsonFeature,
+                                    properties: {
+                                      ...editingGeojsonFeature.properties,
+                                      ISO_A2: e.target.value
+                                    }
+                                  })}
+                                  style={{
+                                    width: '80px',
+                                    padding: '4px 8px',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '4px',
+                                    fontSize: '14px'
+                                  }}
+                                  placeholder="A2"
+                                />
+                              ) : (
+                                <span style={{ 
+                                  color: feature.properties.ISO_A2 === '-99' || !feature.properties.ISO_A2 ? '#dc3545' : '#333',
+                                  fontWeight: feature.properties.ISO_A2 === '-99' || !feature.properties.ISO_A2 ? 'bold' : 'normal'
+                                }}>
+                                  {feature.properties.ISO_A2 || 'N/A'}
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ padding: '12px' }}>
+                              {editingGeojsonFeature?.index === feature.index ? (
+                                <input
+                                  type="text"
+                                  value={editingGeojsonFeature.properties.ISO_A3 || ''}
+                                  onChange={(e) => setEditingGeojsonFeature({
+                                    ...editingGeojsonFeature,
+                                    properties: {
+                                      ...editingGeojsonFeature.properties,
+                                      ISO_A3: e.target.value
+                                    }
+                                  })}
+                                  style={{
+                                    width: '80px',
+                                    padding: '4px 8px',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '4px',
+                                    fontSize: '14px'
+                                  }}
+                                  placeholder="A3"
+                                />
+                              ) : (
+                                <span style={{ 
+                                  color: feature.properties.ISO_A3 === '-99' || !feature.properties.ISO_A3 ? '#dc3545' : '#333',
+                                  fontWeight: feature.properties.ISO_A3 === '-99' || !feature.properties.ISO_A3 ? 'bold' : 'normal'
+                                }}>
+                                  {feature.properties.ISO_A3 || 'N/A'}
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ padding: '12px', fontSize: '12px', color: '#666' }}>
+                              {feature.properties.ADMIN || 'N/A'}
+                            </td>
+                            <td style={{ padding: '12px' }}>
+                              {editingGeojsonFeature?.index === feature.index ? (
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                  <button
+                                    onClick={() => handleUpdateGeojsonFeature(feature.index, {
+                                      ISO_A2: editingGeojsonFeature.properties.ISO_A2,
+                                      ISO_A3: editingGeojsonFeature.properties.ISO_A3
+                                    })}
+                                    className={styles.button}
+                                    disabled={loading}
+                                    style={{ fontSize: '12px', padding: '4px 12px' }}
+                                  >
+                                    {loading ? 'Saving...' : 'Save'}
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingGeojsonFeature(null)}
+                                    className={styles.cancelButton}
+                                    style={{ fontSize: '12px', padding: '4px 12px' }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => setEditingGeojsonFeature({
+                                    index: feature.index,
+                                    properties: { ...feature.properties },
+                                    name: feature.name
+                                  })}
+                                  className={styles.editButton}
+                                  style={{ fontSize: '12px', padding: '4px 12px' }}
+                                >
+                                  Edit
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+                {geojsonFeatures.filter(feature => {
+                  const matchesSearch = !geojsonSearchTerm || 
+                    feature.name.toLowerCase().includes(geojsonSearchTerm.toLowerCase());
+                  const hasMissingISO = feature.properties.ISO_A2 === '-99' || 
+                    feature.properties.ISO_A3 === '-99' || 
+                    !feature.properties.ISO_A2 || 
+                    !feature.properties.ISO_A3;
+                  const matchesFilter = geojsonFilter === 'all' ||
+                    (geojsonFilter === 'missing-iso' && hasMissingISO) ||
+                    (geojsonFilter === 'has-iso' && !hasMissingISO);
+                  return matchesSearch && matchesFilter;
+                }).length === 0 && (
+                  <div className={styles.noResults}>
+                    No features found matching your filters.
                   </div>
                 )}
               </div>

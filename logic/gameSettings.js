@@ -16,6 +16,8 @@ export const buildGameSettings = (state) => {
     gameMode: isRegionalMode ? "Regional Flags" : "Country Flags",
     gameType: currentGameType === "flag-to-country" ? "Flag → Country" : 
               currentGameType === "country-to-flag" ? "Country → Flag" :
+              currentGameType === "map-to-flag" ? "Map → Flag" :
+              currentGameType === "flag-to-map" ? "Flag → Map" :
               currentGameType === "flag-to-region" ? "Flag → Region" :
               currentGameType === "region-to-flag" ? "Region → Flag" : "Unknown",
     country: isRegionalMode && state.selectedRegionalCountry ? state.selectedRegionalCountry.name : null,
@@ -49,6 +51,8 @@ export const buildGameSettingsFromSnapshot = (gameState) => {
     gameMode: isRegionalMode ? "Regional Flags" : "Country Flags",
     gameType: currentGameType === "flag-to-country" ? "Flag → Country" : 
               currentGameType === "country-to-flag" ? "Country → Flag" :
+              currentGameType === "map-to-flag" ? "Map → Flag" :
+              currentGameType === "flag-to-map" ? "Flag → Map" :
               currentGameType === "flag-to-region" ? "Flag → Region" :
               currentGameType === "region-to-flag" ? "Region → Flag" : "Unknown",
     country: isRegionalMode && gameState.selectedRegionalCountry ? gameState.selectedRegionalCountry.name : null,

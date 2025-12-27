@@ -139,8 +139,26 @@ export const checkAnswer = (params, selectedAnswer) => {
       // Exact match for multiple choice mode
       isCorrect = selectedAnswer === currentFlagValue.name;
     }
+  } else if (currentGameType === "map-to-flag") {
+    // TODO: Typing mode for map-to-flag (commented out for now)
+    // For map-to-flag, check typing mode
+    // const isTypingMode = (gameModeRef.current === "standard" && typingMode) || 
+    //                     (gameModeRef.current === "regional" && regionalTypingMode);
+    // if (isTypingMode) {
+    //   // In typing mode, check if typed country name matches current flag name
+    //   // Case-insensitive match with spaces removed for typing mode
+    //   const normalizedAnswer = selectedAnswer.trim().toLowerCase().replace(/\s+/g, '');
+    //   const normalizedCorrect = currentFlagValue.name.toLowerCase().replace(/\s+/g, '');
+    //   isCorrect = normalizedAnswer === normalizedCorrect;
+    // } else {
+      // In multiple choice mode, check if selected flag ID matches current flag ID
+      isCorrect = selectedAnswer === currentFlagValue.id;
+    // }
+  } else if (currentGameType === "flag-to-map") {
+    // For flag-to-map, check if selected outline (flag ID) matches current flag ID
+    isCorrect = selectedAnswer === currentFlagValue.id;
   } else {
-    // Check if selected flag matches current name
+    // Check if selected flag matches current name (country-to-flag or region-to-flag)
     isCorrect = selectedAnswer === currentFlagValue.id;
   }
   
@@ -271,11 +289,22 @@ export const checkAnswer = (params, selectedAnswer) => {
       if (healthRef.current > 1) {
         setHealth(healthRef.current - 1);
         setMessage("Incorrect! Try again.");
-        setButtonStyles({
-          [selectedAnswer]: styles.incorrectButton
-        });
+        
+        // Apply visual feedback
+        const isTypingMode = (gameModeRef.current === "standard" && typingMode) || 
+                            (gameModeRef.current === "regional" && regionalTypingMode);
+        if (isTypingMode) {
+          setTypingInputStyle(styles.incorrectInput);
+          setTypedAnswer(""); // Clear typed answer
+        } else {
+          setButtonStyles({
+            [selectedAnswer]: styles.incorrectButton
+          });
+        }
+        
         setTimeout(() => {
           setButtonStyles({});
+          setTypingInputStyle(""); // Clear input style
         }, 1000);
       } else {
         // Game Over - Ran out of hearts

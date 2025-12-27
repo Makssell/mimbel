@@ -26,6 +26,7 @@ export default function StartScreen({
   infiniteMode,
   typingMode,
   flashMode,
+  outlineOnly,
   regionalGameType,
   regionalInfiniteMode,
   regionalTypingMode,
@@ -48,6 +49,7 @@ export default function StartScreen({
   setInfiniteMode,
   setTypingMode,
   setFlashMode,
+  setOutlineOnly,
   setRegionalGameType,
   setRegionalInfiniteMode,
   setRegionalTypingMode,
@@ -175,6 +177,31 @@ export default function StartScreen({
                     setMenuStep(2);
                   }}
                 />
+                <MenuButton
+                  type="gameType"
+                  icon="🌍"
+                  label="Map to Flag"
+                  description="See the country outline, guess its flag"
+                  isSelected={gameType === "map-to-flag"}
+                  onClick={() => {
+                    playMenuClickSound();
+                    setGameType("map-to-flag");
+                    setMenuStep(2);
+                  }}
+                />
+                <MenuButton
+                  type="gameType"
+                  icon="📍"
+                  label="Flag to Map"
+                  description="See the flag, guess the country outline"
+                  isSelected={gameType === "flag-to-map"}
+                  onClick={() => {
+                    playMenuClickSound();
+                    setGameType("flag-to-map");
+                    setOutlineOnly(true); // Force enable outlines for flag-to-map mode
+                    setMenuStep(2);
+                  }}
+                />
               </div>
             </div>
           )}
@@ -250,17 +277,19 @@ export default function StartScreen({
           {menuStep === 3 && (
             <div className={startScreenStyles.settingsSection}>
               <div className={startScreenStyles.settingsGrid}>
-                <MenuButton
-                  type="setting"
-                  icon="🏝️"
-                  label="Include Territories"
-                  description="Play with territories and dependencies"
-                  isSelected={includeTerritories}
-                  onClick={() => {
-                    playMenuClickSound();
-                    setIncludeTerritories(!includeTerritories);
-                  }}
-                />
+                {gameType !== "map-to-flag" && gameType !== "flag-to-map" && (
+                  <MenuButton
+                    type="setting"
+                    icon="🏝️"
+                    label="Include Territories"
+                    description="Play with territories and dependencies"
+                    isSelected={includeTerritories}
+                    onClick={() => {
+                      playMenuClickSound();
+                      setIncludeTerritories(!includeTerritories);
+                    }}
+                  />
+                )}
                 <MenuButton
                   type="setting"
                   icon="⏱️"
@@ -289,31 +318,71 @@ export default function StartScreen({
                   }}
                   disabled={timeAttackMode} // Disable when time attack is enabled
                 />
+                {gameType === "map-to-flag" && (
+                  <MenuButton
+                    type="setting"
+                    icon="🗺️"
+                    label="Outline Only"
+                    description="Show only country outline (no continent context)"
+                    isSelected={outlineOnly}
+                    onClick={() => {
+                      playMenuClickSound();
+                      setOutlineOnly(!outlineOnly);
+                    }}
+                  />
+                )}
+                {gameType === "flag-to-map" && (
+                  <MenuButton
+                    type="setting"
+                    icon="🗺️"
+                    label="Outline Only"
+                    description="Show only country outline (required for flag-to-map)"
+                    isSelected={outlineOnly}
+                    disabled={true}
+                    onClick={() => {
+                      // Disabled - outlines are required for flag-to-map mode
+                    }}
+                  />
+                )}
                 {gameType === "flag-to-country" && (
-                  <>
-                    <MenuButton
-                      type="setting"
-                      icon="⌨️"
-                      label="Typing Mode"
-                      description="Type the answer instead of multiple choice"
-                      isSelected={typingMode}
-                      onClick={() => {
-                        playMenuClickSound();
-                        setTypingMode(!typingMode);
-                      }}
-                    />
-                    <MenuButton
-                      type="setting"
-                      icon="⚡"
-                      label="Flash Mode"
-                      description="Flag shows for 0.5 seconds then disappears"
-                      isSelected={flashMode}
-                      onClick={() => {
-                        playMenuClickSound();
-                        setFlashMode(!flashMode);
-                      }}
-                    />
-                  </>
+                  <MenuButton
+                    type="setting"
+                    icon="⌨️"
+                    label="Typing Mode"
+                    description="Type the answer instead of multiple choice"
+                    isSelected={typingMode}
+                    onClick={() => {
+                      playMenuClickSound();
+                      setTypingMode(!typingMode);
+                    }}
+                  />
+                )}
+                {/* TODO: Typing mode for map-to-flag (commented out for now) */}
+                {/* {gameType === "map-to-flag" && (
+                  <MenuButton
+                    type="setting"
+                    icon="⌨️"
+                    label="Typing Mode"
+                    description="Type the answer instead of multiple choice"
+                    isSelected={typingMode}
+                    onClick={() => {
+                      playMenuClickSound();
+                      setTypingMode(!typingMode);
+                    }}
+                  />
+                )} */}
+                {gameType === "flag-to-country" && (
+                  <MenuButton
+                    type="setting"
+                    icon="⚡"
+                    label="Flash Mode"
+                    description="Flag shows for 0.5 seconds then disappears"
+                    isSelected={flashMode}
+                    onClick={() => {
+                      playMenuClickSound();
+                      setFlashMode(!flashMode);
+                    }}
+                  />
                 )}
               </div>
               <div className={startScreenStyles.settingsButtons}>
@@ -612,3 +681,5 @@ export default function StartScreen({
     </div>
   );
 }
+
+

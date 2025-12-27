@@ -6,6 +6,8 @@
 import { useEffect, useState, useRef } from "react";
 import sharedStyles from "../styles/shared.module.css";
 import gameScreenStyles from "../styles/gameScreen.module.css";
+import MapOutlineDisplay from "./MapOutlineDisplay";
+import MapOutlineButton from "./MapOutlineButton";
 
 export default function GameScreen({
   // Game state
@@ -29,6 +31,7 @@ export default function GameScreen({
   regionalFlashMode,
   options,
   flagOptions,
+  mapOutlineOptions, // Array of flags with outlines for flag-to-map mode
   optionsTransitioning,
   typedAnswer,
   setTypedAnswer,
@@ -37,6 +40,8 @@ export default function GameScreen({
   buttonStyles,
   message,
   messageTransitioning,
+  outlineOnly = false, // Show only outline without continent context
+  allFlagsWithOutlines = [], // All flags with outlines available in the game (for continent view)
   // Refs
   typingInputRef,
   imageCache,
@@ -280,7 +285,16 @@ export default function GameScreen({
 
       {currentFlag && (
         <div className={`${gameScreenStyles.flagContainer} ${flagTransitioning ? sharedStyles.transitioning : ''}`}>
-          {(gameType === "flag-to-country" || regionalGameType === "flag-to-region") ? (
+          {gameType === "map-to-flag" ? (
+            // Show map outline for map-to-flag mode
+            <MapOutlineDisplay
+              flag={currentFlag}
+              viewMode={outlineOnly ? "isolated" : "continent"}
+              outlineOnly={outlineOnly}
+              allFlags={allFlagsWithOutlines}
+              className={flagTransitioning ? sharedStyles.transitioning : ''}
+            />
+          ) : (gameType === "flag-to-country" || regionalGameType === "flag-to-region") ? (
             // Show flag image for flag-to-country or flag-to-region mode (Site4 style)
             <>
               {isFlagLoading && <div className={sharedStyles.loadingSpinner}></div>}
@@ -304,6 +318,25 @@ export default function GameScreen({
                 }}
               />
             </>
+          ) : gameType === "flag-to-map" ? (
+            // Show flag image for flag-to-map mode
+            <>
+              {isFlagLoading && <div className={sharedStyles.loadingSpinner}></div>}
+              <img
+                src={currentFlag.image_url}
+                alt={currentFlag.name}
+                className={`${gameScreenStyles.flagImage} ${flagTransitioning ? sharedStyles.transitioning : ''}`}
+                onLoad={() => {
+                  handleFlagLoad(lastFlagId);
+                }}
+                onError={() => handleFlagError(lastFlagId, currentFlag.name)}
+                style={{ 
+                  display: isFlagLoading ? 'none' : 'block',
+                  opacity: 1,
+                  transition: 'opacity 0.1s ease-out'
+                }}
+              />
+            </>
           ) : (
             // Show name for country-to-flag or region-to-flag mode
             <div key={currentFlag.name} className={`${gameScreenStyles.countryText} ${flagTransitioning ? sharedStyles.transitioning : ''}`}>
@@ -314,7 +347,107 @@ export default function GameScreen({
       )}
 
       <div className={`${gameScreenStyles.optionsContainer} ${optionsTransitioning ? sharedStyles.transitioning : ''}`}>
-        {(gameType === "flag-to-country" || regionalGameType === "flag-to-region") ? (
+        {gameType === "map-to-flag" ? (
+          // TODO: Typing mode for map-to-flag (commented out for now)
+          // Check if typing mode is active for map-to-flag
+          // (gameMode === "standard" && typingMode) || (gameMode === "regional" && regionalTypingMode) ? (
+          //   // Show text input for typing mode
+          //   <div className={gameScreenStyles.typingInputContainer}>
+          //     <input
+          //       ref={typingInputRef}
+          //       type="text"
+          //       value={typedAnswer}
+          //       onChange={(e) => setTypedAnswer(e.target.value)}
+          //       onKeyDown={(e) => {
+          //         if (e.key === 'Enter' && !buttonsDisabled && typedAnswer.trim()) {
+          //           checkAnswer(typedAnswer.trim());
+          //         }
+          //       }}
+          //       onFocus={(e) => {
+          //         // Don't scroll - let CSS handle layout adjustments
+          //         // The viewport height tracking will handle keyboard appearance
+          //       }}
+          //       placeholder="Type the answer..."
+          //       className={`${gameScreenStyles.typingInput} ${optionsTransitioning ? sharedStyles.transitioning : ''} ${typingInputStyle}`}
+          //       disabled={buttonsDisabled}
+          //       autoFocus
+          //       autoComplete="off"
+          //       autoCorrect="off"
+          //       autoCapitalize="words"
+          //       spellCheck="false"
+          //       inputMode="text"
+          //       enterKeyHint="send"
+          //     />
+          //     <button
+          //       onClick={() => {
+          //         if (!buttonsDisabled && typedAnswer.trim()) {
+          //           checkAnswer(typedAnswer.trim());
+          //         }
+          //       }}
+          //       className={`${sharedStyles.button} ${gameScreenStyles.submitButton}`}
+          //       disabled={buttonsDisabled || !typedAnswer.trim()}
+          //       type="button"
+          //     >
+          //       Submit
+          //     </button>
+          //   </div>
+          // ) : (
+            // Show flag images as buttons for multiple choice mode
+            <>
+              {flagOptions.map((flag, index) => (
+                <button
+                  key={`${flag.id}-${index}`}
+                  onClick={() => checkAnswer(flag.id)}
+                  className={`${sharedStyles.button} ${gameScreenStyles.flagGuessButton} ${gameScreenStyles.optionsTransition} ${buttonStyles[flag.id] || ''} ${optionsTransitioning ? sharedStyles.transitioning : ''}`}
+                  disabled={buttonsDisabled}
+                >
+                  {!imageCache.current.has(flag.image_url) && (
+                    <div className={gameScreenStyles.flagLoadingPlaceholder} />
+                  )}
+                  <img
+                    src={flag.image_url}
+                    alt={flag.name}
+                    onLoad={() => handleFlagLoad(flag.id)}
+                    onError={() => handleFlagError(flag.id, flag.name)}
+                    style={{
+                      opacity: imageCache.current.has(flag.image_url) ? 1 : 0,
+                      transition: 'opacity 0.3s ease-in-out',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0
+                    }}
+                  />
+                </button>
+              ))}
+            </>
+          // )
+        ) : gameType === "flag-to-map" ? (
+          // Show map outline buttons for flag-to-map mode
+          <>
+            {mapOutlineOptions && mapOutlineOptions.length > 0 ? (
+              mapOutlineOptions.map((flag, index) => {
+                const buttonStyle = buttonStyles[flag.id];
+                const isCorrect = buttonStyle === sharedStyles.correctButton;
+                const isIncorrect = buttonStyle === sharedStyles.incorrectButton;
+                return (
+                  <MapOutlineButton
+                    key={`${flag.id}-${index}`}
+                    flag={flag}
+                    onClick={checkAnswer}
+                    isCorrect={isCorrect}
+                    isIncorrect={isIncorrect}
+                    disabled={buttonsDisabled}
+                    outlineOnly={outlineOnly}
+                    allFlags={allFlagsWithOutlines}
+                    className={`${gameScreenStyles.optionsTransition} ${optionsTransitioning ? sharedStyles.transitioning : ''}`}
+                  />
+                );
+              })
+            ) : (
+              <div style={{ color: '#999', padding: '20px' }}>Loading map options...</div>
+            )}
+          </>
+        ) : (gameType === "flag-to-country" || regionalGameType === "flag-to-region") ? (
           // Check if typing mode is active
           (gameMode === "standard" && typingMode) || (gameMode === "regional" && regionalTypingMode) ? (
             // Show text input for typing mode

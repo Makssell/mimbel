@@ -3,5 +3,6 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/": "pages/index.js",
-  "/api/featured-regional-countries": "pages/api/featured-regional-countries.js"
+  "/api/featured-regional-countries": "pages/api/featured-regional-countries.js",
+  "/admin": "pages/admin.js"
 }

@@ -20,6 +20,8 @@ export const fetchGlobalFlags = async (continent = "world", includeTerritories =
         name,
         territory,
         image_url,
+        map_outline_match,
+        subregion,
         country_continent (continent_id)
       `);
 

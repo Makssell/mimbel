@@ -87,6 +87,7 @@ import {
 import {
   parseShareUrl
 } from "../utils/shareUtils";
+import { filterFlagsWithOutlines } from "../utils/mapUtils";
 
 const Site1 = () => {
   const [flags, setFlags] = useState([]);
@@ -118,6 +119,8 @@ const Site1 = () => {
   const [startScreenStep, setStartScreenStep] = useState(1);
   const [scoreAnimation, setScoreAnimation] = useState(false);
   const [flagOptions, setFlagOptions] = useState([]);
+  const [mapOutlineOptions, setMapOutlineOptions] = useState([]);
+  const [outlineOnly, setOutlineOnly] = useState(false); // Show only outline without continent context
   // Load minimized state from localStorage, default to false
   const [isMinimized, setIsMinimized] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -324,6 +327,13 @@ const Site1 = () => {
     }
   }, [showFloatingMenu]);
 
+  // Force enable outlines when flag-to-map mode is selected
+  useEffect(() => {
+    if (gameType === "flag-to-map") {
+      setOutlineOnly(true);
+    }
+  }, [gameType]);
+
   // Use imported audio functions
   const audioFunctions = createAudioFunctions(audioContextRef, audioEnabled);
   const {
@@ -436,7 +446,9 @@ const Site1 = () => {
     if (gameStarted && currentFlag && typingInputRef.current) {
       const isTypingMode = (gameMode === "standard" && typingMode) || 
                           (gameMode === "regional" && regionalTypingMode);
+      // TODO: Typing mode for map-to-flag (commented out for now)
       const isTypingGameType = (gameMode === "standard" && gameType === "flag-to-country") ||
+                               // (gameMode === "standard" && gameType === "map-to-flag") ||
                                (gameMode === "regional" && regionalGameType === "flag-to-region");
       
       if (isTypingMode && isTypingGameType && !buttonsDisabled) {
@@ -1006,6 +1018,7 @@ const Site1 = () => {
       setRegionalTypingMode,
       setSelectedRegionalCountry,
       setSelectedDivisionTypes,
+      setOutlineOnly,
       fetchGlobalFlags,
       fetchRegionalFlags,
       setFilteredFlags,
@@ -1103,6 +1116,7 @@ const Site1 = () => {
       setFlagLoadingTimeout,
       setOptions,
       setFlagOptions,
+      setMapOutlineOptions,
       setGameStats,
       setGameStateSnapshot,
       setEndState,
@@ -1784,6 +1798,7 @@ const Site1 = () => {
       currentFlag,
       options,
       flagOptions,
+      mapOutlineOptions,
       health,
       timeRemaining,
       timerStarted,
@@ -1857,7 +1872,8 @@ const Site1 = () => {
       // Restore current question
       setCurrentFlag(gameState.currentFlag);
       setOptions(gameState.options);
-      setFlagOptions(gameState.flagOptions);
+      setFlagOptions(gameState.flagOptions || []);
+      setMapOutlineOptions(gameState.mapOutlineOptions || []);
       
       // Update flagOptionsRef immediately
       if (gameState.flagOptions) {
@@ -2048,6 +2064,7 @@ const Site1 = () => {
           infiniteMode={infiniteMode}
           typingMode={typingMode}
           flashMode={flashMode}
+          outlineOnly={outlineOnly}
           regionalGameType={regionalGameType}
           regionalInfiniteMode={regionalInfiniteMode}
           regionalTypingMode={regionalTypingMode}
@@ -2069,6 +2086,7 @@ const Site1 = () => {
           setInfiniteMode={setInfiniteMode}
           setTypingMode={setTypingMode}
           setFlashMode={setFlashMode}
+          setOutlineOnly={setOutlineOnly}
           setRegionalGameType={setRegionalGameType}
           setRegionalInfiniteMode={setRegionalInfiniteMode}
           setRegionalTypingMode={setRegionalTypingMode}
@@ -2121,7 +2139,9 @@ const Site1 = () => {
           regionalFlashMode={regionalFlashMode}
           options={options}
           flagOptions={flagOptions}
+          mapOutlineOptions={mapOutlineOptions}
           optionsTransitioning={optionsTransitioning}
+          outlineOnly={outlineOnly}
           typedAnswer={typedAnswer}
           setTypedAnswer={setTypedAnswer}
           typingInputStyle={typingInputStyle}
@@ -2129,6 +2149,7 @@ const Site1 = () => {
           buttonStyles={buttonStyles}
           message={message}
           messageTransitioning={messageTransitioning}
+          allFlagsWithOutlines={filterFlagsWithOutlines(filteredFlags)}
           typingInputRef={typingInputRef}
           imageCache={imageCache}
           handleFlagLoad={handleFlagLoad}
@@ -2249,3 +2270,4 @@ const Site1 = () => {
 };
 
 export default Site1;
+

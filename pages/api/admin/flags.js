@@ -30,6 +30,9 @@ export default async function handler(req, res) {
             )
           `)
           .order('name');
+        
+        // Note: map_outline_match column should be added to flags table
+        // ALTER TABLE flags ADD COLUMN map_outline_match JSONB;
 
         if (error) throw error;
         res.status(200).json(data);
@@ -40,7 +43,7 @@ export default async function handler(req, res) {
 
     case 'POST':
       try {
-        const { name, territory, image_url, continent_id, fileName } = req.body;
+        const { name, territory, image_url, continent_id, fileName, subregion } = req.body;
 
         if (!name) {
           return res.status(400).json({ error: 'Country name is required' });
@@ -53,7 +56,8 @@ export default async function handler(req, res) {
             name,
             territory: territory || false,
             image_url: image_url || '',
-            fileName: fileName || null
+            fileName: fileName || null,
+            subregion: subregion || null
           })
           .select();
 
@@ -79,7 +83,7 @@ export default async function handler(req, res) {
 
     case 'PUT':
       try {
-        const { id, name, territory, image_url, continent_id, fileName } = req.body;
+        const { id, name, territory, image_url, continent_id, fileName, subregion } = req.body;
 
         if (!id || !name) {
           return res.status(400).json({ error: 'ID and country name are required' });
@@ -95,14 +99,21 @@ export default async function handler(req, res) {
         if (fetchError) throw fetchError;
 
         // Update the flag
+        const updateData = {
+          name,
+          territory: territory || false,
+          image_url: image_url || '',
+          fileName: fileName || null
+        };
+        
+        // Only update subregion if it's provided (can be empty string to clear)
+        if (subregion !== undefined) {
+          updateData.subregion = subregion || null;
+        }
+
         const { error: flagError } = await supabaseAdmin
           .from('flags')
-          .update({
-            name,
-            territory: territory || false,
-            image_url: image_url || '',
-            fileName: fileName || null
-          })
+          .update(updateData)
           .eq('id', id);
 
         if (flagError) throw flagError;

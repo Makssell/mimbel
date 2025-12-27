@@ -94,6 +94,7 @@ const HelpModal = ({ setShowModal }) => {
             </div>
             <div className={modalsStyles.helpItem}>
               <strong>Typing Mode:</strong> Available only in "Flag → Country" or "Flag → Region" game types. Instead of selecting from multiple choice options, type the country or region name directly. Answers are case-insensitive and spaces are ignored (e.g., "United States", "unitedstates", or "UNITED STATES" all work). Great for testing your spelling and recall!
+              {/* TODO: Typing mode for map-to-flag (commented out for now) - would be: Available in "Flag → Country", "Map → Flag", or "Flag → Region" game types */}
             </div>
           </div>
 

@@ -26,6 +26,7 @@ export const randomizeSettings = async (params) => {
     setRegionalTypingMode,
     setSelectedRegionalCountry,
     setSelectedDivisionTypes,
+    setOutlineOnly,
     // Functions
     fetchGlobalFlags,
     fetchRegionalFlags,
@@ -47,9 +48,18 @@ export const randomizeSettings = async (params) => {
 
   if (randomGameMode === "standard") {
     // Standard mode randomization
-    const gameTypes = ["flag-to-country", "country-to-flag"];
+    // Include all game types: flag-to-country, country-to-flag, map-to-flag, flag-to-map
+    const gameTypes = ["flag-to-country", "country-to-flag", "map-to-flag", "flag-to-map"];
     const randomGameType = gameTypes[Math.floor(Math.random() * gameTypes.length)];
     setGameType(randomGameType);
+
+    // For flag-to-map mode, force enable outlines
+    if (randomGameType === "flag-to-map" && setOutlineOnly) {
+      setOutlineOnly(true);
+    } else if (setOutlineOnly) {
+      // For other modes, reset to false (user can toggle manually)
+      setOutlineOnly(false);
+    }
 
     const continents = ["world", "1", "2", "3", "4", "5", "6"];
     const randomContinent = continents[Math.floor(Math.random() * continents.length)];
@@ -66,7 +76,9 @@ export const randomizeSettings = async (params) => {
     setInfiniteMode(timeAttack || Math.random() < 0.5);
     
     // Typing mode (only for flag-to-country)
+    // TODO: Typing mode for map-to-flag (commented out for now)
     if (randomGameType === "flag-to-country") {
+      // || randomGameType === "map-to-flag") {
       setTypingMode(Math.random() < 0.3);
     } else {
       setTypingMode(false);
