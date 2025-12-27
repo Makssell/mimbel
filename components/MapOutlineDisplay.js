@@ -26,11 +26,14 @@ export default function MapOutlineDisplay({
   const { geoData, matchedFeature, loading, error } = useMapOutline(flag);
   const [continentFeatures, setContinentFeatures] = useState([]);
   const [allRegionsForCountry, setAllRegionsForCountry] = useState([]);
+  const [loadingNearbyCountries, setLoadingNearbyCountries] = useState(false);
   
   // Use refs to track previous values and avoid unnecessary recalculations
   const prevFlagRef = useRef(null);
   const prevGeoDataRef = useRef(null);
   const loadingRegionsRef = useRef(false);
+  const prevMatchedFeatureRef = useRef(null);
+  const loadedFeatureIdRef = useRef(null); // Track which feature we've loaded nearby countries for
 
   // Memoize flag ID for comparison
   const flagId = useMemo(() => flag?.id || JSON.stringify(flag?.map_outline_match), [flag]);
@@ -140,23 +143,53 @@ export default function MapOutlineDisplay({
     return distance <= config.radiusDegrees || boxesOverlap;
   }, [getCachedBounds]);
 
-  // Create a cache key for nearby features based on matched feature and flags
-  const nearbyFeaturesCacheKey = useMemo(() => {
-    if (!matchedFeature || !geoData || !flagsWithOutlines.length) return null;
-    const featureId = matchedFeature.properties?.ISO_A3 || matchedFeature.properties?.NAME || '';
-    const flagsKey = flagsWithOutlines.map(f => f.id).sort().join(',');
-    return `${featureId}-${flagsKey.length}`;
-  }, [matchedFeature, geoData, flagsWithOutlines]);
+  // Track the current feature ID to detect actual flag changes
+  const currentFeatureId = useMemo(() => {
+    return matchedFeature?.properties?.ISO_A3 || matchedFeature?.properties?.NAME || null;
+  }, [matchedFeature]);
+
+  // Clear continent features immediately when flag changes to avoid showing wrong countries
+  useEffect(() => {
+    const prevFeatureId = prevMatchedFeatureRef.current;
+    
+    // If the matched feature changed, clear immediately
+    if (currentFeatureId !== prevFeatureId && currentFeatureId !== null) {
+      setContinentFeatures([]);
+      setLoadingNearbyCountries(false); // Reset loading state when flag changes
+      loadedFeatureIdRef.current = null; // Reset loaded feature tracking
+      prevMatchedFeatureRef.current = currentFeatureId;
+    }
+  }, [currentFeatureId]);
 
   // Load nearby country features when not in outlineOnly mode
+  // Only reload when the feature actually changes, not on other prop changes
   useEffect(() => {
     if (outlineOnly || !matchedFeature || !geoData || !flagsWithOutlines.length || !radiusConfig) {
-      setContinentFeatures([]);
+      if (!outlineOnly && matchedFeature) {
+        // Only clear if we're switching modes, not if we're just waiting for data
+        setContinentFeatures([]);
+      }
+      setLoadingNearbyCountries(false);
+      loadedFeatureIdRef.current = null; // Reset when conditions aren't met
       return;
     }
 
-    // Use a timeout to debounce rapid changes
+    // Check if we already have nearby features for this country
+    // Only reload if the feature actually changed
+    if (currentFeatureId === loadedFeatureIdRef.current) {
+      // Already loaded for this feature, don't reload
+      // Keep loading state as-is (don't reset it)
+      return;
+    }
+
+    // Use requestAnimationFrame to load in next frame (non-blocking but immediate)
+    let cancelled = false;
+    setLoadingNearbyCountries(true);
+    
+    // Use a very short timeout to batch rapid changes, but make it feel instant
     const timeoutId = setTimeout(async () => {
+      if (cancelled) return;
+      
       try {
         // Match flags to GeoJSON features and filter by radius
         const nearbyFeatures = [];
@@ -166,6 +199,8 @@ export default function MapOutlineDisplay({
         
         // First pass: match flags to features
         for (const flag of flagsWithOutlines) {
+          if (cancelled) return;
+          
           // Create cache key for flag-to-feature match
           const flagKey = `${flag.id}-${flag.map_outline_match}`;
           let feature = featureMatchCache.get(flagKey);
@@ -190,6 +225,8 @@ export default function MapOutlineDisplay({
         // Limit iteration to avoid blocking - only check first 1000 features if dataset is huge
         const maxFeaturesToCheck = Math.min(geoData.features.length, 1000);
         for (let i = 0; i < maxFeaturesToCheck; i++) {
+          if (cancelled) return;
+          
           const feature = geoData.features[i];
           if (!feature || !feature.properties) continue;
           
@@ -208,15 +245,33 @@ export default function MapOutlineDisplay({
           nearbyFeatures.push(matchedFeature);
         }
 
-        setContinentFeatures(nearbyFeatures);
+        if (!cancelled) {
+          setContinentFeatures(nearbyFeatures);
+          loadedFeatureIdRef.current = currentFeatureId; // Mark as loaded for this feature
+          // Clear loading state after a brief delay to ensure DOM update and smooth fade-in
+          // Use double requestAnimationFrame to ensure the new elements are rendered first
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              if (!cancelled) {
+                setLoadingNearbyCountries(false);
+              }
+            });
+          });
+        }
       } catch (err) {
-        console.error('Error loading nearby country features:', err);
-        setContinentFeatures([]);
+        if (!cancelled) {
+          console.error('Error loading nearby country features:', err);
+          setContinentFeatures([]);
+          setLoadingNearbyCountries(false);
+        }
       }
-    }, 100); // 100ms debounce
+    }, 16); // ~1 frame at 60fps - feels instant but allows batching
 
-    return () => clearTimeout(timeoutId);
-  }, [outlineOnly, matchedFeature, geoData, flagsWithOutlines, radiusConfig, isWithinRadius, nearbyFeaturesCacheKey]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [outlineOnly, currentFeatureId, geoData, flagsWithOutlines, radiusConfig, isWithinRadius]);
 
   // Memoize active country features - must be before early returns (Rules of Hooks)
   const activeCountryFeatures = useMemo(() => {
@@ -351,6 +406,10 @@ export default function MapOutlineDisplay({
       // Use feature identifier as key for better React reconciliation
       const featureKey = feature.properties?.ISO_A3 || feature.properties?.NAME || index;
 
+      // Selected countries always visible, nearby countries fade in smoothly
+      const isNearbyCountry = !isSelected && !(outlineOnly || viewMode === 'isolated');
+      const pathOpacity = isSelected ? 1 : (isNearbyCountry && loadingNearbyCountries ? 0 : 1);
+
       return (
         <path
           key={featureKey}
@@ -361,10 +420,15 @@ export default function MapOutlineDisplay({
           strokeWidth={strokeWidth}
           strokeLinejoin="round"
           strokeLinecap="round"
+          style={{
+            // Smooth fade-in for nearby countries only, selected country is always visible
+            opacity: pathOpacity,
+            transition: isNearbyCountry ? 'opacity 0.25s ease-in-out' : 'none'
+          }}
         />
       );
     });
-  }, [displayFeatures, viewBoxConfig, outlineOnly, viewMode, activeCountryIdentifiers]);
+  }, [displayFeatures, viewBoxConfig, outlineOnly, viewMode, activeCountryIdentifiers, loadingNearbyCountries]);
 
   // Early returns AFTER all hooks (Rules of Hooks)
   if (loading) {
