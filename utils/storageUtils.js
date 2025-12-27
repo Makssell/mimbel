@@ -224,6 +224,7 @@ export const saveActiveGame = (
         regionalTypingMode: gameState.regionalTypingMode,
         flashMode: gameState.flashMode,
         regionalFlashMode: gameState.regionalFlashMode,
+        outlineOnly: gameState.outlineOnly,
         regionalFlags: gameState.regionalFlags,
         filteredFlags: gameState.filteredFlags,
         usedFlags: gameState.usedFlags,

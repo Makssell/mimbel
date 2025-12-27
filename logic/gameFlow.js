@@ -193,6 +193,7 @@ export const endTimeAttackGame = (params) => {
     regionalTypingMode,
     flashMode,
     regionalFlashMode,
+    outlineOnly,
     regionalFlags,
     filteredFlags,
     usedFlags,
@@ -256,6 +257,7 @@ export const endTimeAttackGame = (params) => {
       regionalTypingMode: regionalTypingMode,
       flashMode: flashMode,
       regionalFlashMode: regionalFlashMode,
+      outlineOnly: outlineOnly,
       regionalFlags: regionalFlags,
       filteredFlags: filteredFlags,
       usedFlags: usedFlags // Include usedFlags in the snapshot
@@ -323,6 +325,9 @@ export const endInfiniteMode = (params) => {
     infiniteMode,
     typingMode,
     regionalTypingMode,
+    flashMode,
+    regionalFlashMode,
+    outlineOnly,
     regionalFlags,
     filteredFlags,
     usedFlags,
@@ -696,6 +701,7 @@ export const loadNextQuestion = async (params, currentScore = null, resetUsedFla
       regionalTypingMode: regionalTypingMode,
       flashMode: flashMode,
       regionalFlashMode: regionalFlashMode,
+      outlineOnly: outlineOnly,
       regionalFlags: regionalFlags,
       filteredFlags: filteredFlags,
       usedFlags: usedFlags // Include usedFlags in the snapshot

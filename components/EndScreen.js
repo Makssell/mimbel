@@ -186,6 +186,8 @@ export default function EndScreen({
                 {gameStats.gameSettings?.gameType || 
                  (gameStats.gameType === "flag-to-country" ? "Flag → Country" : 
                   gameStats.gameType === "country-to-flag" ? "Country → Flag" :
+                  gameStats.gameType === "map-to-flag" ? "Map → Flag" :
+                  gameStats.gameType === "flag-to-map" ? "Flag → Map" :
                   gameStats.gameType === "flag-to-region" ? "Flag → Region" :
                   gameStats.gameType === "region-to-flag" ? "Region → Flag" : "Unknown")}
               </span>
@@ -206,7 +208,7 @@ export default function EndScreen({
                 </span>
               </div>
             )}
-            {gameStats.gameSettings?.territories && (
+            {gameStats.gameSettings?.territories === "Included" && (
               <div className={endScreenStyles.settingItem}>
                 <span className={endScreenStyles.endScreenSettingLabel}>Territories:</span>
                 <span className={endScreenStyles.endScreenSettingValue}>
@@ -236,6 +238,39 @@ export default function EndScreen({
                 </span>
               </div>
             )}
+            {(() => {
+              // Show outlineOnly for map-to-flag and flag-to-map game types when enabled
+              const currentGameType = gameStats.gameSettings?.gameType || 
+                (gameStats.gameType === "flag-to-country" ? "Flag → Country" : 
+                 gameStats.gameType === "country-to-flag" ? "Country → Flag" :
+                 gameStats.gameType === "map-to-flag" ? "Map → Flag" :
+                 gameStats.gameType === "flag-to-map" ? "Flag → Map" :
+                 gameStats.gameType === "flag-to-region" ? "Flag → Region" :
+                 gameStats.gameType === "region-to-flag" ? "Region → Flag" : "Unknown");
+              const isMapGameType = currentGameType === "Map → Flag" || currentGameType === "Flag → Map";
+              
+              // Check outlineOnly value from gameSettings first, then fallback to gameStateSnapshot
+              const outlineOnlyFromSettings = gameStats.gameSettings?.outlineOnly;
+              const outlineOnlyFromSnapshot = gameStateSnapshot?.outlineOnly;
+              const outlineOnlyValue = outlineOnlyFromSettings !== undefined ? outlineOnlyFromSettings : outlineOnlyFromSnapshot;
+              
+              // flag-to-map always has outlineOnly enabled
+              const isFlagToMap = currentGameType === "Flag → Map";
+              const outlineOnlyEnabled = isFlagToMap || 
+                                        outlineOnlyValue === true || 
+                                        outlineOnlyValue === "true" ||
+                                        outlineOnlyValue === 1 ||
+                                        Boolean(outlineOnlyValue);
+              
+              return isMapGameType && outlineOnlyEnabled ? (
+                <div className={endScreenStyles.settingItem}>
+                  <span className={endScreenStyles.endScreenSettingLabel}>Outline Only:</span>
+                  <span className={endScreenStyles.endScreenSettingValue}>
+                    Enabled
+                  </span>
+                </div>
+              ) : null;
+            })()}
           </div>
         </div>
 

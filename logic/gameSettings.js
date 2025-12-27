@@ -34,7 +34,8 @@ export const buildGameSettings = (state) => {
     divisionTypes: isRegionalMode && state.selectedDivisionTypes.length > 0 ? state.selectedDivisionTypes : null,
     mode: state.timeAttackMode ? "Time Attack" : (isRegionalMode ? state.regionalInfiniteMode : state.infiniteMode) ? "Infinite" : "Standard",
     typingMode: isRegionalMode ? state.regionalTypingMode : state.typingMode,
-    flashMode: isRegionalMode ? state.regionalFlashMode : state.flashMode
+    flashMode: isRegionalMode ? state.regionalFlashMode : state.flashMode,
+    outlineOnly: state.outlineOnly || false
   };
 };
 
@@ -69,7 +70,8 @@ export const buildGameSettingsFromSnapshot = (gameState) => {
     divisionTypes: isRegionalMode && gameState.selectedDivisionTypes && gameState.selectedDivisionTypes.length > 0 ? gameState.selectedDivisionTypes : null,
     mode: gameState.timeAttackMode ? "Time Attack" : (isRegionalMode ? gameState.regionalInfiniteMode : gameState.infiniteMode) ? "Infinite" : "Standard",
     typingMode: isRegionalMode ? (gameState.regionalTypingMode || false) : (gameState.typingMode || false),
-    flashMode: isRegionalMode ? (gameState.regionalFlashMode || false) : (gameState.flashMode || false)
+    flashMode: isRegionalMode ? (gameState.regionalFlashMode || false) : (gameState.flashMode || false),
+    outlineOnly: gameState.outlineOnly || false
   };
 };
 

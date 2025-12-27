@@ -72,6 +72,9 @@ const GamesModal = ({
                 {activeGame.gameStats.gameSettings.flashMode && (
                   <span>, Flash</span>
                 )}
+                {activeGame.gameStats.gameSettings.outlineOnly && (
+                  <span>, Outline Only</span>
+                )}
               </div>
               <div className={modalsStyles.activeGameType}>
                 {activeGame.gameStats.gameSettings.gameType}
@@ -181,6 +184,9 @@ const GamesModal = ({
                         {game.gameStats.gameSettings.flashMode && (
                           <span>, Flash</span>
                         )}
+                        {game.gameStats.gameSettings.outlineOnly && (
+                          <span>, Outline Only</span>
+                        )}
                       </div>
                       <div className={modalsStyles.gameHistoryType}>
                         {game.gameStats.gameSettings.gameType}
@@ -278,6 +284,9 @@ const GamesModal = ({
                     )}
                     {bestScore.gameSettings.flashMode && (
                       <span>, Flash</span>
+                    )}
+                    {bestScore.gameSettings.outlineOnly && (
+                      <span>, Outline Only</span>
                     )}
                     <span className={modalsStyles.bestScoreBadge}>🏆</span>
                   </div>

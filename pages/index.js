@@ -885,6 +885,7 @@ const Site1 = () => {
       regionalTypingMode,
       flashMode,
       regionalFlashMode,
+      outlineOnly,
       regionalFlags,
       filteredFlags,
       usedFlags,
@@ -942,6 +943,7 @@ const Site1 = () => {
       regionalTypingMode,
       flashMode,
       regionalFlashMode,
+      outlineOnly,
       regionalFlags,
       filteredFlags,
       usedFlags,
@@ -1215,6 +1217,7 @@ const Site1 = () => {
       regionalTypingMode,
       flashMode,
       regionalFlashMode,
+      outlineOnly,
       gameStartTime,
       totalAttempts,
       gameMode,
@@ -1297,7 +1300,8 @@ const Site1 = () => {
       typingMode,
       regionalTypingMode,
       flashMode,
-      regionalFlashMode
+      regionalFlashMode,
+      outlineOnly
     });
   };
 
@@ -1792,6 +1796,7 @@ const Site1 = () => {
       regionalTypingMode,
       flashMode,
       regionalFlashMode,
+      outlineOnly,
       regionalFlags,
       filteredFlags,
       usedFlags,
